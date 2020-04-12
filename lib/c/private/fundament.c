@@ -282,6 +282,13 @@ bool fn_window_open(struct fn_window window) {
 	return fn_imp_check_window(window);
 }
 
+fn_native_window_handle_t fn_window_handle(struct fn_window window) {
+	if(!fn_imp_check_window(window))
+		return g_imp_null_window;
+
+	return g_imp_window_context.windows[window.id].handle;
+}
+
 bool fn_key_pressed(enum fn_key key) {
 	return g_imp_window_context.key_state[key];
 }

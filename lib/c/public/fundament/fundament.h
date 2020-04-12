@@ -120,6 +120,11 @@ bool fn_window_open(struct fn_window window);
 #endif
 
 /**
+ * @brief Returns the native handle of a window.
+ */
+fn_native_window_handle_t fn_window_handle(struct fn_window window);
+
+/**
  * @enum Enumerates physical key codes.
  */
 enum fn_key {
