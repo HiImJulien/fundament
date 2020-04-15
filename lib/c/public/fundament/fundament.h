@@ -115,6 +115,11 @@ bool fn_window_open(struct fn_window window);
 
 #if defined(_WIN32)
 	typedef struct HWND__* fn_native_window_handle_t;
+#elif defined(__APPLE__) && defined(__OBJC__)
+	@class NSWindow;
+	typedef NSWindow* fn_native_window_handle_t;
+#elif defined(__APPLE__) && !defined(__OBJC__)
+	typedef void* fn_native_window_handle_t;
 #else
 	#error "Attempting to build for unknown target!"
 #endif

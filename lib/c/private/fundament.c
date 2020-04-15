@@ -735,3 +735,181 @@ void fn_imp_pump_events() {
 }
 
 #endif // _WIN32
+
+//------------------------------------------------------------------------------
+// The following section implements "platform specific" functions declared
+// at the top of the file using AppKit API.
+//------------------------------------------------------------------------------
+
+#if defined(__APPLE__)
+
+#import <AppKit/AppKit.h>
+
+static bool g_imp_setup_process = false;
+
+@interface fn_imp_window_delegate: NSObject<NSWindowDelegate>
+@property (nonatomic, assign) uint8_t window_id;
+-(id) initWithWindowId: (uint8_t) id;
+@end
+
+@implementation fn_imp_window_delegate
+
+- (id) initWithWindowId: (uint8_t) id {
+	self = [super init];
+	self.window_id = id;
+	return self;
+}
+
+- (void) windowWillClose: (NSNotification*) notification {
+	struct fn_event ev = {0};
+	ev.type = fn_event_type_window_closed;
+	ev.window.id = self.window_id;
+	fn_imp_push_event(&ev);
+	fn_window_destroy((struct fn_window) { .id = self.window_id} );
+}
+
+- (void) windowDidResize: (NSNotification*) notification {
+	struct fn_event ev = {0};
+	ev.type = fn_event_type_window_resized;
+	ev.window.id = self.window_id;
+
+	NSWindow* wind = [notification object];
+	NSSize client_area = [[wind contentView] frame].size;
+	ev.width = client_area.width;
+	ev.height = client_area.height;
+	fn_imp_push_event(&ev);
+
+	struct fn_imp_window* window = 
+		&g_imp_window_context.windows[self.window_id];
+
+	window->width = client_area.width;
+	window->height = client_area.height;
+}
+
+- (void) windowDidMove: (NSNotification*) notification {
+	struct fn_event ev = {0};
+	ev.type = fn_event_type_window_moved;
+	ev.window.id = self.window_id;
+
+	NSWindow* wind = [notification object];
+	NSPoint client_pos = [[wind contentView] frame].origin;
+	client_pos = [wind convertRectToScreen: (NSRect) {.origin = client_pos}]
+		.origin;
+
+	ev.x = client_pos.x;
+	ev.y = client_pos.y;
+
+	struct fn_imp_window* window =
+		&g_imp_window_context.windows[self.window_id];
+
+	window->x = client_pos.x;
+	window->y = client_pos.y;
+}
+
+- (void) windowDidBecomeKey: (NSNotification*) notification {
+	struct fn_event ev = {0};
+	ev.type = fn_event_type_window_focused;
+	ev.window.id = self.window_id;
+
+	fn_imp_push_event(&ev);
+
+	struct fn_imp_window* window = 
+		&g_imp_window_context.windows[self.window_id];
+
+	window->focused = true;
+}
+
+- (void) windowDidResignKey: (NSNotification*) notification {
+	struct fn_event ev = {0};
+	ev.type = fn_event_type_window_unfocused;
+	ev.window.id = self.window_id;
+
+	fn_imp_push_event(&ev);
+
+	struct fn_imp_window* window = 
+		&g_imp_window_context.windows[self.window_id];
+
+	window->focused = false;
+}
+
+@end
+
+bool fn_imp_init() {
+	if(!g_imp_setup_process) {
+		[NSApplication sharedApplication];
+
+		[NSApp setActivationPolicy: NSApplicationActivationPolicyRegular];
+		[NSApp activateIgnoringOtherApps: YES];
+		[NSApp finishLaunching];
+
+		g_imp_setup_process = true;
+	}
+
+	return true;
+}
+
+void fn_imp_quit()
+{}
+
+fn_native_window_handle_t fn_imp_window_create(uint8_t id) {
+	NSRect frame = NSMakeRect(0, 0, 1, 1);
+	const NSUInteger styleMask =
+		NSWindowStyleMaskTitled
+		| NSWindowStyleMaskClosable
+		| NSWindowStyleMaskResizable;	
+
+	fn_native_window_handle_t handle = [NSWindow alloc];
+	[handle initWithContentRect: frame
+					  styleMask: styleMask
+					    backing: NSBackingStoreBuffered
+					      defer: NO];
+
+	fn_imp_window_delegate* delegate = [[fn_imp_window_delegate alloc]
+		initWithWindowId: id];
+
+	[handle setDelegate: delegate];
+
+	return handle;
+}
+
+void fn_imp_window_destroy(fn_native_window_handle_t handle) {
+	[handle release];
+}
+
+void fn_imp_window_set_size(fn_native_window_handle_t handle, uint32_t width,
+	uint32_t height) {
+
+	NSRect frame = NSMakeRect(0, 0, width, height);
+	frame = [NSWindow frameRectForContentRect: frame
+									styleMask: handle.styleMask];
+
+	[handle setFrame: frame
+			 display: YES];
+}
+
+void fn_imp_window_set_title(fn_native_window_handle_t handle, 
+	const char* title) {
+	NSString* str = [NSString stringWithUTF8String: title];
+	[handle setTitle: str];
+}
+
+void fn_imp_window_set_visibility(fn_native_window_handle_t handle, bool visible) {
+	if(visible) 
+		[handle orderFront: nil];
+	else
+		[handle orderOut: nil];
+}
+
+void fn_imp_pump_events() {
+	NSEvent* ev = nil;
+
+	while((ev = [NSApp nextEventMatchingMask: NSEventMaskAny
+								   untilDate: nil
+								  	  inMode: NSDefaultRunLoopMode
+								  	 dequeue: YES])) {
+		[NSApp sendEvent: ev];
+	}
+
+}
+
+#endif // __APPLE__

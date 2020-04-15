@@ -32,6 +32,21 @@ if(WIN32)
 	)
 endif()
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	enable_language(OBJC)
+	set_source_files_properties(
+		"${CMAKE_CURRENT_SOURCE_DIR}/lib/c/private/fundament.c"
+		PROPERTIES
+		LANGUAGE OBJC
+	)
+
+	target_link_libraries(
+		fundament
+		PUBLIC
+		"-framework AppKit"
+	)
+endif()
+
 add_executable(
 	fundament_simple_window
 	"${CMAKE_CURRENT_SOURCE_DIR}/examples/c/simple_window.c"	
