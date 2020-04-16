@@ -44,6 +44,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		fundament
 		PUBLIC
 		"-framework AppKit"
+		"-framework IOKit"
+		"-framework CoreFoundation"
 	)
 endif()
 

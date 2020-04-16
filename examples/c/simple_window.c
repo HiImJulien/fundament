@@ -22,6 +22,9 @@ int main() {
 		if(ev.type == fn_event_type_key_pressed && ev.key == fn_key_enter)
 			printf("Pressed Enter.\n");
 
+		if(ev.type == fn_event_type_key_pressed && ev.key == fn_key_caps)
+			printf("Pressed caps.\n");
+
 		if(ev.type == fn_event_type_button_pressed 
 			&& ev.mouse.button & fn_button_left)
 			printf("Pressed left mouse button.\n");
@@ -31,6 +34,9 @@ int main() {
 			printf("Released left mouse button.\n");
 
 		fn_poll_event(&ev);
+
+		if(ev.type == fn_event_type_window_closed)
+			printf("Closed window.\n");
 	}
 
 	fn_window_destroy(win);

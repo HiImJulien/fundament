@@ -744,8 +744,109 @@ void fn_imp_pump_events() {
 #if defined(__APPLE__)
 
 #import <AppKit/AppKit.h>
+#import <IOKit/hid/IOHIDDevice.h>
+#import <IOKit/hid/IOHIDManager.h>
 
 static bool g_imp_setup_process = false;
+static IOHIDManagerRef g_imp_hid_manager = NULL;
+static IOHIDDeviceRef g_imp_kbd = NULL;
+
+static CFMutableDictionaryRef fn_imp_create_usage_dictionary(
+	uint32_t usage_page, uint32_t usage) {
+
+	CFMutableDictionaryRef dict = CFDictionaryCreateMutable(
+		kCFAllocatorDefault,
+		0,
+		&kCFCopyStringDictionaryKeyCallBacks, 
+		&kCFTypeDictionaryValueCallBacks
+	);
+
+	CFNumberRef val = CFNumberCreate(
+		kCFAllocatorDefault,
+		kCFNumberIntType,
+		&usage_page
+	);
+
+	CFDictionarySetValue(
+		dict,
+		CFSTR(kIOHIDDeviceUsagePageKey),
+		val
+	);
+
+	CFRelease(val);
+
+	val = CFNumberCreate(
+		kCFAllocatorDefault,
+		kCFNumberIntType,
+		&usage
+	);
+
+	CFDictionarySetValue(
+		dict,
+		CFSTR(kIOHIDDeviceUsageKey),
+		val
+	);
+
+	CFRelease(val);
+
+	return dict;
+}
+
+static enum fn_key fn_imp_scan_code_to_key(uint32_t scan_code) {
+	// Constants defined by fn_key mostly correspond
+	// to the HID input codes.
+	// https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
+	// P. 53 - 55
+	if(scan_code >= 0x04 && scan_code <= 0x31)
+		return (enum fn_key) scan_code - 0x04;
+
+	// 0x05 because skipping the "Non US"-Key,
+	// whatever it is.
+	if(scan_code >= 0x33 && scan_code <= 0x49)
+		return (enum fn_key) scan_code - 0x05;
+
+	switch(scan_code) {
+		case 0x4B: return fn_key_page_up;
+		case 0x4C: return fn_key_del;
+		case 0x4D: return fn_key_end;
+		case 0x4E: return fn_key_page_down;
+		case 0x4F: return fn_key_right;
+		case 0x50: return fn_key_left;
+		case 0x51: return fn_key_up;
+		case 0x52: return fn_key_down;
+		case 0xE0: return fn_key_lctrl;
+		case 0xE1: return fn_key_lshift;
+		case 0xE2: return fn_key_lalt;
+		case 0xE3: return fn_key_lsys;
+		case 0xE4: return fn_key_rctrl;
+		case 0xE5: return fn_key_rshift;
+		case 0xE6: return fn_key_ralt;
+		case 0xE7: return fn_key_rsys;
+		default:   return fn_key_unknown;
+	}
+}
+
+static void fn_imp_kb_cb(
+	void* ctx, 
+	IOReturn res, 
+	void* sender, 
+	IOHIDValueRef value) {
+	IOHIDElementRef element = IOHIDValueGetElement(value);
+	if(IOHIDElementGetUsagePage(element) != 0x07)
+		return;
+
+	uint32_t scan_code = IOHIDElementGetUsage(element);
+	if(scan_code < 4 || scan_code > 231)
+		return;
+
+	bool pressed = IOHIDValueGetIntegerValue(value);
+
+	struct fn_event ev = {0};
+	ev.type = pressed ? fn_event_type_key_pressed : fn_event_type_key_released;
+	ev.key = fn_imp_scan_code_to_key(scan_code);
+
+	fn_imp_push_event(&ev);
+}
 
 @interface fn_imp_window_delegate: NSObject<NSWindowDelegate>
 @property (nonatomic, assign) uint8_t window_id;
@@ -845,6 +946,43 @@ bool fn_imp_init() {
 		g_imp_setup_process = true;
 	}
 
+	g_imp_hid_manager = IOHIDManagerCreate(
+		kCFAllocatorDefault,
+		kIOHIDOptionsTypeNone
+	);
+
+	CFMutableDictionaryRef usage = fn_imp_create_usage_dictionary(
+		kHIDPage_GenericDesktop,
+		kHIDUsage_GD_Keyboard
+	);
+
+	IOHIDManagerSetDeviceMatching(
+		g_imp_hid_manager,
+		usage
+	);
+
+	IOHIDManagerRegisterInputValueCallback(
+		g_imp_hid_manager,
+		fn_imp_kb_cb,
+		NULL
+	);
+
+	IOReturn val = IOHIDManagerOpen(
+		g_imp_hid_manager,
+		kIOHIDOptionsTypeNone
+	);
+
+	if(val != kIOReturnSuccess) {
+		printf("Failed to open HIDManager.\n");
+		return false;
+	}
+
+	IOHIDManagerScheduleWithRunLoop(
+		g_imp_hid_manager,
+		CFRunLoopGetCurrent(),
+		kCFRunLoopDefaultMode
+	);
+
 	return true;
 }
 
@@ -909,7 +1047,6 @@ void fn_imp_pump_events() {
 								  	 dequeue: YES])) {
 		[NSApp sendEvent: ev];
 	}
-
 }
 
 #endif // __APPLE__
