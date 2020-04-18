@@ -42,6 +42,38 @@ struct fn_gfx_swap_chain fn_gfx_create_swap_chain(
 	const struct fn_gfx_swap_chain_desc* desc);
 
 /**
+ * @brief Represents a handle to a shader.
+ */
+struct fn_gfx_shader { uint8_t id; };
+
+/**
+ * @brief Enumerates all supported shader types.
+ */
+enum fn_gfx_shader_type {
+	fn_gfx_shader_type_vertex,
+	fn_gfx_shader_type_hull,
+	fn_gfx_shader_type_domain,
+	fn_gfx_shader_type_geometry,
+	fn_gfx_shader_type_pixel,
+	fn_gfx_shader_type_compute
+};
+
+/**
+ * @struct Stores the configuration data used
+ * to create a shader.
+ */
+struct fn_gfx_shader_desc {
+	enum fn_gfx_shader_type type;	//!< Stores the type of shader.
+	uint8_t* byte_code;				//!< Stores a pointer to the shader byte code.
+	size_t byte_code_size;			//!< Stores the size of the shader byte code.
+};
+
+/**
+ * @brief Creates a new shader.
+ */
+struct fn_gfx_shader fn_gfx_create_shader(struct fn_gfx_shader_desc* desc);
+
+/**
  * @brief Presents the current contents of the swap chain's
  * back buffer on the window the swap chain's bound to. 
  */

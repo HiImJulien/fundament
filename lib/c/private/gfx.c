@@ -165,6 +165,10 @@ struct fn_gfx_swap_chain fn_gfx_create_swap_chain(
 	return (struct fn_gfx_swap_chain) { id };
 }
 
+struct fn_gfx_shader fn_gfx_create_shader(struct fn_gfx_shader_desc* desc) {
+	return (struct fn_gfx_shader) { 255 };
+}
+
 void fn_gfx_swap_chain_present(struct fn_gfx_swap_chain sc) {
 	if(sc.id == 255)
 		return;
