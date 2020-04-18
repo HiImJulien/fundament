@@ -752,8 +752,11 @@ static IOHIDManagerRef g_imp_hid_manager = NULL;
 static IOHIDDeviceRef g_imp_kbd = NULL;
 
 static CFMutableDictionaryRef fn_imp_create_usage_dictionary(
-	uint32_t usage_page, uint32_t usage) {
-
+	uint32_t usage_page, 
+	uint32_t usage,
+	bool use_filter,
+	uint32_t min,
+	uint32_t max) {
 	CFMutableDictionaryRef dict = CFDictionaryCreateMutable(
 		kCFAllocatorDefault,
 		0,
@@ -784,6 +787,37 @@ static CFMutableDictionaryRef fn_imp_create_usage_dictionary(
 	CFDictionarySetValue(
 		dict,
 		CFSTR(kIOHIDDeviceUsageKey),
+		val
+	);
+
+	CFRelease(val);
+
+	if(!use_filter)
+		return dict;
+
+	val = CFNumberCreate(
+		kCFAllocatorDefault,
+		kCFNumberIntType,
+		&min
+	);
+
+	CFDictionarySetValue(
+		dict,
+		CFSTR(kIOHIDElementUsageMinKey),
+		val
+	);
+
+	CFRelease(val);
+
+	val = CFNumberCreate(
+		kCFAllocatorDefault,
+		kCFNumberIntType,
+		&max
+	);
+
+	CFDictionarySetValue(
+		dict,
+		CFSTR(kIOHIDElementUsageMaxKey),
 		val
 	);
 
@@ -835,7 +869,7 @@ static void fn_imp_kb_cb(
 	if(IOHIDElementGetUsagePage(element) != 0x07)
 		return;
 
-	uint32_t scan_code = IOHIDElementGetUsage(element);
+	const uint32_t scan_code = IOHIDElementGetUsage(element);
 	if(scan_code < 4 || scan_code > 231)
 		return;
 
@@ -845,7 +879,89 @@ static void fn_imp_kb_cb(
 	ev.type = pressed ? fn_event_type_key_pressed : fn_event_type_key_released;
 	ev.key = fn_imp_scan_code_to_key(scan_code);
 
+	g_imp_window_context.key_state[ev.key] = pressed;
+
 	fn_imp_push_event(&ev);
+}
+
+static void fn_imp_mb_cb(
+	void* ctx,
+	IOReturn res,
+	void* sender,
+	IOHIDValueRef value) {
+	IOHIDElementRef element = IOHIDValueGetElement(value);
+	IOHIDDeviceRef device = IOHIDElementGetDevice(element);
+
+	const uint32_t usage_page = IOHIDElementGetUsagePage(element);
+	const uint32_t usage = IOHIDElementGetUsage(element);
+	const CFIndex val = IOHIDValueGetIntegerValue(value);
+
+	struct fn_event ev = {0};
+
+	if(usage == kHIDUsage_GD_X || usage == kHIDUsage_GD_Y) {
+		ev.type = fn_event_type_mouse_moved;
+
+		if(usage == kHIDUsage_GD_X) ev.mouse.dx = val;
+		else ev.mouse.dy = val;
+
+		fn_imp_push_event(&ev);
+		return;
+	}
+}
+
+static void fn_imp_io_cb(
+	void* ctx, 
+	IOReturn res, 
+	void* sender, 
+	IOHIDValueRef value) {
+	IOHIDElementRef element = IOHIDValueGetElement(value);
+	
+	uint32_t us_page = IOHIDElementGetUsagePage(element);
+	uint32_t page = IOHIDElementGetUsage(element);
+
+	if(IOHIDElementGetUsagePage(element) == kHIDPage_KeyboardOrKeypad)
+		fn_imp_kb_cb(ctx, res, sender, value);
+	else
+		fn_imp_mb_cb(ctx, res, sender, value);
+}
+
+static void fn_imp_mb_click_cb(NSEvent* ev) {
+	if(!ev)
+		return;
+
+	struct fn_event fev = {0};
+
+	switch(ev.type) {
+		case NSEventTypeLeftMouseDown:
+			fev.type = fn_event_type_button_pressed;
+			fev.mouse.button = (g_imp_window_context.button_state 
+				|= fn_button_left);
+			fn_imp_push_event(&fev);
+			return;
+
+		case NSEventTypeRightMouseDown:
+			fev.type = fn_event_type_button_pressed;
+			fev.mouse.button = (g_imp_window_context.button_state
+				|= fn_button_right);
+			fn_imp_push_event(&fev);
+			return;
+
+		case NSEventTypeLeftMouseUp:
+			fev.type = fn_event_type_button_released;
+			fev.mouse.button = fn_button_left;
+			g_imp_window_context.button_state &= ~fn_button_left;
+			fn_imp_push_event(&fev);
+			return;
+
+		case NSEventTypeRightMouseUp:
+			fev.type = fn_event_type_button_released;
+			fev.mouse.button = fn_button_right;
+			g_imp_window_context.button_state &= ~fn_button_right;
+			fn_imp_push_event(&fev);
+			return;
+
+		default: return;
+	}
 }
 
 @interface fn_imp_window_delegate: NSObject<NSWindowDelegate>
@@ -951,19 +1067,51 @@ bool fn_imp_init() {
 		kIOHIDOptionsTypeNone
 	);
 
-	CFMutableDictionaryRef usage = fn_imp_create_usage_dictionary(
+	CFMutableDictionaryRef kbd_usage = fn_imp_create_usage_dictionary(
 		kHIDPage_GenericDesktop,
-		kHIDUsage_GD_Keyboard
+		kHIDUsage_GD_Keyboard,
+		false,
+		4,
+		231
 	);
 
-	IOHIDManagerSetDeviceMatching(
+	CFMutableDictionaryRef mb_usage = fn_imp_create_usage_dictionary(
+		kHIDPage_GenericDesktop,
+		kHIDUsage_GD_Mouse,
+		false,
+		0, 
+		0
+	);
+
+	CFMutableDictionaryRef ptr_usage = fn_imp_create_usage_dictionary(
+		kHIDPage_GenericDesktop,
+		kHIDUsage_GD_Pointer,
+		false,
+		0, 
+		0
+	);
+
+	CFMutableDictionaryRef temp[] = {
+		kbd_usage,
+		mb_usage,
+		ptr_usage,
+	};
+
+	CFArrayRef usage = CFArrayCreate(
+		kCFAllocatorDefault,
+		(const void**) &temp,
+		3,
+		&kCFTypeArrayCallBacks
+	);
+
+	IOHIDManagerSetDeviceMatchingMultiple(
 		g_imp_hid_manager,
 		usage
 	);
 
 	IOHIDManagerRegisterInputValueCallback(
 		g_imp_hid_manager,
-		fn_imp_kb_cb,
+		fn_imp_io_cb,
 		NULL
 	);
 
@@ -1045,6 +1193,7 @@ void fn_imp_pump_events() {
 								   untilDate: nil
 								  	  inMode: NSDefaultRunLoopMode
 								  	 dequeue: YES])) {
+		fn_imp_mb_click_cb(ev);
 		[NSApp sendEvent: ev];
 	}
 }

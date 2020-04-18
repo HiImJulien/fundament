@@ -29,9 +29,17 @@ int main() {
 			&& ev.mouse.button & fn_button_left)
 			printf("Pressed left mouse button.\n");
 
+		if(ev.type == fn_event_type_button_pressed
+			&& (ev.mouse.button & fn_button_right) != 0)
+			printf("Pressed right mouse button.\n");
+
 		if(ev.type == fn_event_type_button_released
-			&& ev.mouse.button & fn_button_left)
+			&& (ev.mouse.button & fn_button_left) != 0)
 			printf("Released left mouse button.\n");
+
+		if(ev.type == fn_event_type_button_released
+			&& ev.mouse.button & fn_button_right)
+			printf("Released right mouse button.\n");
 
 		fn_poll_event(&ev);
 
