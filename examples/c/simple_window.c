@@ -67,6 +67,7 @@ int main() {
 	struct fn_gfx_buffer vbuffer = fn_gfx_create_buffer(&(struct fn_gfx_buffer_desc) {
 		.capacity = sizeof(float) * 9,
 		.type = fn_gfx_buffer_type_vertex,
+		.usage = fn_gfx_buffer_usage_dynamic,
 		.stride = sizeof(float)
 	});
 
@@ -86,6 +87,7 @@ int main() {
 			.buffers = 1,
 			.width = 300,
 			.height = 300,
+			.format = fn_gfx_data_format_r8g8b8a8_unorm,
 			.window = fn_window_handle(win),
 			.label = "swap_chain"
 	});
@@ -102,6 +104,7 @@ int main() {
 			.topology = fn_gfx_primitive_topology_type_triangle_strip,
 			.layout.elements[0] = {
 				.stride = sizeof(float) * 3,
+				.format = fn_gfx_data_format_r32g32b32_float,
 				.step = fn_gfx_input_element_step_vertex
 			},
 			.layout.bindings[0] = {
@@ -120,6 +123,7 @@ int main() {
 	
 	fn_gfx_apply_bindings( (struct fn_gfx_buffer_binding) {
 		.buffers[0] = vbuffer,
+		.strides[0] = sizeof(float) * 3,
 		.buffer_count = 1
 	});
 

@@ -32,6 +32,7 @@ if(WIN32)
 		user32.lib
 		d3d11.lib
 		dxguid.lib
+		d3dcompiler.lib
 	)
 endif()
 
@@ -61,35 +62,4 @@ target_link_libraries(
 	fundament_simple_window
 	PRIVATE
 	fundament
-)
-
-target_compile_options(
-	fundament
-	PUBLIC
-	/Zi
-	/MD
-)
-
-target_link_options(
-	fundament
-	PUBLIC
-	/DEBUG
-	/OPT:REF
-	/OPT:ICF
-)
-
-target_compile_options(
-	fundament_simple_window
-	PUBLIC
-	/Zi
-	/DEBUG
-	/MD
-)
-
-target_link_options(
-	fundament_simple_window
-	PUBLIC
-	/DEBUG
-	/OPT:REF
-	/OPT:ICF
 )

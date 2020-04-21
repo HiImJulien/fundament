@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 #if defined(_WIN32)
 
@@ -10,6 +11,50 @@
 #endif 	// COBJMACROS
 
 #include <d3d11.h>
+#include <d3d11shader.h>
+
+inline static DXGI_FORMAT fn_imp_map_format(enum fn_gfx_data_format fmt) {
+	const DXGI_FORMAT mapping[] = {
+		DXGI_FORMAT_R32G32B32A32_TYPELESS,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		DXGI_FORMAT_R32G32B32A32_UINT,
+		DXGI_FORMAT_R32G32B32A32_SINT,
+		DXGI_FORMAT_R32G32B32_TYPELESS,
+		DXGI_FORMAT_R32G32B32_FLOAT,
+		DXGI_FORMAT_R32G32B32_UINT,
+		DXGI_FORMAT_R32G32B32_SINT,
+		DXGI_FORMAT_R8G8B8A8_TYPELESS,
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+		DXGI_FORMAT_R8G8B8A8_UINT,
+		DXGI_FORMAT_R8G8B8A8_SNORM,
+		DXGI_FORMAT_R8G8B8A8_SINT
+	};
+
+	return mapping[fmt];
+}
+
+inline static UINT fn_imp_map_bind_flags(enum fn_gfx_buffer_type type) {
+	const D3D11_BIND_FLAG mapping[] = {
+		D3D11_BIND_VERTEX_BUFFER,
+		D3D11_BIND_INDEX_BUFFER,
+		D3D11_BIND_CONSTANT_BUFFER,
+		D3D11_BIND_SHADER_RESOURCE
+	};
+
+	return mapping[type];
+}
+
+inline static D3D11_USAGE fn_imp_map_usage(enum fn_gfx_buffer_usage usage) {
+	const D3D11_USAGE mapping[] = {
+		D3D11_USAGE_DEFAULT,
+		D3D11_USAGE_IMMUTABLE,
+		D3D11_USAGE_DYNAMIC,
+		D3D11_USAGE_STAGING
+	};
+
+	return mapping[usage];
+}
 
 struct fn_imp_swap_chain {
 	IDXGISwapChain*			swap_chain;
@@ -143,7 +188,7 @@ struct fn_gfx_swap_chain fn_gfx_create_swap_chain(
 
 	DXGI_SWAP_CHAIN_DESC sc_desc = {0};
 	sc_desc.BufferCount = desc->buffers;
-	sc_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sc_desc.BufferDesc.Format = fn_imp_map_format(desc->format);
 	sc_desc.BufferDesc.Height = desc->height;
 	sc_desc.BufferDesc.Width = desc->width;
 	sc_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -296,8 +341,8 @@ struct fn_gfx_buffer fn_gfx_create_buffer(const struct fn_gfx_buffer_desc* desc)
 
 	D3D11_BUFFER_DESC bdesc = {0};
 	bdesc.ByteWidth = desc->capacity;
-	bdesc.Usage = D3D11_USAGE_DYNAMIC;
-	bdesc.BindFlags = D3D11_BIND_VERTEX_BUFFER; // TODO!
+	bdesc.Usage = fn_imp_map_usage(desc->usage);
+	bdesc.BindFlags = fn_imp_map_bind_flags(desc->type);
 	bdesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bdesc.MiscFlags = 0;
 	bdesc.StructureByteStride = desc->stride;
@@ -328,33 +373,50 @@ struct fn_gfx_pipeline fn_gfx_create_pipeline(struct fn_gfx_pipeline_desc* desc)
 			break;
 	}
 
+	struct fn_imp_shader* vs = &g_imp_backend.shaders[desc->vertex_shader.id];
+	struct fn_imp_shader* ps = &g_imp_backend.shaders[desc->pixel_shader.id];
+
+	ID3D11ShaderReflection* reflector = NULL;
+	HRESULT hr = D3DReflect(
+		vs->byte_code,
+		vs->byte_code_size,
+		&IID_ID3D11ShaderReflection,
+		(void**) &reflector
+	);
+
+	if(FAILED(hr))
+		return (struct fn_gfx_pipeline) { 65535 };
+
 	size_t it = 0;
 	D3D11_INPUT_ELEMENT_DESC idesc[256] = {0};
 	for(; it < 256; ++it) {
 		if(desc->layout.elements[it].step == fn_gfx_input_element_step_none)
 			break;
 
-		// SemanticName is required.
-		// TODO: Work around that problem.
-		idesc[it].SemanticName = "POSITION";
-		idesc[it].SemanticIndex = 0;
-		idesc[it].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-		idesc[it].InputSlot = 0; // ;desc->layout.bindings[it].buffer_slot;
+		D3D11_SIGNATURE_PARAMETER_DESC input_slot = {0};
+		// ID3D11ShaderReflection_GetInputParameterDesc missing
+		reflector->lpVtbl->GetInputParameterDesc(
+			reflector,
+			(UINT) it,
+			&input_slot
+		);
+
+		idesc[it].SemanticName = input_slot.SemanticName;
+		idesc[it].SemanticIndex = input_slot.SemanticIndex;
+		idesc[it].Format = fn_imp_map_format(desc->layout.elements[it].format);
+		idesc[it].InputSlot = 0;
 		idesc[it].AlignedByteOffset = 0;
-		idesc[it].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-		/*
-			desc->layout.elements[it].step == fn_gfx_input_element_step_vertex
+		idesc[it].InputSlotClass = desc->layout.elements[it].step 
+			== fn_gfx_input_element_step_vertex
 			? D3D11_INPUT_PER_VERTEX_DATA
 			: D3D11_INPUT_PER_INSTANCE_DATA;
-		*/
 		idesc[it].InstanceDataStepRate = 0;
 	}
 
-	struct fn_imp_shader* vs = &g_imp_backend.shaders[desc->vertex_shader.id];
-	struct fn_imp_shader* ps = &g_imp_backend.shaders[desc->pixel_shader.id];
+	reflector->lpVtbl->Release(reflector);
 
 	struct fn_imp_pipeline* pipeline = &g_imp_backend.pipelines[id];
-	HRESULT hr = ID3D11Device_CreateInputLayout(
+	hr = ID3D11Device_CreateInputLayout(
 		g_imp_backend.device,
 		idesc,
 		(UINT) it,
@@ -364,8 +426,6 @@ struct fn_gfx_pipeline fn_gfx_create_pipeline(struct fn_gfx_pipeline_desc* desc)
 	);
 
 	if(FAILED(hr)) {
-		printf("Elements: %zu\n", it);
-		printf("HR: 0x%.8lX\n", hr);
 		return (struct fn_gfx_pipeline) { 65535 };
 	}
 
@@ -466,8 +526,10 @@ void fn_gfx_apply_bindings(struct fn_gfx_buffer_binding bindings) {
 	UINT strides[256] = {3 * sizeof(float)};
 	UINT offsets[256] = {0};
 
-	for(size_t it = 0; it < bindings.buffer_count; ++it)
+	for(size_t it = 0; it < bindings.buffer_count; ++it) {
 		buffers[it] = g_imp_backend.buffers[bindings.buffers[it].id];
+		strides[it] = bindings.strides[it];
+	}
 
 	ID3D11DeviceContext_IASetVertexBuffers(
 		g_imp_backend.context,

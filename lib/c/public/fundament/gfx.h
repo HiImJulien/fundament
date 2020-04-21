@@ -24,6 +24,26 @@ void fn_gfx_quit(void);
 struct fn_gfx_swap_chain{ uint8_t id; };
 
 /**
+ * @enum Enumerates all supported data formats.
+ */
+enum fn_gfx_data_format {
+	fn_gfx_data_format_r32g32b32a32_typeless,
+	fn_gfx_data_format_r32g32b32a32_float,
+	fn_gfx_data_format_r32g32b32a32_uint,
+	fn_gfx_data_format_r32g32b32a32_sint,
+	fn_gfx_data_format_r32g32b32_typeless,
+	fn_gfx_data_format_r32g32b32_float,
+	fn_gfx_data_format_r32g32b32_uint,
+	fn_gfx_data_format_r32g32b32_sint,
+	fn_gfx_data_format_r8g8b8a8_typeless,
+	fn_gfx_data_format_r8g8b8a8_unorm,
+	fn_gfx_data_format_r8g8b8a8_unorm_srgb,
+	fn_gfx_data_format_r8g8b8a8_uint,
+	fn_gfx_data_format_r8g8b8a8_snorm,
+	fn_gfx_data_format_r8g8b8a8_sint
+};
+
+/**
  * @brief Stores the configuration data used
  * to create a swap chain.
  */
@@ -31,6 +51,7 @@ struct fn_gfx_swap_chain_desc {
 	uint8_t buffers;
 	uint32_t width;
 	uint32_t height;
+	enum fn_gfx_data_format format;
 	const void* window;	//!< Stores the window this swap chain presents on.
 	const char*	label;	//!< Stores the debug label.
 };
@@ -91,6 +112,16 @@ enum fn_gfx_buffer_type {
 };
 
 /**
+ * @enum Enumerates all supported buffer usages.
+ */
+enum fn_gfx_buffer_usage {
+	fn_gfx_buffer_usage_default,
+	fn_gfx_buffer_usage_immutable,
+	fn_gfx_buffer_usage_dynamic,
+	fn_gfx_buffer_usage_staging
+};
+
+/**
  * @struct Stores the configuration data used
  * to create a buffer.
  * @note Currently all data created is mutable and read-/writable
@@ -99,6 +130,7 @@ enum fn_gfx_buffer_type {
 struct fn_gfx_buffer_desc {
 	size_t capacity;
 	enum fn_gfx_buffer_type type;
+	enum fn_gfx_buffer_usage usage;
 	size_t stride;
 };
 
@@ -151,6 +183,7 @@ enum fn_gfx_input_element_step {
  */
 struct fn_gfx_input_element {
 	size_t stride;
+	enum fn_gfx_data_format format;
 	enum fn_gfx_input_element_step step;
 };
 
@@ -197,6 +230,7 @@ struct fn_gfx_pipeline fn_gfx_create_pipeline(struct fn_gfx_pipeline_desc* desc)
  */
 struct fn_gfx_buffer_binding {
 	struct fn_gfx_buffer buffers[256];
+	size_t strides[256];
 	size_t buffer_count;
 };
 
