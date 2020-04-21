@@ -62,3 +62,34 @@ target_link_libraries(
 	PRIVATE
 	fundament
 )
+
+target_compile_options(
+	fundament
+	PUBLIC
+	/Zi
+	/MD
+)
+
+target_link_options(
+	fundament
+	PUBLIC
+	/DEBUG
+	/OPT:REF
+	/OPT:ICF
+)
+
+target_compile_options(
+	fundament_simple_window
+	PUBLIC
+	/Zi
+	/DEBUG
+	/MD
+)
+
+target_link_options(
+	fundament_simple_window
+	PUBLIC
+	/DEBUG
+	/OPT:REF
+	/OPT:ICF
+)
