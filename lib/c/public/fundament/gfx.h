@@ -15,54 +15,54 @@ struct fn_swap_chain { uint32_t id; };
  * should be treated.
  */
 enum fn_shader_type {
-	fn_shader_type_vertex,
-	fn_shader_type_pixel
+    fn_shader_type_vertex,
+    fn_shader_type_pixel
 };
 
 /**
  * @enum Describes a shader.
  */
 struct fn_shader_desc {
-	enum fn_shader_type type;
-	const void* 		byte_code;
-	size_t 				byte_code_size;
+    enum fn_shader_type type;
+    const void*         byte_code;
+    size_t              byte_code_size;
 };
 
 /**
  * @enum Specifies how to interpret vertices. 
  */
 enum fn_topology_type {
-	fn_topology_type_none,
-	fn_topology_type_point_list,
-	fn_topology_type_line_list,
-	fn_topology_type_line_strip,
-	fn_topology_type_triangle_list,
-	fn_topology_type_triangle_strip,
-	fn_topology_type_line_list_adj,
-	fn_topology_type_line_strip_adj,
-	fn_topology_type_triangle_list_adj,
-	fn_topology_type_triangle_strip_adj
+    fn_topology_type_none,
+    fn_topology_type_point_list,
+    fn_topology_type_line_list,
+    fn_topology_type_line_strip,
+    fn_topology_type_triangle_list,
+    fn_topology_type_triangle_strip,
+    fn_topology_type_line_list_adj,
+    fn_topology_type_line_strip_adj,
+    fn_topology_type_triangle_list_adj,
+    fn_topology_type_triangle_strip_adj
 };
 
 /**
  * @enum Specifies how to interpret set of bytes. 
  */
 enum fn_data_format {
-	fn_data_format_none,
-	fn_data_format_r32g32b32a32_float,
-	fn_data_format_r32g32b32a32_uint,
-	fn_data_format_r8g8b8a8_unorm,
-	fn_data_format_r8g8b8a8_uint,
+    fn_data_format_none,
+    fn_data_format_r32g32b32a32_float,
+    fn_data_format_r32g32b32a32_uint,
+    fn_data_format_r8g8b8a8_unorm,
+    fn_data_format_r8g8b8a8_uint,
 };
 
 /**
  * @enum Specifies the resource use.
  */
 enum fn_resource_usage {
-	fn_resource_usage_default = (1 << 0),
-	fn_resource_usage_immutable = (1 << 1),
-	fn_resource_usage_dynamic = (1 << 2),
-	fn_resource_usage_staging = (1 << 3)
+    fn_resource_usage_default = (1 << 0),
+    fn_resource_usage_immutable = (1 << 1),
+    fn_resource_usage_dynamic = (1 << 2),
+    fn_resource_usage_staging = (1 << 3)
 };
 
 /**
@@ -70,11 +70,11 @@ enum fn_resource_usage {
  * be bound to the pipeline.
  */
 enum fn_resource_bind_flags {
-	fn_resource_bind_flags_vertex,
-	fn_resource_bind_flags_index,
-	fn_resource_bind_flags_constant,
-	fn_resource_bind_flags_shader_resource,
-	fn_resource_bind_flags_render_target
+    fn_resource_bind_flags_vertex,
+    fn_resource_bind_flags_index,
+    fn_resource_bind_flags_constant,
+    fn_resource_bind_flags_shader_resource,
+    fn_resource_bind_flags_render_target
 };
 
 /**
@@ -82,32 +82,32 @@ enum fn_resource_bind_flags {
  * will be accessed.
  */
 enum fn_resource_access_flags {
-	fn_resource_access_flags_none,
-	fn_resource_access_flags_write = (1 << 0),
-	fn_resource_access_flags_read = (1 << 1),
+    fn_resource_access_flags_none,
+    fn_resource_access_flags_write = (1 << 0),
+    fn_resource_access_flags_read = (1 << 1),
 };
 
 /**
  * @struct Describes a buffer.
  */
 struct fn_buffer_desc {
-	size_t 						size;
-	enum fn_resource_usage 		usage;
-	enum fn_resource_bind_flags bind_flags;
-	const void* 				data;
-	size_t 						pitch;
-	size_t 						slice_pitch;
+    size_t                      size;
+    enum fn_resource_usage      usage;
+    enum fn_resource_bind_flags bind_flags;
+    const void*                 data;
+    size_t                      pitch;
+    size_t                      slice_pitch;
 };
 
 /**
  * @struct Describes the properties of a vertex.
  */
 struct fn_vertex_layout {
-	enum fn_data_format 	format;
-	size_t 					byte_offset;
-	uint16_t 				slot;
-	bool 					is_per_instance;
-	uint16_t 				steps_per_instance;
+    enum fn_data_format     format;
+    size_t                  byte_offset;
+    uint16_t                slot;
+    bool                    is_per_instance;
+    uint16_t                steps_per_instance;
 };
 
 
@@ -115,30 +115,30 @@ struct fn_vertex_layout {
  * @struct Describes a pipeline state.
  */
 struct fn_pipeline_desc {
-	struct fn_shader 		vertex_shader;
-	struct fn_shader 		pixel_shader;
-	enum fn_topology_type 	topology;
-	struct fn_vertex_layout layout[32];
+    struct fn_shader        vertex_shader;
+    struct fn_shader        pixel_shader;
+    enum fn_topology_type   topology;
+    struct fn_vertex_layout layout[32];
 };
 
 /**
  * @struct Describes how to bind buffers to the pipeline.
  */
 struct fn_buffer_binding {
-	struct {
-		size_t slot;
-		struct fn_buffer buffer;
-		size_t stride;
-		size_t offset;
-	} vertex_buffers[32];
-	size_t vertex_buffer_count;
-	struct {
-		enum fn_data_format format;
-		struct fn_buffer buffer;
-		size_t offset;
-	} index_buffer;
-	// TODO: Constants buffers?
-	// TODO: What about readable and writeable textures?
+    struct {
+        size_t slot;
+        struct fn_buffer buffer;
+        size_t stride;
+        size_t offset;
+    } vertex_buffers[32];
+    size_t vertex_buffer_count;
+    struct {
+        enum fn_data_format format;
+        struct fn_buffer buffer;
+        size_t offset;
+    } index_buffer;
+    // TODO: Constants buffers?
+    // TODO: What about readable and writeable textures?
 };
 
 /**
@@ -156,24 +156,24 @@ void fn_destroy_render_device(struct fn_render_device device);
  * @brief Creates a new shader.
  */
 struct fn_shader fn_create_shader(
-	struct fn_render_device device,
-	struct fn_shader_desc desc
+    struct fn_render_device device,
+    struct fn_shader_desc desc
 );
 
 /**
  * @brief Creates a pipeline.
  */
 struct fn_pipeline fn_create_pipeline(
-	struct fn_render_device device,
-	struct fn_pipeline_desc desc
+    struct fn_render_device device,
+    struct fn_pipeline_desc desc
 );
 
 /**
  * @brief Creates a buffer.
  */
 struct fn_buffer fn_create_buffer(
-	struct fn_render_device device,
-	struct fn_buffer_desc desc
+    struct fn_render_device device,
+    struct fn_buffer_desc desc
 );
 
 /**
@@ -181,16 +181,16 @@ struct fn_buffer fn_create_buffer(
  * TODO: How to handle command queues?
  */
 void fn_apply_bindings(
-	struct fn_render_device device,
-	struct fn_buffer_binding desc
+    struct fn_render_device device,
+    struct fn_buffer_binding desc
 );
 
 /**
  * @brief Binds the given pipeline to the context.
  */
 void fn_apply_pipeline(
-	struct fn_render_device device,
-	struct fn_pipeline pipeline
+    struct fn_render_device device,
+    struct fn_pipeline pipeline
 );
 
-#endif 	// FUNDAMENT_GFX_H
+#endif  // FUNDAMENT_GFX_H
