@@ -51,6 +51,8 @@ enum fn_data_format {
     fn_data_format_none,
     fn_data_format_r32g32b32a32_float,
     fn_data_format_r32g32b32a32_uint,
+    fn_data_format_r32g32b32_float,
+    fn_data_format_r32g32b32_uint,
     fn_data_format_r8g8b8a8_unorm,
     fn_data_format_r8g8b8a8_uint,
 };
@@ -122,6 +124,16 @@ struct fn_pipeline_desc {
 };
 
 /**
+ * @struct Describes a swap chain.
+ */
+struct fn_swap_chain_desc {
+    enum fn_data_format format;
+    void*               window;
+    uint16_t            width;
+    uint16_t            height;
+};
+
+/**
  * @struct Describes how to bind buffers to the pipeline.
  */
 struct fn_buffer_binding {
@@ -137,6 +149,7 @@ struct fn_buffer_binding {
         struct fn_buffer buffer;
         size_t offset;
     } index_buffer;
+    struct fn_swap_chain swap_chains[8];
     // TODO: Constants buffers?
     // TODO: What about readable and writeable textures?
 };
@@ -151,6 +164,15 @@ struct fn_render_device fn_create_render_device();
  * releases all resources allocated by it.
  */
 void fn_destroy_render_device(struct fn_render_device device);
+
+/**
+ * @brief Creates a new swap chain tied 
+ * to the device.
+ */
+struct fn_swap_chain fn_create_swap_chain(
+    struct fn_render_device device,
+    struct fn_swap_chain_desc desc
+);
 
 /**
  * @brief Creates a new shader.
@@ -192,5 +214,30 @@ void fn_apply_pipeline(
     struct fn_render_device device,
     struct fn_pipeline pipeline
 );
+
+/**
+ * @brief Issues a draw command.
+ */
+void fn_draw(
+    struct fn_render_device device,
+    size_t vertex_count,
+    size_t vertex_offset
+);
+
+/**
+ * @brief Clears the contents of the swap chain 
+ * to given color.
+ */
+void fn_clear(
+    struct fn_render_device device, 
+    struct fn_swap_chain sc,
+    float r, float g, float b, float a
+);
+
+/**
+ * @brief Presents the contents of the swap chain
+ * on the window bound to it.
+ */
+void fn_present(struct fn_render_device device, struct fn_swap_chain sc);
 
 #endif  // FUNDAMENT_GFX_H

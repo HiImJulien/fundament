@@ -63,3 +63,14 @@ target_link_libraries(
 	PRIVATE
 	fundament
 )
+
+add_executable(
+	fundament_simple_triangle
+	"${CMAKE_CURRENT_SOURCE_DIR}/examples/c/simple_triangle.c"
+)
+
+target_link_libraries(
+	fundament_simple_triangle
+	PRIVATE
+	fundament
+)

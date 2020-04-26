@@ -50,6 +50,8 @@ int main() {
 
         if(ev.type == fn_event_type_window_closed)
             printf("Closed window.\n");
+
+        fn_poll_event(&ev);
     }
 
     fn_window_destroy(win);

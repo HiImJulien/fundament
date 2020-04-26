@@ -44,6 +44,8 @@ inline static DXGI_FORMAT fn_imp_map_format(enum fn_data_format fmt) {
         DXGI_FORMAT_UNKNOWN,
         DXGI_FORMAT_R32G32B32A32_TYPELESS,
         DXGI_FORMAT_R32G32B32A32_FLOAT,
+        DXGI_FORMAT_R32G32B32_FLOAT,
+        DXGI_FORMAT_R32G32B32_UINT,
         DXGI_FORMAT_R8G8B8A8_UNORM,
         DXGI_FORMAT_R8G8B8A8_UINT,
     };
@@ -105,17 +107,24 @@ struct fn_imp_pipeline {
     D3D11_PRIMITIVE_TOPOLOGY    topology;
 };
 
+struct fn_imp_swap_chain {
+    IDXGISwapChain*         swap_chain;
+    ID3D11RenderTargetView* target_view;
+};
+
 struct fn_imp_render_device {
     ID3D11Device*           device;
     ID3D11DeviceContext*    context;
     IDXGIFactory*           factory;
 
-    struct fn_imp_pipeline* pipelines;
-    size_t                  pipelines_capacity;
-    struct fn_imp_shader*   shaders;
-    size_t                  shaders_capacity;
-    ID3D11Buffer**          buffers;
-    size_t                  buffers_capacity;
+    struct fn_imp_pipeline*     pipelines;
+    size_t                      pipelines_capacity;
+    struct fn_imp_shader*       shaders;
+    size_t                      shaders_capacity;
+    ID3D11Buffer**              buffers;
+    size_t                      buffers_capacity;
+    struct fn_imp_swap_chain*   swap_chains;
+    size_t                      swap_chain_capacity;
 };
 
 static struct fn_imp_render_device* g_imp_devices[4];
@@ -157,7 +166,7 @@ struct fn_render_device fn_create_render_device() {
     hr = ID3D11Device_QueryInterface(
         dev->device,
         &IID_IDXGIDevice,
-        (void**) dxgi_device
+        (void**) &dxgi_device
     );
 
     if(FAILED(hr)) {
@@ -212,11 +221,97 @@ struct fn_render_device fn_create_render_device() {
         sizeof(ID3D11Buffer*)
     );
 
+    dev->swap_chain_capacity = 8;
+    dev->swap_chains = calloc(
+        dev->swap_chain_capacity,
+        sizeof(struct fn_imp_swap_chain)
+    );
+
+    g_imp_devices[id] = dev;
     return FN_HANDLE(fn_render_device, id);
 }
 
 void fn_destroy_render_device(struct fn_render_device device) {
     assert(0 && "Not implemented yet!");
+}
+
+struct fn_swap_chain fn_create_swap_chain(
+    struct fn_render_device device,
+    struct fn_swap_chain_desc desc
+) {
+    if(!FN_CHECK_HANDLE(device))
+        return FN_INVALID(fn_swap_chain);
+
+    struct fn_imp_render_device* dev = g_imp_devices[FN_IDX(device)];
+    assert(dev != NULL);
+
+    uint32_t id = 0;
+    for(; id <= dev->swap_chain_capacity; ++id) {
+        if(id == dev->swap_chain_capacity)
+            return FN_INVALID(fn_swap_chain);
+
+        if(dev->swap_chains[id].swap_chain == NULL)
+            break;
+    }
+
+    DXGI_SWAP_CHAIN_DESC sc_desc = {0};
+    sc_desc.BufferDesc.Width = (UINT) desc.width;
+    sc_desc.BufferDesc.Height = (UINT) desc.height;
+    sc_desc.BufferDesc.Format = fn_imp_map_format(desc.format);
+    sc_desc.SampleDesc.Count = 1;
+    sc_desc.SampleDesc.Quality = 0;
+    sc_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    sc_desc.BufferCount = 1;
+    sc_desc.OutputWindow = (HWND) desc.window;
+    sc_desc.Windowed = true;
+    sc_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+    sc_desc.Flags = 0;    
+
+    IDXGISwapChain* swap_chain = NULL;
+    HRESULT hr = IDXGIFactory_CreateSwapChain(
+        dev->factory,
+        (IUnknown*) dev->device,
+        &sc_desc,
+        &swap_chain
+    );
+
+    if(FAILED(hr))
+        return FN_INVALID(fn_swap_chain);
+
+    ID3D11Texture2D* back_buffer = NULL;
+    hr = IDXGISwapChain_GetBuffer(
+        swap_chain,
+        0,
+        &IID_ID3D11Texture2D,
+        (void**) &back_buffer
+    );
+
+    if(FAILED(hr)) {
+        FN_DX_RELEASE(swap_chain);
+        return FN_INVALID(fn_swap_chain);
+    }
+
+    ID3D11RenderTargetView* target_view = NULL;
+    hr = ID3D11Device_CreateRenderTargetView(
+        dev->device,
+        (ID3D11Resource*) back_buffer,
+        NULL,
+        &target_view
+    );
+
+    FN_DX_RELEASE(back_buffer);
+
+    if(FAILED(hr)) {
+        FN_DX_RELEASE(swap_chain);
+        return FN_INVALID(fn_swap_chain);
+    }
+
+    dev->swap_chains[id] = (struct fn_imp_swap_chain) {
+        .swap_chain = swap_chain,
+        .target_view = target_view
+    };
+
+    return FN_HANDLE(fn_swap_chain, id);
 }
 
 struct fn_shader fn_create_shader(
@@ -264,6 +359,10 @@ struct fn_shader fn_create_shader(
     if(FAILED(hr))
         return FN_INVALID(fn_shader);
 
+    shader->byte_code = malloc(desc.byte_code_size);
+    memcpy((void*) shader->byte_code, desc.byte_code, desc.byte_code_size);
+    shader->byte_code_size = desc.byte_code_size;
+
     return FN_HANDLE(fn_shader, id);
 }
 
@@ -299,15 +398,15 @@ struct fn_pipeline fn_create_pipeline(
         vs->byte_code,
         vs->byte_code_size,
         &IID_ID3D11ShaderReflection,
-        (void**) reflector
+        (void**) &reflector
     );
 
     if(FAILED(hr))
         return FN_INVALID(fn_pipeline);
 
     size_t element_count = 0;
-    for(size_t it = 0; it < 32; ++it) {
-        if(desc.layout[it].format == fn_data_format_none)
+    for(; element_count < 32; ++element_count) {
+        if(desc.layout[element_count].format == fn_data_format_none)
             break;
     }
 
@@ -324,6 +423,15 @@ struct fn_pipeline fn_create_pipeline(
 
     D3D11_INPUT_ELEMENT_DESC layout_desc[32];
     for(size_t it = 0; it < element_count; ++it) {
+        D3D11_SIGNATURE_PARAMETER_DESC param;
+        reflector->lpVtbl->GetInputParameterDesc(
+            reflector,
+            (UINT) it,
+            &param
+        );
+
+        layout_desc[it].SemanticName = param.SemanticName;
+        layout_desc[it].SemanticIndex = param.SemanticIndex;
         layout_desc[it].Format = fn_imp_map_format(desc.layout[it].format);
         layout_desc[it].InputSlot = (UINT) desc.layout[it].slot;
         layout_desc[it].AlignedByteOffset = (UINT) desc.layout[it].byte_offset;
@@ -408,43 +516,55 @@ void fn_apply_bindings(
     struct fn_imp_render_device* dev = g_imp_devices[FN_IDX(device)];
     assert(dev != NULL);
 
-    size_t min_slot = 32;
-    size_t max_slot = 0;
-    ID3D11Buffer* vertex_buffers[32] = {0};
     UINT strides[32] = {0};
     UINT offsets[32] = {0};
+
+    ID3D11Buffer* buffers[32] = {0};
     for(size_t it = 0; it < desc.vertex_buffer_count; ++it) {
-        size_t slot = desc.vertex_buffers[it].slot;
-        vertex_buffers[slot] = 
+
+        buffers[it] = 
             dev->buffers[FN_IDX(desc.vertex_buffers[it].buffer)];
 
-        strides[slot] = desc.vertex_buffers[it].stride;
-        offsets[slot] = desc.vertex_buffers[it].offset;
-
-        if(slot > max_slot)
-            max_slot = slot;
-
-        if(slot < min_slot)
-            min_slot = slot;
+        strides[it] = desc.vertex_buffers[it].stride;
+        offsets[it] = desc.vertex_buffers[it].offset;
     }
 
     ID3D11DeviceContext_IASetVertexBuffers(
         dev->context,
-        min_slot,
+        0,
         desc.vertex_buffer_count,
-        &vertex_buffers[min_slot],
-        &strides[min_slot],
-        &offsets[max_slot]
+        buffers,
+        strides,
+        offsets
     );
 
-    if(!FN_CHECK_HANDLE(desc.index_buffer.buffer)) 
-        return;
+    if(FN_CHECK_HANDLE(desc.index_buffer.buffer)) {
+        ID3D11DeviceContext_IASetIndexBuffer(
+            dev->context,
+            dev->buffers[FN_IDX(desc.index_buffer.buffer)],
+            fn_imp_map_format(desc.index_buffer.format),
+            (UINT) desc.index_buffer.offset
+        );
+    }
 
-    ID3D11DeviceContext_IASetIndexBuffer(
+    ID3D11RenderTargetView* views[8] = {NULL};
+
+    size_t render_target_count = 0;
+    for(; render_target_count < 8; ++render_target_count) {
+        if(desc.swap_chains[render_target_count].id == 0)
+            break;
+
+        struct fn_imp_swap_chain* sc =
+            &dev->swap_chains[render_target_count];
+
+        views[render_target_count] = sc->target_view;
+    }
+
+    ID3D11DeviceContext_OMSetRenderTargets(
         dev->context,
-        dev->buffers[FN_IDX(desc.index_buffer.buffer)],
-        fn_imp_map_format(desc.index_buffer.format),
-        (UINT) desc.index_buffer.offset
+        (UINT) render_target_count,
+        views,
+        NULL
     );
 }
 
@@ -465,6 +585,11 @@ void fn_apply_pipeline(
         pipe->layout
     );
 
+    ID3D11DeviceContext_IASetPrimitiveTopology(
+        dev->context,
+        pipe->topology
+    );
+
     ID3D11DeviceContext_VSSetShader (
         dev->context,
         pipe->vertex_shader,
@@ -478,6 +603,72 @@ void fn_apply_pipeline(
         NULL,
         0
     );
-} 
+}
+
+void fn_draw(
+    struct fn_render_device device,
+    size_t vertex_count,
+    size_t vertex_offset
+) {
+    if(!FN_CHECK_HANDLE(device))
+        return;
+
+    struct fn_imp_render_device* dev = g_imp_devices[FN_IDX(device)];
+    assert(dev != NULL);
+
+    D3D11_VIEWPORT vp = {0};
+    vp.Width = 300;
+    vp.Height = 300;
+    vp.MinDepth = 0;
+    vp.MaxDepth = 1.f;
+
+    ID3D11DeviceContext_RSSetViewports(
+        dev->context,
+        1,
+        &vp
+    );
+
+
+    ID3D11DeviceContext_Draw(
+        dev->context,
+        (UINT) vertex_count,
+        (UINT) vertex_offset
+    );
+}
+
+void fn_clear(
+    struct fn_render_device device, 
+    struct fn_swap_chain sc,
+    float r, float g, float b, float a) {
+    if(!FN_CHECK_HANDLE(device) || !FN_CHECK_HANDLE(sc))
+        return;
+
+    struct fn_imp_render_device* dev = g_imp_devices[FN_IDX(device)];
+    assert(dev != NULL);
+
+    float rgba[4] = {r, g, b, a};
+    struct fn_imp_swap_chain* isc = &dev->swap_chains[FN_IDX(sc)];
+    ID3D11DeviceContext_ClearRenderTargetView(
+        dev->context,
+        isc->target_view,
+        rgba
+    );
+}
+
+void fn_present(struct fn_render_device device, struct fn_swap_chain sc) {
+    if(!FN_CHECK_HANDLE(device) || !FN_CHECK_HANDLE(sc))
+        return;
+
+    struct fn_imp_render_device* dev = g_imp_devices[FN_IDX(device)];
+    assert(dev != NULL);
+
+    struct fn_imp_swap_chain* isc = &dev->swap_chains[FN_IDX(sc)];
+
+    IDXGISwapChain_Present(
+        isc->swap_chain,
+        0,
+        0
+    );
+}
 
 #endif // _WIN32
