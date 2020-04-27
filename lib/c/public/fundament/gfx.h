@@ -9,6 +9,7 @@ struct fn_pipeline { uint32_t id; };
 struct fn_shader { uint32_t id; };
 struct fn_render_device { uint32_t id; };
 struct fn_swap_chain { uint32_t id; };
+struct fn_texture { uint32_t id; };
 
 /**
  * @enum Specifies as which type shader byte code
@@ -99,6 +100,12 @@ struct fn_buffer_desc {
     const void*                 data;
     size_t                      pitch;
     size_t                      slice_pitch;
+};
+
+struct fn_data_desc {
+    const void*     data;
+    size_t          pitch;
+    size_t          slice_pitch;
 };
 
 /**
@@ -239,6 +246,32 @@ struct fn_buffer_binding {
 };
 
 /**
+ * @enum Enumerates all supported texture types.
+ */
+enum fn_texture_type {
+    fn_texture_type_1d,
+    fn_texture_type_2d,
+    fn_texture_type_3d
+};
+
+/**
+ * @struct Describes a texture to be created.
+ */
+struct fn_texture_desc {
+    enum fn_texture_type            type;
+    uint32_t                        width;
+    uint32_t                        height;
+    uint32_t                        depth;
+    uint32_t                        mip_levels;
+    uint32_t                        count;
+    enum fn_data_format             format;
+    // Sample Desc?
+    enum fn_resource_usage          usage;
+    enum fn_resource_bind_flags     bind_flags;
+    enum fn_resource_access_flags   access_flags;
+};
+
+/**
  * @brief Attempts to create a new device.
  */
 struct fn_render_device fn_create_render_device();
@@ -280,6 +313,15 @@ struct fn_pipeline fn_create_pipeline(
 struct fn_buffer fn_create_buffer(
     struct fn_render_device device,
     struct fn_buffer_desc desc
+);
+
+/**
+ * @brief Creates a new texture.
+ */
+struct fn_texture fn_create_texture(
+    struct fn_render_device device,
+    struct fn_texture_desc desc,
+    struct fn_data_desc data
 );
 
 /**

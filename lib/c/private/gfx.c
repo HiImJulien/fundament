@@ -198,10 +198,20 @@ struct fn_imp_swap_chain {
     ID3D11RenderTargetView* target_view;
 };
 
+struct fn_imp_texture {
+    enum fn_texture_type    type;
+
+    union {
+        ID3D11Texture1D*    tex1d;
+        ID3D11Texture2D*    tex2d;
+        ID3D11Texture3D*    tex3d;
+    };
+};
+
 struct fn_imp_render_device {
-    ID3D11Device*           device;
-    ID3D11DeviceContext*    context;
-    IDXGIFactory*           factory;
+    ID3D11Device*               device;
+    ID3D11DeviceContext*        context;
+    IDXGIFactory*               factory;
 
     struct fn_imp_pipeline*     pipelines;
     size_t                      pipelines_capacity;
@@ -211,6 +221,8 @@ struct fn_imp_render_device {
     size_t                      buffers_capacity;
     struct fn_imp_swap_chain*   swap_chains;
     size_t                      swap_chain_capacity;
+    struct fn_imp_texture*      textures;
+    size_t                      texture_capacity;
 };
 
 static struct fn_imp_render_device* g_imp_devices[4];
@@ -311,6 +323,12 @@ struct fn_render_device fn_create_render_device() {
     dev->swap_chains = calloc(
         dev->swap_chain_capacity,
         sizeof(struct fn_imp_swap_chain)
+    );
+
+    dev->texture_capacity = 4096;
+    dev->textures = calloc(
+        dev->texture_capacity,
+        sizeof(struct fn_imp_texture)
     );
 
     g_imp_devices[id] = dev;
@@ -630,6 +648,23 @@ struct fn_buffer fn_create_buffer(
     );
 
     return FAILED(hr) ? FN_INVALID(fn_buffer) : FN_HANDLE(fn_buffer, id);
+}
+
+struct fn_texture fn_create_texture(
+    struct fn_render_device device,
+    struct fn_texture_desc desc,
+    struct fn_data_desc data) {
+    if(!FN_CHECK_HANDLE(device))
+        return FN_INVALID(fn_texture);
+
+    struct fn_imp_render_device* dev = g_imp_devices[FN_IDX(device)];
+    assert(dev != NULL);
+
+    if(desc.type == fn_texture_type_1d) {
+
+    }
+
+    return FN_INVALID(fn_texture);
 }
 
 void fn_apply_bindings(
