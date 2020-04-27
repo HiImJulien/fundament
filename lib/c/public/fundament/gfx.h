@@ -102,6 +102,88 @@ struct fn_buffer_desc {
 };
 
 /**
+ * @enum Enumerates all supported blend factors.
+ */
+enum fn_blend_factor {
+    fn_blend_factor_zero,
+    fn_blend_factor_one,
+    fn_blend_factor_src_color,
+    fn_blend_factor_inv_src_color,
+    fn_blend_factor_src_alpha,
+    fn_blend_factor_inv_src_alpha,
+    fn_blend_factor_dest_alpha,
+    fn_blend_factor_inv_dest_alpha,
+    fn_blend_factor_dest_color,
+    fn_blend_factor_inv_dest_color,
+};
+
+/**
+ * @enum Enumerates all supported bleding operations.
+ */
+enum fn_blend_operation {
+    fn_blend_operation_add,
+    fn_blend_operation_sub,
+    fn_blend_operation_rev_sub,
+    fn_blend_operation_min,
+    fn_blend_operation_max
+};
+
+/**
+ * @struct Describes the blend state.
+ */
+struct fn_blend_desc {
+    bool        enable;
+    bool        alpha_coverage;
+    bool        independent_blend;
+    float       blend_factor[4];
+    uint32_t    sample_mask;
+
+    struct fn_target_blend_desc {
+        bool                        enable;
+        enum    fn_blend_factor     src;
+        enum    fn_blend_factor     dest;
+        enum    fn_blend_operation  op;
+        enum    fn_blend_factor     alpha_src;
+        enum    fn_blend_factor     alpha_dest;
+        enum    fn_blend_operation  alpha_op;
+        uint8_t                     mask;
+    } target_blend_desc[8];
+};
+
+/**
+ * @enum Enumerates all supported fill modes.
+ */
+enum fn_fill_mode {
+    fn_fill_mode_wire,
+    fn_fill_mode_solid
+};
+
+/**
+ * @enum Enumerates all supported cull modes.
+ */
+enum fn_cull_mode {
+    fn_cull_mode_none,
+    fn_cull_mode_front,
+    fn_cull_mode_back
+};  
+
+/**
+ * @struct Describes the rasterizer state.
+ */
+struct fn_rasterizer_desc {
+    enum fn_fill_mode   fill;
+    enum fn_cull_mode   cull;
+    bool                clock_wise;
+    int32_t             depth_bias;
+    float               depth_bias_clamp;
+    float               scaled_depth_bias;
+    bool                clip;
+    bool                scissor;
+    bool                multisample;
+    bool                antialias;
+};
+
+/**
  * @struct Describes the properties of a vertex.
  */
 struct fn_vertex_layout {
@@ -117,10 +199,12 @@ struct fn_vertex_layout {
  * @struct Describes a pipeline state.
  */
 struct fn_pipeline_desc {
-    struct fn_shader        vertex_shader;
-    struct fn_shader        pixel_shader;
-    enum fn_topology_type   topology;
-    struct fn_vertex_layout layout[32];
+    struct fn_shader            vertex_shader;
+    struct fn_shader            pixel_shader;
+    enum fn_topology_type       topology;
+    struct fn_vertex_layout     layout[32];
+    struct fn_blend_desc        blend;
+    struct fn_rasterizer_desc   rasterizer;
 };
 
 /**

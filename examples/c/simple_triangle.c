@@ -78,6 +78,9 @@ int main() {
             .topology = fn_topology_type_triangle_list,
             .layout[0] = {
                 .format = fn_data_format_r32g32b32_float
+            },
+            .rasterizer = {
+                .fill = fn_fill_mode_solid
             }
         } 
     );

@@ -89,6 +89,88 @@ inline static UINT fn_imp_map_access_flags(enum fn_resource_access_flags flags) 
     return mapping;
 }
 
+inline static D3D11_BLEND fn_imp_map_blend(enum fn_blend_factor factor) {
+    const D3D11_BLEND mapping[] = {
+        D3D11_BLEND_ZERO,
+        D3D11_BLEND_ONE,
+        D3D11_BLEND_SRC_COLOR,
+        D3D11_BLEND_INV_SRC_COLOR,
+        D3D11_BLEND_SRC_ALPHA,
+        D3D11_BLEND_INV_SRC_ALPHA,
+        D3D11_BLEND_DEST_ALPHA,
+        D3D11_BLEND_INV_DEST_ALPHA,
+        D3D11_BLEND_DEST_COLOR,
+        D3D11_BLEND_INV_DEST_COLOR,
+    };
+
+    return mapping[factor];
+}
+
+inline static D3D11_BLEND_OP fn_imp_map_blend_op(enum fn_blend_operation op) {
+    const D3D11_BLEND_OP mapping[] = {
+        D3D11_BLEND_OP_ADD,
+        D3D11_BLEND_OP_SUBTRACT,
+        D3D11_BLEND_OP_REV_SUBTRACT,
+        D3D11_BLEND_OP_MIN,
+        D3D11_BLEND_OP_MAX
+    };
+
+    return mapping[op];
+}
+
+inline static D3D11_BLEND_DESC fn_imp_map_blend_desc(struct fn_blend_desc* desc) {
+    D3D11_BLEND_DESC b_desc = {0};
+
+    b_desc.AlphaToCoverageEnable = desc->alpha_coverage;
+    b_desc.IndependentBlendEnable = desc->independent_blend;
+
+    for(size_t it = 0; it < 8; ++it) {
+        D3D11_RENDER_TARGET_BLEND_DESC* b_target = 
+            &b_desc.RenderTarget[it];
+
+        struct fn_target_blend_desc* target = &desc->target_blend_desc[it];
+
+        b_target->BlendEnable = target->enable;
+        b_target->SrcBlend = fn_imp_map_blend(target->src);
+        b_target->DestBlend = fn_imp_map_blend(target->dest);
+        b_target->BlendOp = fn_imp_map_blend_op(target->op);
+        b_target->SrcBlendAlpha = fn_imp_map_blend(target->alpha_src);
+        b_target->DestBlendAlpha = fn_imp_map_blend(target->alpha_dest);
+        b_target->BlendOpAlpha = fn_imp_map_blend_op(target->alpha_op);
+        b_target->RenderTargetWriteMask = target->mask; 
+    }
+
+    return b_desc;
+}
+
+inline static D3D11_RASTERIZER_DESC fn_imp_map_rast_desc(
+    struct fn_rasterizer_desc* desc) {
+    const D3D11_FILL_MODE fill_mapping[] = {
+        D3D11_FILL_WIREFRAME,
+        D3D11_FILL_SOLID
+    };
+
+    const D3D11_CULL_MODE cull_mapping[] = {
+        D3D11_CULL_NONE,
+        D3D11_CULL_FRONT,
+        D3D11_CULL_BACK
+    };
+
+    D3D11_RASTERIZER_DESC r_desc = {0};
+    r_desc.FillMode = fill_mapping[desc->fill];
+    r_desc.CullMode = cull_mapping[desc->cull];
+    r_desc.FrontCounterClockwise = !desc->clock_wise;
+    r_desc.DepthBias = desc->depth_bias;
+    r_desc.DepthBiasClamp = desc->depth_bias_clamp;
+    r_desc.SlopeScaledDepthBias = desc->scaled_depth_bias;
+    r_desc.DepthClipEnable = desc->clip;
+    r_desc.ScissorEnable = desc->scissor;
+    r_desc.MultisampleEnable = desc->multisample;
+    r_desc.AntialiasedLineEnable = desc->antialias;
+
+    return r_desc;
+}
+
 struct fn_imp_shader {
     enum fn_shader_type type;
     const void*         byte_code;
@@ -105,6 +187,10 @@ struct fn_imp_pipeline {
     ID3D11VertexShader*         vertex_shader;
     ID3D11PixelShader*          pixel_shader;
     D3D11_PRIMITIVE_TOPOLOGY    topology;
+    ID3D11BlendState*           blend;
+    float                       blend_factor[4];
+    uint32_t                    sample_mask;
+    ID3D11RasterizerState*      rasterizer;
 };
 
 struct fn_imp_swap_chain {
@@ -452,16 +538,56 @@ struct fn_pipeline fn_create_pipeline(
         &pipe->layout
     );
 
-    if(FAILED(hr)) {
-        FN_DX_RELEASE(reflector);
+    FN_DX_RELEASE(reflector);
+
+    if(FAILED(hr))
         return FN_INVALID(fn_pipeline);
-    }
 
     FN_DX_ADDREF(vs->vertex_shader);
     FN_DX_ADDREF(ps->pixel_shader);
     pipe->vertex_shader = vs->vertex_shader;
     pipe->pixel_shader = ps->pixel_shader;
     pipe->topology = fn_imp_map_topology(desc.topology);
+
+    D3D11_BLEND_DESC blend_desc = fn_imp_map_blend_desc(&desc.blend);
+    if(desc.blend.enable) {
+        hr = ID3D11Device_CreateBlendState(
+            dev->device,
+            &blend_desc,
+            &pipe->blend
+        );
+
+        pipe->blend_factor[0] = desc.blend.blend_factor[0];
+        pipe->blend_factor[1] = desc.blend.blend_factor[1];
+        pipe->blend_factor[2] = desc.blend.blend_factor[2];
+        pipe->blend_factor[3] = desc.blend.blend_factor[3];
+        pipe->sample_mask = desc.blend.sample_mask;
+    } else 
+        pipe->blend = NULL;
+
+    if(FAILED(hr)) {
+        FN_DX_RELEASE(vs->vertex_shader);
+        FN_DX_RELEASE(ps->pixel_shader);
+        FN_DX_RELEASE(pipe->layout);
+        return FN_INVALID(fn_pipeline);
+    }
+
+    D3D11_RASTERIZER_DESC r_desc = fn_imp_map_rast_desc(&desc.rasterizer);
+    hr = ID3D11Device_CreateRasterizerState(
+        dev->device,
+        &r_desc,
+        &pipe->rasterizer
+    );
+
+    if(FAILED(hr)) {
+        FN_DX_RELEASE(vs->vertex_shader);
+        FN_DX_RELEASE(ps->pixel_shader);
+        FN_DX_RELEASE(pipe->layout);
+
+        if(pipe->blend)
+            FN_DX_RELEASE(pipe->blend);
+        return FN_INVALID(fn_pipeline);
+    }
 
     return FN_HANDLE(fn_pipeline, id);
 }
@@ -603,6 +729,20 @@ void fn_apply_pipeline(
         NULL,
         0
     );
+
+    ID3D11DeviceContext_RSSetState(
+        dev->context,
+        pipe->rasterizer
+    );
+
+    if(pipe->blend) {
+        ID3D11DeviceContext_OMSetBlendState(
+            dev->context,
+            pipe->blend,
+            pipe->blend_factor,
+            pipe->sample_mask
+        );
+    }
 }
 
 void fn_draw(
