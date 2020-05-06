@@ -847,3 +847,127 @@ void fn_present(struct fn_render_device device, struct fn_swap_chain sc) {
 }
 
 #endif // _WIN32
+
+#if defined(__APPLE__)
+
+#import <AppKit/AppKit.h>
+#import <QuartzCore/CAMetalLayer.h>
+#import <Metal/Metal.h>
+
+struct fn_imp_render_device {
+    id<MTLDevice>  device;
+};
+
+static struct fn_imp_render_device* g_imp_devices[4];
+
+struct fn_render_device fn_create_render_device() {
+    uint32_t id = 0;
+    for(; id <= 4; ++id) {
+        if(id == 4)
+            return FN_INVALID(fn_render_device);
+
+        if(g_imp_devices[id] == NULL)
+            break;
+    }
+
+    struct fn_imp_render_device* dev = calloc(
+        1,
+        sizeof(struct fn_imp_render_device)
+    );
+
+    dev->device = MTLCreateSystemDefaultDevice();
+    if(dev->device == nil) {
+        free(dev);
+        return FN_INVALID(fn_render_device);
+    }
+
+    return FN_HANDLE(fn_render_device, id);
+}
+
+void fn_destroy_render_device(struct fn_render_device device) {
+
+}
+
+struct fn_swap_chain fn_create_swap_chain(
+    struct fn_render_device device,
+    struct fn_swap_chain_desc desc
+) {
+    NSWindow* window = desc.window;
+    NSView* view = [window contentView];
+    view.wantsLayer = YES;
+    view.layer = [CAMetalLayer layer];
+
+    return FN_INVALID(fn_swap_chain);
+}
+
+struct fn_shader fn_create_shader(
+    struct fn_render_device device,
+    struct fn_shader_desc desc
+) {
+    return FN_INVALID(fn_shader);
+}
+
+struct fn_pipeline fn_create_pipeline(
+    struct fn_render_device device,
+    struct fn_pipeline_desc desc
+) {
+    return FN_INVALID(fn_pipeline);
+}
+
+struct fn_buffer fn_create_buffer(
+    struct fn_render_device device,
+    struct fn_buffer_desc desc
+) {
+    return FN_INVALID(fn_buffer);
+}
+
+struct fn_texture fn_create_texture(
+    struct fn_render_device device,
+    struct fn_texture_desc desc,
+    struct fn_data_desc data
+) {
+    return FN_INVALID(fn_texture);
+}
+
+void fn_apply_bindings(
+    struct fn_render_device device,
+    struct fn_buffer_binding desc
+) {
+
+}
+
+void fn_apply_pipeline(
+    struct fn_render_device device,
+    struct fn_pipeline pipeline
+) {
+
+}
+
+void fn_draw(
+    struct fn_render_device device,
+    size_t vertex_count,
+    size_t vertex_offset
+) {
+
+}
+
+void fn_clear(
+    struct fn_render_device device, 
+    struct fn_swap_chain sc,
+    float r, float g, float b, float a
+) {
+
+}
+
+void fn_present(struct fn_render_device device, struct fn_swap_chain sc) {
+
+}
+
+
+
+
+
+
+
+
+#endif

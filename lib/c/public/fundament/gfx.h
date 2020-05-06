@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 struct fn_buffer { uint32_t id; };
 struct fn_pipeline { uint32_t id; };

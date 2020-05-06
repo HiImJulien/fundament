@@ -1,6 +1,9 @@
 project(fundament)
 cmake_minimum_required(VERSION 3.9)
 
+set(BUILD_EXAMPLES FALSE CACHE BOOL "Whether to build the examples.")
+set(BUILD_PLAYGROUND FALSE CACHE BOOL "Whether to build the playground.")
+
 add_library(
 	fundament
 	"${CMAKE_CURRENT_SOURCE_DIR}/lib/c/private/fundament.c"
@@ -40,6 +43,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	enable_language(OBJC)
 	set_source_files_properties(
 		"${CMAKE_CURRENT_SOURCE_DIR}/lib/c/private/fundament.c"
+		"${CMAKE_CURRENT_SOURCE_DIR}/lib/c/private/gfx.c"
 		PROPERTIES
 		LANGUAGE OBJC
 	)
@@ -50,27 +54,36 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		"-framework AppKit"
 		"-framework IOKit"
 		"-framework CoreFoundation"
+		"-framework Metal"
+		"-framework QuartzCore"
 	)
 endif()
 
-add_executable(
-	fundament_simple_window
-	"${CMAKE_CURRENT_SOURCE_DIR}/examples/c/simple_window.c"	
-)
+if(BUILD_EXAMPLES)
+	add_executable(
+		fundament_simple_window
+		"${CMAKE_CURRENT_SOURCE_DIR}/examples/c/simple_window.c"	
+	)
 
-target_link_libraries(
-	fundament_simple_window
-	PRIVATE
-	fundament
-)
+	target_link_libraries(
+		fundament_simple_window
+		PRIVATE
+		fundament
+	)
 
-add_executable(
-	fundament_simple_triangle
-	"${CMAKE_CURRENT_SOURCE_DIR}/examples/c/simple_triangle.c"
-)
+	add_executable(
+		fundament_simple_triangle
+		"${CMAKE_CURRENT_SOURCE_DIR}/examples/c/simple_triangle.c"
+	)
 
-target_link_libraries(
-	fundament_simple_triangle
-	PRIVATE
-	fundament
-)
+	target_link_libraries(
+		fundament_simple_triangle
+		PRIVATE
+		fundament
+	)
+endif()
+
+if(BUILD_PLAYGROUND)
+	message(INFO "Building playground.")
+	add_subdirectory(playground)
+endif()
