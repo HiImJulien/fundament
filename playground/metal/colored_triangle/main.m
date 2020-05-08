@@ -8,9 +8,9 @@
 #include <stdlib.h>
 
 const float vertices[] = {
-    0.0f, 0.5f, 0.0f, 1.0f,
-    0.5f, -0.5f, 0.0f, 1.0f,
-    -0.5f, -0.5f, 0.0f, 1.0f
+    0.0f, 0.5f, 0.0f, 1.0f,		1.0f, 0.0f, 0.0f, 1.0f,
+    0.5f, -0.5f, 0.0f, 1.0f,	0.0f, 1.0f, 0.0f, 1.0f,
+    -0.5f, -0.5f, 0.0f, 1.0f,	0.0f, 0.0f, 1.0f, 1.0f,
 };
 
 const char* path = "/Users/kirsch/Repositories/fundament/build/playground/shader.metallib";
@@ -35,11 +35,11 @@ int main() {
 
 	id<MTLLibrary> lib = [dev newDefaultLibrary];
 
-	id<MTLFunction> vs = [lib newFunctionWithName:@"simple_vmain"];
-	id<MTLFunction> ps = [lib newFunctionWithName:@"simple_pmain"];
+	id<MTLFunction> vs = [lib newFunctionWithName:@"vertex_color_vmain"];
+	id<MTLFunction> ps = [lib newFunctionWithName:@"vertex_color_pmain"];
 
 	id<MTLBuffer> vbuf = [dev newBufferWithBytes: vertices
-										  length: sizeof(float) * 12
+										  length: sizeof(float) * 12 * 2
 										 options: MTLResourceOptionCPUCacheModeDefault];
 
 	MTLRenderPipelineDescriptor* psd = [[MTLRenderPipelineDescriptor alloc] init];

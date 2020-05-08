@@ -1062,6 +1062,7 @@ bool fn_imp_init() {
         g_imp_setup_process = true;
     }
 
+    return true;
     g_imp_hid_manager = IOHIDManagerCreate(
         kCFAllocatorDefault,
         kIOHIDOptionsTypeNone
