@@ -118,6 +118,11 @@ API void fn_poll_events(struct fn_event* ev);
 
 #if defined(_WIN32)
     typedef struct HWND__* fn_native_window_handle_t;
+#elif defined(__APPLE__) && defined(__OBJC__)
+    @class NSWindow;
+    typedef NSWindow* fn_native_window_handle_t;
+#elif defined(__APPLE__) && !defined(__OBJC__)
+    typedef void* fn_native_window_handle_t;
 #else
     #error "Unknown Target!"
 #endif

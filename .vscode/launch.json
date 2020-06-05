@@ -4,7 +4,18 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
+        {
+            "name": "(macOS) Starten",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/default/install-root/usr/local/simple_window",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/default/install-root/usr/local",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
         {
             "name": "(Windows) Launch",
             "type": "cppvsdbg",

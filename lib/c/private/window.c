@@ -1,7 +1,7 @@
 #include <fundament/window.h>
-#include <stdio.h>
-
 #include "window_common.h"
+
+#include <string.h>
 
 #define IDX(window) (window.id - 1)
 #define BAD_ID(window) (window.id == 0)

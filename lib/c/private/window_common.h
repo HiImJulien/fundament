@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 //==============================================================================
 // Includes the appropriate implementation based on the compile target.
@@ -24,6 +25,8 @@
 
     // No 'checking' is made here, since the header 'window.h',
     // should already cause an error to be submitted.
+#elif defined(__APPLE__)
+    #include "window_AppKit.h"
 #endif
 
 //

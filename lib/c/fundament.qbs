@@ -27,6 +27,18 @@ Product {
         ])
     }
 
+    Properties{
+        condition: qbs.targetOS.contains('macos')
+
+        files: outer.concat([
+            'private/window_AppKit.m'
+        ])
+
+        cpp.frameworks: [
+            'AppKit'
+        ]
+    }
+
     Export {
         Depends{name: 'cpp' }
         cpp.includePaths:   'public'
