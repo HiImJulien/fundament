@@ -18,7 +18,8 @@ Product {
         condition: qbs.targetOS.contains('windows')
 
         files: outer.concat([
-            'private/window_win32.c'
+            'private/window_win32.c',
+            'private/fundament.rc'
         ])
 
         cpp.staticLibraries: outer.concat([
