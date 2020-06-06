@@ -140,3 +140,10 @@ void fn__imp_process_mouse_input(NSEvent* ev) {
     fev.button = button;
     fn__push_event(&fev);
 }
+
+void fn__imp_process_mouse_wheel(NSEvent* ev) {
+    struct fn_event fev = {0, };
+    fev.type = fn_event_type_mouse_wheel;
+    fev.mouse_wheel = ev.deltaZ;
+    
+}

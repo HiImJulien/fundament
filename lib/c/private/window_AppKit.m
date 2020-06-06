@@ -124,6 +124,11 @@ void fn__imp_window_poll_events() {
                 fn__imp_process_mouse_input(ev);
                 break;
 
+            case NSEventTypeScrollWheel:
+                fn__imp_process_mouse_wheel(ev);
+                break;
+
+            default: break;
         }
 
         [NSApp sendEvent: ev];
