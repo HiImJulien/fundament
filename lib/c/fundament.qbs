@@ -34,11 +34,13 @@ Product {
         condition: qbs.targetOS.contains('macos')
 
         files: outer.concat([
+            'private/input_AppKit.m',
             'private/window_AppKit.m'
         ])
 
         cpp.frameworks: [
-            'AppKit'
+            'AppKit',
+            'Carbon'
         ]
     }
 
