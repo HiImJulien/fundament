@@ -5,6 +5,8 @@ Product {
     type:   'dynamiclibrary'
 
     files: [
+        'private/input_common.c',
+        'private/input.c',
         'private/window_common.c',
         'private/window.c'
     ]

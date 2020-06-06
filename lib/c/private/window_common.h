@@ -43,6 +43,7 @@ struct fn__window {
     uint32_t                    height;
     const char*                 title;
     bool                        visible;
+    bool                        focused;
 };
 
 //

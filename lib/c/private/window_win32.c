@@ -96,8 +96,8 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         SetWindowLongPtrA(hWnd, GWLP_USERDATA, (LONG_PTR) cs->lpCreateParams);
     }
 
-    const uint32_t id = (uint32_t) GetWindowLongPtrA(hWnd, GWLP_USERDATA);
-    struct fn__window* w = &fn__g_window_context.windows[id];
+    const uint32_t index = (uint32_t) GetWindowLongPtrA(hWnd, GWLP_USERDATA);
+    struct fn__window* w = &fn__g_window_context.windows[index];
     struct fn_event ev;
 
     switch(msg) {
@@ -106,6 +106,33 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             ev.type = fn_event_type_closed;
             fn__push_event(&ev);
 
+            return 0;
+
+        case WM_KILLFOCUS:
+            w->focused = false;
+            ev.type = fn_event_type_focus_lost;
+            ev.window.id = index + 1;
+
+            fn__push_event(&ev);
+            return 0;
+
+        case WM_SETFOCUS:
+            w->focused = true;
+            ev.type = fn_event_type_focus_gained;
+            ev.window.id = index + 1;
+
+            fn__push_event(&ev);
+            return 0;
+
+        case WM_SIZE:
+            w->width = LOWORD(lParam);
+            w->height = HIWORD(lParam);
+            ev.type = fn_event_type_resized;
+            ev.window.id = index + 1;
+            ev.width = w->width;
+            ev.height = w->height;
+            
+            fn__push_event(&ev);
             return 0;
 
         default:

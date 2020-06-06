@@ -7,11 +7,11 @@
 //==============================================================================
 
 #include <fundament/api.h>
-#include <fundament/event.h>
 
 #include <stdbool.h>
 #include <stdint.h>
 
+struct fn_event;
 struct fn_window { uint32_t id; };
 
 //
