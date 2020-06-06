@@ -104,9 +104,29 @@ enum fn_key
     fn_key_down,
     fn_key_up,
 
-    fn_key_unknown,
+    fn_key_pad_lock,
+    fn_key_pad_div,
+    fn_key_pad_mul,
+    fn_key_pad_sub,
+    fn_key_pad_add,
+    fn_key_pad_enter,
+    fn_key_pad_1,
+    fn_key_pad_2,
+    fn_key_pad_3,
+    fn_key_pad_4,
+    fn_key_pad_5,
+    fn_key_pad_6,
+    fn_key_pad_7,
+    fn_key_pad_8,
+    fn_key_pad_9,
+    fn_key_pad_0,
 
-    // TODO: Keypad!
+    fn_key_mute     = 0x7F,
+    fn_key_vol_up   = 0x80,
+    fn_key_vol_down = 0x81,
+
+    fn_key_unknown,
+    fn_key_count    = 98,
 };
 
 //

@@ -31,6 +31,15 @@ int main() {
         if(ev.type == fn_event_type_mouse_wheel) {
             printf("delta: %d\n", ev.mouse_wheel);
         }
+
+        if(ev.type == fn_event_type_key_pressed && ev.key == fn_key_pad_enter)
+            printf("Keypad enter!\n");
+
+        if(ev.type == fn_event_type_key_pressed && ev.key == fn_key_pad_add)
+            printf("Keypad add!\n");
+
+        if(ev.type == fn_event_type_key_pressed && ev.key == fn_key_pad_div)
+            printf("Keypad div!\n");
     }
 
     fn_deinit_window_module();

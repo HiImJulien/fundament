@@ -33,7 +33,7 @@ enum fn_key fn__imp_map_virtual_key(WPARAM wParam, LPARAM lParam) {
         return (enum fn_key) wParam - 0x41 + fn_key_a;
 
     switch(wParam) {
-        case VK_RETURN:     return fn_key_enter;
+        case VK_RETURN:     return lParam & 0x1000000 ? fn_key_pad_enter : fn_key_enter;
         case VK_ESCAPE:     return fn_key_escape;
         case VK_BACK:       return fn_key_backspace;
         case VK_TAB:        return fn_key_tab;
@@ -79,6 +79,26 @@ enum fn_key fn__imp_map_virtual_key(WPARAM wParam, LPARAM lParam) {
         case VK_UP:         return fn_key_up;
         case VK_RIGHT:      return fn_key_right;
         case VK_DOWN:       return fn_key_down;
+
+        case VK_NUMLOCK:    return fn_key_pad_lock;
+        case VK_DIVIDE:     return fn_key_pad_div;
+        case VK_MULTIPLY:   return fn_key_pad_mul;
+        case VK_ADD:        return fn_key_pad_add;
+        case VK_SUBTRACT:   return fn_key_pad_sub;
+        case VK_NUMPAD1:    return fn_key_pad_1;
+        case VK_NUMPAD2:    return fn_key_pad_2;
+        case VK_NUMPAD3:    return fn_key_pad_3;
+        case VK_NUMPAD4:    return fn_key_pad_4;
+        case VK_NUMPAD5:    return fn_key_pad_5;
+        case VK_NUMPAD6:    return fn_key_pad_6;
+        case VK_NUMPAD7:    return fn_key_pad_7;
+        case VK_NUMPAD8:    return fn_key_pad_8;
+        case VK_NUMPAD9:    return fn_key_pad_9;
+        case VK_NUMPAD0:    return fn_key_pad_0;
+
+        case VK_VOLUME_MUTE:    return fn_key_mute;
+        case VK_VOLUME_UP:      return fn_key_vol_up;
+        case VK_VOLUME_DOWN:    return fn_key_vol_down;
 
         default:            return fn_key_unknown;
     }
