@@ -21,8 +21,11 @@ int main() {
         if(ev.type == fn_event_type_key_pressed && ev.key == fn_key_escape)
             break;
 
-        if(ev.type == fn_event_type_button_pressed && ev.button == fn_button_left)
+        if(ev.type == fn_event_type_button_pressed && ev.button == fn_button_left) {
+            printf("X: %d, Y: %d\n", ev.x, ev.y);
             printf("Pressed left button!\n");
+        }
+            
     }
 
     fn_deinit_window_module();

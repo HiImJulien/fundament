@@ -1,5 +1,7 @@
 #include "window_AppKit.h"
 #include "window_common.h"
+#include "input_AppKit.h"
+#include <fundament/event.h>
 
 #import <AppKit/AppKit.h>
 
@@ -106,6 +108,24 @@ void fn__imp_window_poll_events() {
                                    untilDate: nil
                                       inMode: NSDefaultRunLoopMode
                                      dequeue: YES])) {
+
+        switch(ev.type) {
+            case NSEventTypeKeyUp:
+            case NSEventTypeKeyDown:
+                fn__imp_process_keyboard_input(ev);
+                break;
+
+            case NSEventTypeLeftMouseDown:
+            case NSEventTypeLeftMouseUp:
+            case NSEventTypeRightMouseDown:
+            case NSEventTypeRightMouseUp:
+            case NSEventTypeOtherMouseDown:
+            case NSEventTypeOtherMouseUp:
+                fn__imp_process_mouse_input(ev);
+                break;
+
+        }
+
         [NSApp sendEvent: ev];
     }
 }
