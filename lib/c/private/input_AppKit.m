@@ -11,9 +11,14 @@ void fn__imp_process_keyboard_input(NSEvent* ev) {
     const enum fn_key key = fn__imp_map_virtual_key(ev.keyCode);
     fn__set_key_state(key, is_press);
 
+    char localized_key = 0;
+    if(1 == ev.characters.length)
+        localized_key = [ev.characters UTF8String][0];
+
     struct fn_event fev = {0, };
     fev.type = is_press ? fn_event_type_key_pressed : fn_event_type_key_released;
     fev.key = key;
+    fev.localized_key = localized_key;
     fn__push_event(&fev);
 }
 
@@ -145,5 +150,5 @@ void fn__imp_process_mouse_wheel(NSEvent* ev) {
     struct fn_event fev = {0, };
     fev.type = fn_event_type_mouse_wheel;
     fev.mouse_wheel = ev.deltaZ;
-    
+
 }
