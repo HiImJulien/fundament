@@ -20,9 +20,17 @@ int main() {
 
         if(ev.type == fn_event_type_key_pressed && ev.key == fn_key_escape)
             break;
+        else if(ev.type == fn_event_type_key_pressed)
+            printf("Character: %c\n", ev.localized_key);
 
-        if(ev.type == fn_event_type_button_pressed && ev.button == fn_button_left)
+        if(ev.type == fn_event_type_button_pressed && ev.button == fn_button_left) {
+            printf("X: %d, Y: %d\n", ev.x, ev.y);
             printf("Pressed left button!\n");
+        }
+
+        if(ev.type == fn_event_type_mouse_wheel) {
+            printf("delta: %d\n", ev.mouse_wheel);
+        }
     }
 
     fn_deinit_window_module();

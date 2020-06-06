@@ -9,12 +9,17 @@
             "command": "qbs",
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
         {
             "label": "clean",
             "type": "shell",
-            "command": ["qbs", "clean"]
+            "command": ["qbs", "clean"],
+            "group": "build",
         }
     ]
 }

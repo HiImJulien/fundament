@@ -5,27 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(macOS) Starten",
-            "type": "cppdbg",
+            "name": "Debug sample 'sample_window'",
             "request": "launch",
-            "program": "${workspaceFolder}/default/install-root/usr/local/simple_window",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/default/install-root/usr/local",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb"
-        },
+            "windows": {
+                "type": "cppvsdbg",
+                "program": "${workspaceRoot}/default/install-root/simple_window.exe",
+                "cwd": "${workspaceRoot}/default/install-root"
+            },
+            "osx": {
+                "MIMode": "lldb",
+                "type": "cppdbg",
+                "program": "${workspaceRoot}/default/install-root/usr/local/simple_window",
+                "cwd": "${workspaceRoot}/default/install-root/usr/local"
+            }
+        }
+    ],
+    "compounds": [
         {
-            "name": "(Windows) Launch",
-            "type": "cppvsdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/default/install-root/simple_window.exe",
-            "args": [],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false
+            "name": "Build before debug",
+            "configurations": ["Debug sample 'sample_window'"],
+            "preLaunchTask": "${defaultBuildTask}"
         }
     ]
 }

@@ -32,4 +32,10 @@ void fn__imp_process_mouse_input(UINT msg, LPARAM lParam);
 //
 void fn__imp_process_mouse_move(LPARAM lParam);
 
+//
+// Translates 'WM_KEYDOWN' and 'WM_KEYUP' events to 
+// 
+//
+char fn__imp_translate_to_char(WPARAM wParam, LPARAM lParam);
+
 #endif  // FUNDAMENT_INPUT_WIN32_H

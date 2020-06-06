@@ -20,6 +20,7 @@ enum fn_event_type {
     fn_event_type_button_pressed,
     fn_event_type_button_released,
     fn_event_type_mouse_moved,
+    fn_event_type_mouse_wheel,
 };
 
 //
@@ -49,6 +50,9 @@ struct fn_event {
         enum fn_button  button;
     };
 
+    int32_t         mouse_wheel;
+
+    char            localized_key;
     enum fn_key     key;
 };
 

@@ -156,6 +156,14 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             fn__imp_process_mouse_move(lParam);
             return 0;
 
+        case WM_MOUSEWHEEL: {
+            MOUSEHOOKSTRUCTEX* mhs = (MOUSEHOOKSTRUCTEX*) lParam;
+            ev.type = fn_event_type_mouse_wheel;
+            ev.mouse_wheel = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+            fn__push_event(&ev);
+            return 0;
+        }
+
         default:
             return DefWindowProcA(hWnd, msg, wParam, lParam);
     }

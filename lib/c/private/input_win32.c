@@ -18,6 +18,7 @@ void fn__imp_process_keyboard_input(UINT msg, WPARAM wParam, LPARAM lParam) {
     struct fn_event ev = {0, };
     ev.type = is_press ? fn_event_type_key_pressed : fn_event_type_key_released;
     ev.key = key;
+    ev.localized_key = fn__imp_translate_to_char(wParam, lParam);
     fn__push_event(&ev);
 }
 
@@ -133,4 +134,20 @@ void fn__imp_process_mouse_move(LPARAM lParam) {
     ev.y = HIWORD(lParam);
     ev.button = fn__get_pressed_buttons();
     fn__push_event(&ev);
+}
+
+char fn__imp_translate_to_char(WPARAM wParam, LPARAM lParam) {
+    BYTE state[256];
+    GetKeyboardState(state);
+    
+    DWORD ascii = 0;
+    const int length = ToAscii(
+        wParam,
+        (lParam >> 16) & 0x00ff,
+        state,
+        (LPWORD) &ascii,
+        0
+    );
+
+    return length == 1 ? (char) ascii : 0;
 }
