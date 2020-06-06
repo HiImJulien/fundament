@@ -15,8 +15,15 @@ int main() {
     printf("Created and configured window.\n");
 
     struct fn_event ev = {0, };
-    while(ev.type != fn_event_type_closed)
+    while(ev.type != fn_event_type_closed) {
         fn_poll_events(&ev);
+
+        if(ev.type == fn_event_type_key_pressed && ev.key == fn_key_escape)
+            break;
+
+        if(ev.type == fn_event_type_button_pressed && ev.button == fn_button_left)
+            printf("Pressed left button!\n");
+    }
 
     fn_deinit_window_module();
     return 0;

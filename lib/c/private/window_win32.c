@@ -1,5 +1,6 @@
 #include "window_win32.h"
 #include "window_common.h"
+#include "input_win32.h"
 #include <fundament/event.h>
 
 #include <stdbool.h>
@@ -133,6 +134,26 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             ev.height = w->height;
             
             fn__push_event(&ev);
+            return 0;
+
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            fn__imp_process_keyboard_input(msg, wParam, lParam);
+            return 0;
+
+        case WM_LBUTTONDOWN:
+        case WM_RBUTTONDOWN:
+        case WM_MBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_RBUTTONUP:
+        case WM_MBUTTONUP:
+            fn__imp_process_mouse_input(msg, lParam);
+            return 0;
+
+        case WM_MOUSEMOVE:
+            fn__imp_process_mouse_move(lParam);
             return 0;
 
         default:

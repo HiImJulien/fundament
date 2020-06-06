@@ -104,6 +104,8 @@ enum fn_key
     fn_key_down,
     fn_key_up,
 
+    fn_key_unknown,
+
     // TODO: Keypad!
 };
 
@@ -114,5 +116,27 @@ enum fn_key
 // but, instead, looks up its state in the frameworks cache.
 //
 API bool fn_is_key_pressed(enum fn_key key);
+
+//
+//  Enumerates all supported mouse buttons.
+//
+enum fn_button {
+    fn_button_left      = (1u << 0u),
+    fn_button_right     = (1u << 1u),
+    fn_button_middle    = (1u << 2u),
+};
+
+//
+//  Returns whether specified button(s) are pressed.
+//
+//  Note, that multiple buttons can be queried by OR'ing 
+//  the button values. E.g.:
+//
+//      fn_is_button_pressed(fn_button_left | fn_button_right);
+//
+//  Also this function does NOT query the actual physical state,
+//  but, instead, looks up its state in the frameworks cache.
+//
+API bool fn_is_button_pressed(enum fn_button buttons);
 
 #endif  // FUNDAMENT_INPUT_H

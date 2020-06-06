@@ -2,6 +2,7 @@
 #define FUNDAMENT_EVENT_H
 
 #include <fundament/window.h>
+#include <fundament/input.h>
 
 #include <stdint.h>
 
@@ -14,6 +15,11 @@ enum fn_event_type {
     fn_event_type_resized,
     fn_event_type_focus_gained,
     fn_event_type_focus_lost,
+    fn_event_type_key_pressed,
+    fn_event_type_key_released,
+    fn_event_type_button_pressed,
+    fn_event_type_button_released,
+    fn_event_type_mouse_moved,
 };
 
 //
@@ -27,6 +33,23 @@ struct fn_event {
         uint32_t    width;
         uint32_t    height;
     };
+
+    // In case of the 'fn_event_type_button_*' event,
+    // the button property stores the button that changed
+    // its state.
+    // E.g.: If you press the left button, then the property will
+    // store 'fn_button_left'.
+    //
+    // In case of the 'fn_event_type_mouse_moved' event,
+    // the button property stores all buttons that were pressed
+    // while moving the mouse.
+    struct {
+        int32_t         x;
+        int32_t         y;
+        enum fn_button  button;
+    };
+
+    enum fn_key     key;
 };
 
 #endif  // FUNDAMENT_EVENT_H
