@@ -1,1 +1,6 @@
 default/
+build/
+
+*.nupkg
+*.pyc
+__pycache__/
