@@ -51,6 +51,10 @@ Product {
 
     Group {
         qbs.install:    true
-        fileTagsFilter: product.type
+        fileTagsFilter: [
+            'debuginfo_dll', 
+            'dynamiclibrary_import'
+        ].concat(product.type)
     }
+
 }

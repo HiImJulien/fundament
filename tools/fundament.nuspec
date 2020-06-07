@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>fundament</id>
+        <version>0.0.1</version>
+        <title>fundament</title>
+        <authors>Julian Kirsch</authors>
+        <owners>Julian Kirsch</owners>
+        <projectUrl>https://github.com/HiImJulien/fundament</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A slick foundation for developers.</description>
+        <releaseNotes>Version 0.0.1 | Development</releaseNotes>
+        <copyright>Copyright 2020 Julian Kirsch</copyright>
+        <tags>native nativepackage fundament gamedev games</tags>
+    </metadata>
+    <files>
+        <file src="..\lib\c\public\**\*.h" target="build\native\include" />
+        <file src="..\build\release\fundament.dll" target="build\native\lib\release\fundament.dll"/>
+        <file src="..\build\release\fundament.lib" target="build\native\lib\release\fundament.lib"/>
+        <file src="..\build\debug\fundament.dll" target="build\native\lib\debug\fundament.dll"/>
+        <file src="..\build\debug\fundament.lib" target="build\native\lib\debug\fundament.lib"/>
+        <file src="..\build\debug\fundament.pdb" target="build\native\lib\debug\fundament.pdb"/>
+        <file src=".\fundament.targets" target="build\native\fundament.targets"/>
+    </files>
+</package>

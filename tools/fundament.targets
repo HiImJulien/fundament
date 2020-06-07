@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- Infer configuration settings -->
+    <Choose>
+        <When Condition="$(Configuration.ToLower().Contains('debug'))">
+            <PropertyGroup Condition="'$(LuaConfiguration)' != 'Release'">
+                <FundamentConfDir>debug</FundamentConfDir>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup Condition="'$(LuaConfiguration)' != 'Debug'">
+                <FundamentConfDir>release</FundamentConfDir>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
+    <!-- Set the include path -->
+    <ItemDefinitionGroup>
+        <ClCompile>
+            <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+        </ClCompile>
+    </ItemDefinitionGroup>
+
+    <!-- Linker settings -->
+    <ItemDefinitionGroup>
+        <Link>
+            <AdditionalDependencies>$(MSBuildThisFileDirectory)lib\$(FundamentConfDir)\fundament.lib</AdditionalDependencies>
+        </Link>
+    </ItemDefinitionGroup>
+
+    <!-- Copy DLLs -->
+    <ItemGroup>
+        <FundamentDLLs Include="$(MSBuildThisFileDirectory)\lib\$(FundamentConfDir)\fundament.dll" />
+    </ItemGroup>
+    <Target Name="CopyFundamentDLLs" AfterTargets="AfterBuild">
+        <Copy SourceFiles="@(FundamentDLLs)" DestinationFiles="@(FundamentDLLs-&gt;'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    </Target>
+</Project>
