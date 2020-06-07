@@ -11,9 +11,14 @@ void fn__imp_process_keyboard_input(NSEvent* ev) {
     const enum fn_key key = fn__imp_map_virtual_key(ev.keyCode);
     fn__set_key_state(key, is_press);
 
+    char localized_key = 0;
+    if(1 == ev.characters.length)
+        localized_key = [ev.characters UTF8String][0];
+
     struct fn_event fev = {0, };
     fev.type = is_press ? fn_event_type_key_pressed : fn_event_type_key_released;
     fev.key = key;
+    fev.localized_key = localized_key;
     fn__push_event(&fev);
 }
 
@@ -95,6 +100,27 @@ enum fn_key fn__imp_map_virtual_key(unsigned short keyCode) {
         case kVK_DownArrow: return fn_key_down;
         case kVK_UpArrow: return fn_key_up;
 
+        // TODO: Numlock
+        case kVK_ANSI_KeypadDivide: return fn_key_pad_div;
+        case kVK_ANSI_KeypadMultiply: return fn_key_pad_mul;
+        case kVK_ANSI_KeypadMinus: return fn_key_pad_sub;
+        case kVK_ANSI_KeypadPlus: return fn_key_pad_add;
+        case kVK_ANSI_KeypadEnter: return fn_key_pad_enter;
+        case kVK_ANSI_Keypad1: return fn_key_pad_1;
+        case kVK_ANSI_Keypad2: return fn_key_pad_2;
+        case kVK_ANSI_Keypad3: return fn_key_pad_3;
+        case kVK_ANSI_Keypad4: return fn_key_pad_4;
+        case kVK_ANSI_Keypad5: return fn_key_pad_5;
+        case kVK_ANSI_Keypad6: return fn_key_pad_6;
+        case kVK_ANSI_Keypad7: return fn_key_pad_7;
+        case kVK_ANSI_Keypad8: return fn_key_pad_8;
+        case kVK_ANSI_Keypad9: return fn_key_pad_9;
+        case kVK_ANSI_Keypad0: return fn_key_pad_0;
+
+        case kVK_Mute: return fn_key_mute;
+        case kVK_VolumeUp: return fn_key_vol_up;
+        case kVK_VolumeDown: return fn_key_vol_down;
+
         default: return fn_key_unknown;
     }
 }
@@ -139,4 +165,11 @@ void fn__imp_process_mouse_input(NSEvent* ev) {
     fev.y = (int32_t) frame.size.height - loc.y;
     fev.button = button;
     fn__push_event(&fev);
+}
+
+void fn__imp_process_mouse_wheel(NSEvent* ev) {
+    struct fn_event fev = {0, };
+    fev.type = fn_event_type_mouse_wheel;
+    fev.mouse_wheel = ev.deltaZ;
+
 }

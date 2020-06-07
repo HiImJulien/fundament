@@ -50,11 +50,16 @@ Product {
     }
 
     Group {
-        qbs.install:    true
+        qbs.install:    qbs.targetOS.contains('windows')
         fileTagsFilter: [
             'debuginfo_dll', 
             'dynamiclibrary_import'
         ].concat(product.type)
+    }
+
+    Group {
+        qbs.install:    qbs.targetOS.contains('macos')
+        fileTagsFilter: product.type
     }
 
 }

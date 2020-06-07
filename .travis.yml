@@ -1,0 +1,17 @@
+language: c
+
+env:
+  global:
+    secure: jwMpL0TXF4eDkOE+UedFO9BnoOe+WE8z2oAx+4fC1OJhn+vJhG7yqdSVb1U/L6M8XV+VyLcIEnt1IwYx8BSMlwF3Tz/2lsIheveClWY7C4EeiY3Gd3aVno96D0RZfk0jQaXflChTfGeI/o9LlSvOzmgPn7q3+Xf1f58xzHOsFV0sGECtHtYUIUc4lutOTE2/QLirq5lWpxENj0gugKTT/O7bIRqC+N7DFRVXX6ytm/m408DXY7+CRom2APpy7XrDZMW5E7d0VD9KuaU8SwSUBEoq+OO6VJjpHmvjRezOPTi9iCiJ+IiRMHRcrb0DlLzisUgPR8WnLZWicOu+//re68VA0hpHsJoBkXQstBwe4xX6Ufcl3w6WGGq0Lm2n1rGUpI82FyH7e6Gifaw/Fam7LlqghSJt2ueW3gE3yZpgnpGWNF//Kds+ZuDL/AyMrFGHoZTYAN2KV726UrOInWgaS9csFmYKeApuilWvqEpKSpEU8+7j1x03TSrokiyPgSaSsJf16vc2+IFAOYsJXA8Ts1k2Ma/PCYilSyQQDiYPjNqXfmaJ+LGC34BBzXezYMPfWT0rzUI5gZhvz0oiP5460xyIxEsEwTL2InbmleqdDA9JAfDOCuq3chH4k38+Jksbp8477A8ZvfFCe8ONA1TfIQFs2IZ3JZDmIsQxH2GCW6g=
+
+os:
+- osx
+- windows
+
+install:
+- rake install
+- rake configure
+
+script:
+- rake build
+- rake deploy

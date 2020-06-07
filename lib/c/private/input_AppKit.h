@@ -25,4 +25,6 @@ enum fn_key fn__imp_map_virtual_key(unsigned short keyCode);
 //
 void fn__imp_process_mouse_input(NSEvent* ev);
 
+void fn__imp_process_mouse_wheel(NSEvent* ev);
+
 #endif  // FUNDAMENT_INPUT_APPKIT_H
