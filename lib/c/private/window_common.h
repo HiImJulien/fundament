@@ -27,6 +27,8 @@
     // should already cause an error to be submitted.
 #elif defined(__APPLE__)
     #include "window_AppKit.h"
+#elif defined(__linux__)
+    #include "window_Xcb.h"
 #endif
 
 //
