@@ -4,3 +4,4 @@ build/
 *.nupkg
 *.pyc
 __pycache__/
+tags
