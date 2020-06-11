@@ -28,6 +28,8 @@ void fn__init_window_context() {
     fn__g_window_context.events_size = 0;
     fn__g_window_context.events_tail = 0;
 
+    fn__g_window_context.focused_window.id = 0;
+
     fn__imp_init_window_context();
 }
 
@@ -148,8 +150,7 @@ void fn__notify_window_gained_focus(uint32_t idx) {
     struct fn__window* w = &fn__g_window_context.windows[idx];
     w->focused = true;
 
-    // TODO: Extend window_context to cache the currently
-    // focused window id and set it here.  
+    fn__g_window_context.focused_window.id = idx + 1;
 }
 
 void fn__notify_window_lost_focus(uint32_t idx) {
@@ -161,6 +162,8 @@ void fn__notify_window_lost_focus(uint32_t idx) {
     struct fn__window* w = &fn__g_window_context.windows[idx];
     w->focused = true;
 
-    // TODO: Extend window_context to cache the currently
-    // focused window id and set it here.  
+    // NOTE: A window id of 0 is considered an invalid handle,
+    // this used to signal that currently no window is focused
+    // (until notify_window_resized window signals otherwise).
+    fn__g_window_context.focused_window.id = 0;
 }

@@ -60,6 +60,8 @@ struct fn__window_context {
     size_t                  events_capacity;
     size_t                  events_size;
     size_t                  events_tail;
+
+    struct fn_window        focused_window;
 };
 
 //
@@ -122,7 +124,7 @@ void fn__notify_window_destroyed(uint32_t idx);
 void fn__notify_window_resized(uint32_t idx, uint32_t width, uint32_t height); 
 
 //
-// Notifies the framework that the window with index 'idx',
+// Notifies the framework that the window with index 'idx'
 // gained focus.
 //
 // Generates an event with type 'fn_event_type_focus_gained' and
@@ -130,5 +132,14 @@ void fn__notify_window_resized(uint32_t idx, uint32_t width, uint32_t height);
 // context.
 //
 void fn__notify_window_gained_focus(uint32_t idx);
+
+//
+// Notifies the framework that the window with index 'idx'
+// lost focus.
+//
+// Generates an event with type 'fn_event_type_focus_lost' and 
+// sets it as the currently focus window in the global context.
+//
+void fn__notify_window_lost_focus(uint32_t idx);
 
 #endif  // FUNDAMENT_WINDOW_COMMON_H
