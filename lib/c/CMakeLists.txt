@@ -25,7 +25,8 @@ target_sources(
 target_include_directories(
     fundament
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/public
+        $<INSTALL_INTERFACE:public>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/public>
 )
 
 target_compile_definitions(
@@ -81,3 +82,20 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
         PkgConfig::Xcb
     )
 endif()
+
+get_target_property(PUBLIC_HEADERS fundament INTERFACE_SOURCES)
+set_target_properties(
+    fundament
+    PROPERTIES
+    PUBLIC_HEADER "${PUBLIC_HEADERS}"
+)
+
+install(
+    TARGETS fundament 
+    EXPORT fundament
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+    INCLUDES DESTINATION public
+    PUBLIC_HEADER DESTINATION public/fundament
+)
