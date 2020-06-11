@@ -3,5 +3,6 @@ build/
 
 *.nupkg
 *.pyc
+*.swp
 __pycache__/
 tags
