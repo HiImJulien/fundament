@@ -52,7 +52,7 @@ struct fn__window {
 // Encapsulates data shared across the windowing API.
 //
 struct fn__window_context {
-    struct fn__window*  windows;
+    struct fn__window*      windows;
     size_t                  windows_capacity;
     size_t                  windows_size;
 
@@ -97,5 +97,38 @@ void fn__push_event(struct fn_event* ev);
 // will be overwritten with default values.
 //
 void fn__pop_event(struct fn_event* ev);
+
+//==============================================================================
+// The following section declares 'callback' functions, used 
+// to inform the framework about certain events.
+//==============================================================================
+
+//
+// Notifies the framework that the window with index 'idx',
+// was destroyed.
+// 
+// Generates an event with type 'fn_event_type_destroyed' and 
+// releases the window's resources.
+//
+void fn__notify_window_destroyed(uint32_t idx);
+
+//
+// Notifies the framework that the window with index 'idx',
+// was resized.
+//
+// Generates an event with type 'fn_event_type_resized' and
+// adjusts the cache dimensions.
+//
+void fn__notify_window_resized(uint32_t idx, uint32_t width, uint32_t height); 
+
+//
+// Notifies the framework that the window with index 'idx',
+// gained focus.
+//
+// Generates an event with type 'fn_event_type_focus_gained' and
+// sets it as the currently focused window in the global
+// context.
+//
+void fn__notify_window_gained_focus(uint32_t idx);
 
 #endif  // FUNDAMENT_WINDOW_COMMON_H

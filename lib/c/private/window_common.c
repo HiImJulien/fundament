@@ -101,3 +101,66 @@ void fn__pop_event(struct fn_event* ev) {
         sizeof(struct fn_event)
     );
 }
+
+//==============================================================================
+// The following section implements the callback functions declared in 
+// 'window_common.h'.
+//==============================================================================
+
+void fn__notify_window_destroyed(uint32_t idx) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_closed;
+    ev.window.id = idx + 1;
+    fn__push_event(&ev);
+
+    struct fn__window* w = &fn__g_window_context.windows[idx];   
+    fn__imp_destroy_window(w->handle);
+    w->handle = (fn_native_window_handle_t) 0;
+    w->width = 0;
+    w->height = 0;
+    
+    free((char*) w->title);
+    w->title = NULL;
+    
+    w->visible = false;
+    w->focused = false;
+}
+
+void fn__notify_window_resized(uint32_t idx, uint32_t width, uint32_t height) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_resized;
+    ev.window.id = idx + 1;
+    ev.width = width;
+    ev.height = height;
+    fn__push_event(&ev);
+
+    struct fn__window* w = &fn__g_window_context.windows[idx];
+    w->width = width;
+    w->height = height;
+}
+
+void fn__notify_window_gained_focus(uint32_t idx) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_focus_gained;
+    ev.window.id = idx + 1;
+    fn__push_event(&ev);
+
+    struct fn__window* w = &fn__g_window_context.windows[idx];
+    w->focused = true;
+
+    // TODO: Extend window_context to cache the currently
+    // focused window id and set it here.  
+}
+
+void fn__notify_window_lost_focus(uint32_t idx) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_focus_lost;
+    ev.window.id = idx + 1;
+    fn__push_event(&ev);
+
+    struct fn__window* w = &fn__g_window_context.windows[idx];
+    w->focused = true;
+
+    // TODO: Extend window_context to cache the currently
+    // focused window id and set it here.  
+}

@@ -61,6 +61,12 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
             ${CMAKE_CURRENT_SOURCE_DIR}/private/window_AppKit.h
             ${CMAKE_CURRENT_SOURCE_DIR}/private/window_AppKit.m
     )
+
+    target_link_libraries(
+        fundament
+        PRIVATE
+        "-framework AppKit"
+    )
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
