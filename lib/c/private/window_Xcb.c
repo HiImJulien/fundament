@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+
 #include <xcb/xcb.h>
+#include <xcb/xinput.h>
 
 static xcb_connection_t* connection = NULL;
 static xcb_screen_t* screen = NULL;
@@ -17,6 +19,13 @@ static xcb_atom_t atom_delete_window = 0;
 // which the again is used to by the event handler
 // to determine the exact window.
 static xcb_atom_t atom_fundament_id = 0;
+
+static bool xinput_present = false;
+static uint8_t xinput_opcode = 0;
+static uint16_t xinput_version = (
+    ((uint8_t) XCB_INPUT_MAJOR_VERSION << 8)
+    | (uint8_t) XCB_INPUT_MINOR_VERSION
+);
 
 static uint32_t get_fundament_id_from_window(fn_native_window_handle_t handle) {
     xcb_get_property_cookie_t id_cookie = xcb_get_property(
@@ -86,16 +95,54 @@ void fn__imp_init_window_context() {
         id_cookie,
         0
     );
+    
+    // Check whether XInput is supported.
+    xcb_query_extension_cookie_t qxi_cookie = xcb_query_extension(
+        connection,
+        15,
+        "XInputExtension"
+    );
+
+    xcb_query_extension_reply_t* qxi_reply = xcb_query_extension_reply(
+        connection,
+        qxi_cookie,
+        NULL
+    );
+
+    xcb_input_get_extension_version_cookie_t xiv_cookie =
+        xcb_input_get_extension_version(
+            connection,
+            15,
+            "XInputExtension"
+        );
+
+    xcb_input_get_extension_version_reply_t* xiv_reply =
+        xcb_input_get_extension_version_reply(
+            connection,
+            xiv_cookie,
+            NULL
+        );
 
     xcb_flush(connection);
 
     atom_protocols = protocols_reply->atom;
     atom_delete_window = delete_window_reply->atom;
     atom_fundament_id = id_cookie_reply->atom; 
-    
+
+    const uint16_t reported_version = 
+        (xiv_reply->server_major << 8) | xiv_reply->server_minor;
+     
+    if(qxi_reply->present && xinput_version >= reported_version) {
+        xinput_present = true;
+        xinput_opcode = qxi_reply->major_opcode; 
+
+        
+    }
+
     free(protocols_reply);
     free(delete_window_reply);
     free(id_cookie_reply);
+    free(qxi_reply);
 }
 
 fn_native_window_handle_t fn__imp_create_window(uint32_t index) {

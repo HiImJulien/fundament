@@ -81,11 +81,13 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(Xcb REQUIRED IMPORTED_TARGET xcb)
+    pkg_check_modules(XcbXinput REQUIRED IMPORTED_TARGET xcb-xinput)
 
     target_link_libraries(
         fundament
         PRIVATE
         PkgConfig::Xcb
+        PkgConfig::XcbXinput
     )
 endif()
 
