@@ -16,6 +16,7 @@ jobs:
             sudo apt-get install cmake -y
             sudo apt-get install ninja-build -y
             sudo apt-get install libx11-xcb-dev -y
+            sudo apt-get install libxcb-xinput-dev -y
             sudo apt-get install pkg-config -y
         - name: Build 
           run: |
