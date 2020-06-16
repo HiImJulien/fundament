@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 
+#include <linux/input-event-codes.h>
+
 //
 // Processes X11/Xinput key press/release events.
 //
@@ -22,6 +24,5 @@ void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed);
 // 'linux/input-event-codes.h'.
 //
 enum fn_key fn__imp_map_virtual_key(uint32_t keycode);
-
 
 #endif  // FUNDAMENT_INPUT_XCB_H
