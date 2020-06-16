@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 
+#include <X11/Xlib.h>
 #include <linux/input-event-codes.h>
 
 //
@@ -24,5 +25,10 @@ void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed);
 // 'linux/input-event-codes.h'.
 //
 enum fn_key fn__imp_map_virtual_key(uint32_t keycode);
+
+//
+// Translates a keycode to a localized character representing the key.
+//
+char fn__imp_translate_key(Display* dpy, uint32_t keycode);
 
 #endif  // FUNDAMENT_INPUT_XCB_H

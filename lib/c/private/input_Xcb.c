@@ -2,6 +2,7 @@
 #include "window_common.h"
 #include <fundament/event.h>
 
+#include <X11/keysym.h>
 #include <linux/input-event-codes.h>
 
 void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed) {
@@ -127,3 +128,23 @@ enum fn_key fn__imp_map_virtual_key(uint32_t keycode) {
     }
 }
 
+char fn__imp_translate_key(Display* dpy, uint32_t keycode) {
+    char buffer[16];
+
+    // XLookupString requires an XKeyEvent,
+    // here we create a dummy event.
+    XKeyEvent ev = {0, };
+    ev.display = dpy;
+    ev.keycode = keycode;
+    ev.state = 0;
+
+    const int res = XLookupString(
+        &ev,
+        buffer,
+        16,
+        NULL,
+        NULL 
+    );
+    
+    return res == 0 ? 0 : buffer[0];
+}

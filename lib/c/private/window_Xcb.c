@@ -7,9 +7,12 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <X11/Xlib.h>
+#include <X11/Xlib-xcb.h>
 #include <xcb/xcb.h>
 #include <xcb/xinput.h>
 
+static Display* display = NULL;
 static xcb_connection_t* connection = NULL;
 static xcb_screen_t* screen = NULL;
 static xcb_atom_t atom_protocols = 0;
@@ -54,7 +57,10 @@ static uint32_t get_fundament_id_from_window(fn_native_window_handle_t handle) {
 }
 
 void fn__imp_init_window_context() {
-    connection = xcb_connect(NULL, NULL);
+    display = XOpenDisplay(0);
+    connection = XGetXCBConnection(display);
+    XSetEventQueueOwner(display, XCBOwnsEventQueue);
+
     screen = xcb_setup_roots_iterator(xcb_get_setup(connection)).data;
     
     xcb_intern_atom_cookie_t protocols_cookie = xcb_intern_atom(
@@ -315,6 +321,9 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
         case XCB_INPUT_KEY_PRESS: {
             xcb_input_device_key_press_event_t* ev = 
                 (xcb_input_device_key_press_event_t*) gev;
+
+            char loc = fn__imp_translate_key(display, (uint32_t) ev->child); 
+            printf("Translated: %c\n", loc);
 
             // Values offset by 8 compared to linux' key codes?
             fn__imp_process_keyboard_input(
