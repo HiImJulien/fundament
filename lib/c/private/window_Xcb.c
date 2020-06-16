@@ -136,7 +136,19 @@ void fn__imp_init_window_context() {
         xinput_present = true;
         xinput_opcode = qxi_reply->major_opcode; 
 
-        
+        xcb_input_event_mask_t head = {
+            .deviceid = XCB_INPUT_DEVICE_ALL,
+            .mask_len = sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)
+        };
+
+        xcb_input_xi_select_events(
+            connection,
+            screen->root,
+            1,
+            &head
+        );
+
+        xcb_flush(connection);
     }
 
     free(protocols_reply);
@@ -197,6 +209,27 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index) {
 
     xcb_map_window(connection, handle);
     xcb_flush(connection);
+
+    if(xinput_present) {
+        xcb_input_event_mask_t head = {
+            .deviceid = XCB_INPUT_DEVICE_ALL,
+            .mask_len = sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)
+        };
+       
+        uint32_t* mask = xcb_input_event_mask_mask(&head);
+        mask[0] = 
+            XCB_INPUT_XI_EVENT_MASK_KEY_PRESS
+            | XCB_INPUT_XI_EVENT_MASK_KEY_RELEASE;
+
+        xcb_input_xi_select_events(
+            connection,
+            handle,
+            1,
+            &head
+        );
+
+        xcb_flush(connection);    
+    }
 
     return handle;
 }
@@ -275,6 +308,25 @@ void fn__imp_window_set_visibility(
         xcb_unmap_window(connection, handle);
 
     xcb_flush(connection);
+}
+
+static void process_xinput_event(xcb_ge_generic_event_t* gev) {
+    switch(gev->event_type) {
+        case XCB_INPUT_KEY_PRESS: {
+            xcb_input_device_key_press_event_t* ev = 
+                (xcb_input_device_key_press_event_t*) gev;
+
+            // Values offset by 8 compared to linux' key codes?
+            printf("DevId: %lu\n", (uint32_t) ev->child);
+        } break;
+
+        case XCB_INPUT_KEY_RELEASE: {
+            xcb_input_device_key_release_event_t* ev =
+                (xcb_input_device_key_release_event_t*) gev;
+
+            printf("*DevId: %lu\n", (uint32_t) ev->child);
+        } break;
+    } 
 }
 
 void fn__imp_window_poll_events() {
@@ -427,6 +479,13 @@ void fn__imp_window_poll_events() {
                 fev.x = cev->event_x;
                 fev.y = cev->event_y;
                 fn__push_event(&fev);
+            } break;
+            
+            case XCB_GE_GENERIC: {
+                xcb_ge_generic_event_t* gev = (xcb_ge_generic_event_t*) ev;
+                if(gev->extension == xinput_opcode)
+                    process_xinput_event(gev);
+
             } break;
  
             default: break;
