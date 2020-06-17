@@ -5,13 +5,14 @@
 #include <X11/keysym.h>
 #include <linux/input-event-codes.h>
 
-void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed) {
+void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed, char loc) {
     const enum fn_key key = fn__imp_map_virtual_key(keycode);
     fn__set_key_state(key, pressed); 
 
     struct fn_event ev = {0, };
     ev.type = pressed ? fn_event_type_key_pressed : fn_event_type_key_released;
     ev.key = key;
+    ev.localized_key = loc;
     fn__push_event(&ev);
 }
 

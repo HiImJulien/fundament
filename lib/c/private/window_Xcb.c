@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xlib-xcb.h>
@@ -225,7 +226,9 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index) {
         uint32_t* mask = xcb_input_event_mask_mask(&head);
         mask[0] = 
             XCB_INPUT_XI_EVENT_MASK_KEY_PRESS
-            | XCB_INPUT_XI_EVENT_MASK_KEY_RELEASE;
+            | XCB_INPUT_XI_EVENT_MASK_KEY_RELEASE
+            | XCB_INPUT_XI_EVENT_MASK_BUTTON_PRESS
+            | XCB_INPUT_XI_EVENT_MASK_BUTTON_RELEASE;
 
         xcb_input_xi_select_events(
             connection,
@@ -323,12 +326,12 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
                 (xcb_input_device_key_press_event_t*) gev;
 
             char loc = fn__imp_translate_key(display, (uint32_t) ev->child); 
-            printf("Translated: %c\n", loc);
 
             // Values offset by 8 compared to linux' key codes?
             fn__imp_process_keyboard_input(
                 (uint32_t) ev->child,
-                true
+                true,
+                loc
             );
         } break;
 
@@ -341,7 +344,7 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
                 false
             );
         } break;
-    } 
+    }
 }
 
 void fn__imp_window_poll_events() {
@@ -430,10 +433,11 @@ void fn__imp_window_poll_events() {
                 xcb_button_press_event_t* cev =
                     (xcb_button_press_event_t*) ev;
 
+                printf("Ev: %"PRIu32"\n", cev->event);
                 uint32_t idx = get_fundament_id_from_window(cev->event);
 
-                if((cev->event & XCB_BUTTON_MASK_4)
-                    || cev->event & XCB_BUTTON_MASK_5) {
+                if((cev->detail & XCB_BUTTON_MASK_4) != 0
+                    || cev->detail & XCB_BUTTON_MASK_5) {
                     fev.type = fn_event_type_mouse_wheel;
                     fev.window.id = idx + 1;
                     fev.button = fn__get_pressed_buttons();
@@ -443,13 +447,13 @@ void fn__imp_window_poll_events() {
                     break;
                 }
 
-                if(cev->event & XCB_BUTTON_MASK_1)
+                if(cev->detail & XCB_BUTTON_MASK_1)
                     fn__set_button_state(fn_button_left, true);
 
-                if(cev->event & XCB_BUTTON_MASK_2)
+                if(cev->detail & XCB_BUTTON_MASK_2)
                     fn__set_button_state(fn_button_right, true);
 
-                if(cev->event & XCB_BUTTON_MASK_3)
+                if(cev->detail & XCB_BUTTON_MASK_3)
                     fn__set_button_state(fn_button_middle, true);
                     
                 fev.type = fn_event_type_button_pressed;

@@ -16,7 +16,7 @@
 //
 // Processes X11/Xinput key press/release events.
 //
-void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed);
+void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed, char loc);
 
 //
 // Maps the X11/XInput virtual keycodes to a fundament key code.
