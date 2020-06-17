@@ -35,6 +35,11 @@ target_compile_definitions(
     c_std_11
 )
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/config.h.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/config.h
+)
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     target_sources(
         fundament
