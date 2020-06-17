@@ -344,6 +344,40 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
                 false
             );
         } break;
+
+        case XCB_INPUT_BUTTON_PRESS: 
+        case XCB_INPUT_BUTTON_RELEASE: {
+            const bool is_press = gev->event_type == XCB_INPUT_BUTTON_PRESS;
+            xcb_input_button_press_event_t* ev =
+                (xcb_input_button_press_event_t*) gev;
+
+            struct fn_event fev = {0, };
+            if(ev->detail == 4 || ev->detail == 5) {
+                fev.type = fn_event_type_mouse_wheel;
+                fev.mouse_wheel = ev->detail == 4 ? 1 : -1;
+                fn__push_event(&fev); 
+            }
+
+            enum fn_button button = 0;
+            if(ev->detail == 1)
+                button = fn_button_left;
+            else if(ev->detail == 2)
+                button = fn_button_middle;
+            else if(ev->detail == 3)
+                button = fn_button_right;
+
+            fn__set_button_state(button, true);
+
+            fev.type = is_press
+                ? fn_event_type_button_pressed
+                : fn_event_type_button_released;
+
+            fev.button = button;
+            fev.x = (int32_t)((float) ev->event_x / (float)(1 << 16));
+            fev.y = (int32_t)((float) ev->event_y / (float)(1 << 16));
+            fn__push_event(&fev);
+               
+        } break;
     }
 }
 
