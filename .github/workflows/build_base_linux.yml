@@ -13,13 +13,11 @@ jobs:
           run: | 
             sudo apt-get update
             sudo apt-get install clang -y
-            sudo apt-get install cmake -y
-            sudo apt-get install ninja-build -y
             sudo apt-get install libx11-xcb-dev -y
             sudo apt-get install libxcb*-dev -y
             sudo apt-get install pkg-config -y
         - name: Build 
           run: |
-            ./waf configure
-            ./waf build_package
+            python3 waf configure
+            python3 waf build_package
 
