@@ -15,6 +15,7 @@ VERSION = '0.2'
 
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
+    ctx.load('build_configurations', tooldir='tools')
 
 def configure(ctx: ConfigurationContext):
     ctx.load('compiler_c')
@@ -37,6 +38,10 @@ def configure(ctx: ConfigurationContext):
             uselib_store='x11-xcb',
             args=['--cflags', '--libs']
         )
+
+    # Branch the configuration into a debug and release
+    # variant.
+    ctx.load('build_configurations', tooldir='tools')
 
 def build(ctx: BuildContext):
     source = [
@@ -74,7 +79,4 @@ def build(ctx: BuildContext):
         'lib/c/public/fundament/input.h',
         'lib/c/public/fundament/window.h',
     ])
-
-                
-
 
