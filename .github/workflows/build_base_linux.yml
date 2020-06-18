@@ -20,7 +20,6 @@ jobs:
             sudo apt-get install pkg-config -y
         - name: Build 
           run: |
-            cmake . -Bbuild -G "Ninja Multi-Config"
-            cmake --build build --config Debug
-            cmake --build build --config Release
+            ./waf configure
+            ./waf build_package
 
