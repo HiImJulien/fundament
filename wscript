@@ -3,6 +3,8 @@ This file is used by the Waf build system to drive this project's build.
 '''
 
 import enum
+import tarfile
+import pathlib
 
 from waflib import Options
 from waflib.Context import Context
@@ -16,7 +18,7 @@ VERSION = '0.2'
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
     ctx.load('build_configurations', tooldir='tools')
-    ctx.load('binary_dist', tooldir='tools')
+    ctx.load('dist_build', tooldir='tools')
 
 def configure(ctx: ConfigurationContext):
     ctx.load('compiler_c')
@@ -43,6 +45,7 @@ def configure(ctx: ConfigurationContext):
     # Branch the configuration into a debug and release
     # variant.
     ctx.load('build_configurations', tooldir='tools')
+    ctx.load('dist_build', tooldir='tools')
 
 def build(ctx: BuildContext):
     source = [
@@ -66,19 +69,11 @@ def build(ctx: BuildContext):
             'x11-xcb'
         ])
 
-    ctx.shlib(
+    artefact = ctx.shlib(
         target='fundament',
         source=source,
         includes='lib/c/public',
         export_includes='lib/c/public',
         use=dependencies    
     )
-
-    ctx.install_files('public', [
-        'lib/c/public/fundament/api.h',
-        'lib/c/public/fundament/config.h',
-        'lib/c/public/fundament/event.h',
-        'lib/c/public/fundament/input.h',
-        'lib/c/public/fundament/window.h',
-    ])
 
