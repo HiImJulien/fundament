@@ -16,6 +16,7 @@ VERSION = '0.2'
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
     ctx.load('build_configurations', tooldir='tools')
+    ctx.load('binary_dist', tooldir='tools')
 
 def configure(ctx: ConfigurationContext):
     ctx.load('compiler_c')
@@ -69,6 +70,7 @@ def build(ctx: BuildContext):
         target='fundament',
         source=source,
         includes='lib/c/public',
+        export_includes='lib/c/public',
         use=dependencies    
     )
 
