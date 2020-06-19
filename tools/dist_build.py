@@ -42,6 +42,7 @@ class Package(BuildContext):
         tar.add(str(rel_artifact), arcname=rel_target)
         tar.add(str(deb_artifact), arcname=deb_target)  
         tar.add('lib/c/public/', arcname='public')
+        tar.add('tools/FundamentConfig.cmake', arcname='FundamentConfig.cmake')
         tar.close()
 
     def _prepare(self):
