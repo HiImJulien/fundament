@@ -6,7 +6,10 @@ on:
 
 jobs:
     build:
-        runs-on:    [ubuntu-latest, macos-latest]
+        runs-on: ${{ matrix.os }}
+        strategy:
+          matrix:
+              os: [ubuntu-latest, macOS-latest]
         steps:
         - uses: actions/checkout@v2
         - name: Install tools
