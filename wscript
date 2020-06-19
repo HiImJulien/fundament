@@ -42,6 +42,11 @@ def configure(ctx: ConfigurationContext):
             args=['--cflags', '--libs']
         )
 
+    if ctx.env.DEST_OS == 'darwin':
+        # ctx.check(framework='AppKit', msg='Checking for framework Appkit')
+
+        ctx.load('objc', tooldir='tools')
+
     # Branch the configuration into a debug and release
     # variant.
     ctx.load('build_configurations', tooldir='tools')
@@ -67,6 +72,12 @@ def build(ctx: BuildContext):
             'xcb',
             'xcb-xinput',
             'x11-xcb'
+        ])
+
+    if ctx.env.DEST_OS == 'darwin':
+        source.extend([
+            'lib/c/private/window_Appkit.m',
+            'lib/c/private/input_AppKit.m' 
         ])
 
     artefact = ctx.shlib(
