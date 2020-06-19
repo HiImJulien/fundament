@@ -17,8 +17,8 @@ VERSION = '0.2'
 
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
-    # ctx.load('build_configurations', tooldir='tools')
-    # ctx.load('dist_build', tooldir='tools')
+    ctx.load('build_configurations', tooldir='tools')
+    ctx.load('dist_build', tooldir='tools')
     ctx.load('objc', tooldir='tools')
 
 def configure(ctx: ConfigurationContext):
@@ -50,8 +50,8 @@ def configure(ctx: ConfigurationContext):
 
     # Branch the configuration into a debug and release
     # variant.
-    # ctx.load('build_configurations', tooldir='tools')
-    # ctx.load('dist_build', tooldir='tools')
+    ctx.load('build_configurations', tooldir='tools')
+    ctx.load('dist_build', tooldir='tools')
 
 def build(ctx: BuildContext):
     source = [
