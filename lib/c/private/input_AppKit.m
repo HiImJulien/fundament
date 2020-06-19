@@ -2,7 +2,7 @@
 #include "window_common.h"
 #include <fundament/event.h>
 
-#import <Carbon/Carbon.h>
+#include <Carbon/Carbon.h>
 
 void fn__imp_process_keyboard_input(NSEvent* ev) {
     // ev.type is one of the NSEventTypeKey* events;

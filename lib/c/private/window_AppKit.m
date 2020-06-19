@@ -3,7 +3,7 @@
 #include "input_AppKit.h"
 #include <fundament/event.h>
 
-#import <AppKit/AppKit.h>
+#include <AppKit/AppKit.h>
 
 #include <stdio.h>
 
@@ -23,14 +23,25 @@ static bool g_setup_process = false;
 }
 
 -(void) windowWillClose: (NSNotification*) notification {
-    struct fn_event ev = {0};
-    ev.type = fn_event_type_closed;
-    fn__push_event(&ev);
+    fn__notify_window_destroyed(self.index);
+}
 
-    struct fn__window* w = &fn__g_window_context.windows[self.index];
-    [w->handle release];
-    w->handle = NULL;
-    // ev.window.id = self.windowId;
+-(void) windowDidResize: (NSNotification*) notification {
+    NSWindow* w = [notification object];
+    NSSize size = w.contentView.frame.size;
+    fn__notify_window_resized(
+        self.index, 
+        (uint32_t) size.width,
+        (uint32_t) size.height
+    );
+}
+
+-(void) windowDidBecomeKey: (NSNotification*) notification {
+    fn__notify_window_gained_focus(self.index);
+}
+
+-(void) windowDidResignKey: (NSNotification*) notification {
+    fn__notify_window_lost_focus(self.index);
 }
 
 @end
@@ -134,3 +145,4 @@ void fn__imp_window_poll_events() {
         [NSApp sendEvent: ev];
     }
 }
+

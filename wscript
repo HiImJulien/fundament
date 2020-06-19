@@ -17,8 +17,9 @@ VERSION = '0.2'
 
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
-    ctx.load('build_configurations', tooldir='tools')
-    ctx.load('dist_build', tooldir='tools')
+    # ctx.load('build_configurations', tooldir='tools')
+    # ctx.load('dist_build', tooldir='tools')
+    ctx.load('objc', tooldir='tools')
 
 def configure(ctx: ConfigurationContext):
     ctx.load('compiler_c')
@@ -43,14 +44,14 @@ def configure(ctx: ConfigurationContext):
         )
 
     if ctx.env.DEST_OS == 'darwin':
-        # ctx.check(framework='AppKit', msg='Checking for framework Appkit')
+        ctx.check(framework='AppKit', msg='Checking for framework Appkit', uselib_store='AppKit')
 
         ctx.load('objc', tooldir='tools')
 
     # Branch the configuration into a debug and release
     # variant.
-    ctx.load('build_configurations', tooldir='tools')
-    ctx.load('dist_build', tooldir='tools')
+    # ctx.load('build_configurations', tooldir='tools')
+    # ctx.load('dist_build', tooldir='tools')
 
 def build(ctx: BuildContext):
     source = [
@@ -80,11 +81,14 @@ def build(ctx: BuildContext):
             'lib/c/private/input_AppKit.m' 
         ])
 
+        dependencies.extend([
+            'AppKit'
+        ])
+
     artefact = ctx.shlib(
         target='fundament',
         source=source,
-        includes='lib/c/public',
-        export_includes='lib/c/public',
+        includes='lib/c/public/',
         use=dependencies    
     )
 
