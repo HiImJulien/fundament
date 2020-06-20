@@ -21,7 +21,7 @@ jobs:
             sudo apt-get install pkg-config -y
         - uses: actions/cache@v2
           env: cache-build
-          with: path
+          with:
             path: ./build
             key: ${{ matrix.os }}-build-${{ hashFiles('wscript') }}
             restore-keys: |
