@@ -28,7 +28,13 @@ jobs:
             restore-keys: |
                 ${{ matrix.os }}-build-
         - name: Build 
+          if: ${{ matrix.os != 'windows-latest' }}
           run: |
             python3 waf configure
             python3 waf build_package
+        - name: Build on windows
+          if: ${{ matrix.os == 'windows-latest' }}
+          run: |
+            python waf configure
+            python waf build_pacakge
 
