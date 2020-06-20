@@ -16,10 +16,16 @@ jobs:
           if: ${{ matrix.os == 'ubuntu-latest' }}
           run: | 
             sudo apt-get update
-            sudo apt-get install clang -y
             sudo apt-get install libx11-xcb-dev -y
             sudo apt-get install libxcb*-dev -y
             sudo apt-get install pkg-config -y
+        - uses: actions/cache@v2
+          env: cache-build
+          with: path
+            path: ./build
+            key: ${{ matrix.os }}-build
+            restore-keys: |
+                ${{ matrix.os }}-build
         - name: Build 
           run: |
             python3 waf configure
