@@ -23,9 +23,9 @@ jobs:
           env: cache-build
           with: path
             path: ./build
-            key: ${{ matrix.os }}-build
+            key: ${{ matrix.os }}-build-${{ hashFiles('wscript') }}
             restore-keys: |
-                ${{ matrix.os }}-build
+                ${{ matrix.os }}-build-
         - name: Build 
           run: |
             python3 waf configure
