@@ -36,5 +36,5 @@ jobs:
           if: ${{ matrix.os == 'windows-latest' }}
           run: |
             python waf configure
-            python waf build_pacakge
+            python waf build_package 
 
