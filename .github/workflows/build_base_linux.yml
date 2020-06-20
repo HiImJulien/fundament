@@ -20,7 +20,8 @@ jobs:
             sudo apt-get install libxcb*-dev -y
             sudo apt-get install pkg-config -y
         - uses: actions/cache@v2
-          env: cache-build
+          env:
+            cache-name: cache-build
           with:
             path: ./build
             key: ${{ matrix.os }}-build-${{ hashFiles('wscript') }}
