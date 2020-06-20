@@ -44,9 +44,17 @@ def configure(ctx: ConfigurationContext):
         )
 
     if ctx.env.DEST_OS == 'darwin':
-        ctx.check(framework='AppKit', msg='Checking for framework Appkit', uselib_store='AppKit')
+        ctx.check(framework='AppKit', msg='Checking for framework Appkit', 
+                    uselib_store='AppKit')
 
         ctx.load('objc', tooldir='tools')
+
+    if ctx.env.DEST_OS == 'win32':
+        ctx.check(lib='user32', msg='Checking for library user32',
+                    uselib_store='user32')
+
+    if ctx.env.CC_NAME == 'msvc':
+        ctx.env.CFLAGS.extend(['/FS', '/DFUNDAMENT_EXPORTS'])
 
     # Branch the configuration into a debug and release
     # variant.
@@ -84,6 +92,16 @@ def build(ctx: BuildContext):
         dependencies.extend([
             'AppKit'
         ])
+
+    if ctx.env.DEST_OS == 'win32':
+        source.extend([
+            'lib/c/private/window_win32.c',
+            'lib/c/private/input_win32.c'
+        ])
+
+        dependencies.extend([
+            'user32'
+        ]) 
 
     artefact = ctx.shlib(
         target='fundament',
