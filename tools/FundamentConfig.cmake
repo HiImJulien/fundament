@@ -13,6 +13,9 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     set(_TARGET_OS "darwin")
     set(_LIB_NAME "libfundament.dylib")
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    set(_TARGET_OS "win32")
+    set(_LIB_NAME "fundament.dll"
 endif()
 
 set(_ARTEFACT_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/${_TARGET_OS}/debug/${_LIB_NAME})

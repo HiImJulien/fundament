@@ -37,4 +37,8 @@ jobs:
           run: |
             python waf configure
             python waf build_package 
+        - users: actions/upload-artifact@v2
+           with:
+            name: 'Distributions'
+            path: ${{ github.workspace }}/build/fundament-*.tar.gz
 
