@@ -6,12 +6,11 @@
 // the X11 API.
 //=============================================================================
 
-#include "input_common.h"
+#include "../input_common.h"
 
 #include <stdint.h>
 
 #include <X11/Xlib.h>
-#include <linux/input-event-codes.h>
 
 //
 // Processes X11/Xinput key press/release events.

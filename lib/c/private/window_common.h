@@ -21,14 +21,11 @@
 //==============================================================================
 
 #if defined(_WIN32)
-    #include "window_win32.h"
-
-    // No 'checking' is made here, since the header 'window.h',
-    // should already cause an error to be submitted.
+    #include "win32/window_win32.h"
 #elif defined(__APPLE__)
-    #include "window_AppKit.h"
+    #include "AppKit/window_AppKit.h"
 #elif defined(__linux__)
-    #include "window_Xcb.h"
+    #include "xcb/window_xcb.h"
 #endif
 
 //

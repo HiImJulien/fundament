@@ -1,7 +1,7 @@
-#include "window_Xcb.h"
-#include "window_common.h"
-#include "input_common.h"
-#include <fundament/event.h> 
+#include "window_xcb.h"
+#include "../input_common.h"
+#include "../window_common.h"
+#include <fundament/event.h>
 
 #include <stdlib.h>
 #include <string.h>

@@ -1,5 +1,5 @@
 #include "input_win32.h"
-#include "window_common.h"
+#include "../window_common.h"
 #include <fundament/event.h>
 
 #include <stdbool.h>

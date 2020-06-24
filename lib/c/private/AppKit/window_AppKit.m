@@ -1,11 +1,8 @@
 #include "window_AppKit.h"
-#include "window_common.h"
 #include "input_AppKit.h"
-#include <fundament/event.h>
+#include "../window_common.h"
 
 #include <AppKit/AppKit.h>
-
-#include <stdio.h>
 
 static bool g_setup_process = false;
 

@@ -78,8 +78,8 @@ def build(ctx: BuildContext):
 
     if ctx.env.DEST_OS == 'linux':
         source.extend([
-            'lib/c/private/window_Xcb.c',
-            'lib/c/private/input_Xcb.c'
+            'lib/c/private/xcb/window_xcb.c',
+            'lib/c/private/xcb/input_xcb.c'
         ])
 
         dependencies.extend([
@@ -90,8 +90,8 @@ def build(ctx: BuildContext):
 
     if ctx.env.DEST_OS == 'darwin':
         source.extend([
-            'lib/c/private/window_Appkit.m',
-            'lib/c/private/input_AppKit.m' 
+            'lib/c/private/AppKit/window_AppKit.m',
+            'lib/c/private/AppKit/input_AppKit.m'
         ])
 
         dependencies.extend([
@@ -100,8 +100,8 @@ def build(ctx: BuildContext):
 
     if ctx.env.DEST_OS == 'win32':
         source.extend([
-            'lib/c/private/window_win32.c',
-            'lib/c/private/input_win32.c'
+            'lib/c/private/win32/window_win32.c',
+            'lib/c/private/win32/input_win32.c'
         ])
 
         dependencies.extend([

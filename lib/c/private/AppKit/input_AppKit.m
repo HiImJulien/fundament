@@ -1,5 +1,5 @@
 #include "input_AppKit.h"
-#include "window_common.h"
+#include "../window_common.h"
 #include <fundament/event.h>
 
 #include <Carbon/Carbon.h>

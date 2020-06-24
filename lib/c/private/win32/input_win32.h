@@ -6,7 +6,7 @@
 // the Win32 system.
 //==============================================================================
 
-#include "input_common.h"
+#include "../input_common.h"
 
 #include <Windows.h>
 

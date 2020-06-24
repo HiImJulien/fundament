@@ -1,5 +1,5 @@
-#include "input_Xcb.h"
-#include "window_common.h"
+#include "input_xcb.h"
+#include "../window_common.h"
 #include <fundament/event.h>
 
 #include <X11/keysym.h>
@@ -155,7 +155,8 @@ char fn__imp_translate_key(Display* dpy, uint32_t keycode) {
     // 2 -> Tab
     // 3 -> Uhm, no fucking idea.
 
-    if(fn__get_key_state(fn_key_shift))
+    if(fn__get_key_state(fn_left_shift) 
+        || fn__get_key_state(fn_right_shift))
         ev.state = 1;
     else if(fn__get_key_state(fn_key_tab))
         ev.state = 2;

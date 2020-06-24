@@ -6,7 +6,7 @@
 // the AppKit platform.
 //==============================================================================
 
-#include "input_common.h"
+#include "../input_common.h"
 
 #include <AppKit/AppKit.h>
 
