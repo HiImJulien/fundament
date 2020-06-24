@@ -129,4 +129,12 @@ API void fn_poll_events(struct fn_event* ev);
     #error "Unknown Target!"
 #endif
 
+
+//
+// Returns the native window handle of the window.
+//
+// Returns 0 or NULL, if the passed window is deemed invalid.
+//
+API fn_native_window_handle_t fn_window_handle(struct fn_window window);
+
 #endif  // FUNDAMENT_WINDOW_H

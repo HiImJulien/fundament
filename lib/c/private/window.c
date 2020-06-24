@@ -136,3 +136,11 @@ void fn_poll_events(struct fn_event* ev) {
     fn__imp_window_poll_events();
     fn__pop_event(ev);
 }
+
+fn_native_window_handle_t fn_window_handle(struct fn_window window) {
+    if(BAD_ID(window))
+        return (fn_native_window_handle_t) 0;
+
+    const struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
+    return w->handle == NULL ? NULL : w->handle; 
+}
