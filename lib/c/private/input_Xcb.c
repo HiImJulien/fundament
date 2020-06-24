@@ -125,6 +125,15 @@ enum fn_key fn__imp_map_virtual_key(uint32_t keycode) {
         case KEY_VOLUMEUP:  return fn_key_vol_up;
         case KEY_VOLUMEDOWN:    return fn_key_vol_up;
 
+        case KEY_LEFTCTRL:      return fn_left_ctrl;
+        case KEY_LEFTSHIFT:     return fn_left_shift;
+        case KEY_LEFTALT:       return fn_left_alt;
+        case KEY_LEFTMETA:      return fn_left_system;
+        case KEY_RIGHTCTRL:     return fn_right_ctrl;
+        case KEY_RIGHTSHIFT:    return fn_right_shift;
+        case KEY_RIGHTALT:      return fn_right_alt;
+        case KEY_RIGHTMETA:     return fn_right_system;
+
         default:    return fn_key_unknown;
     }
 }

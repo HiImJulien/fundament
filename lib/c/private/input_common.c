@@ -10,7 +10,12 @@ static enum fn_button g_button_state_cache = 0;
 // since the enum values are aligned with USB HID spec.
 //
 inline static size_t get_key_index(enum fn_key key) {
-    return key < fn_key_mute ? key - fn_key_a : key - fn_key_mute;
+    if(key < fn_key_mute)
+        return key - fn_key_a;
+    else if(key < fn_left_ctrl)
+        return key - fn_key_mute;
+    else 
+        return key - fn_left_ctrl;
 } 
 
 void fn__set_key_state(enum fn_key key, bool pressed) {

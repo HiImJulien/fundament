@@ -14,6 +14,7 @@ from waflib.Options import OptionsContext
 
 APPNAME = 'fundament'
 VERSION = '0.2'
+GROUP = 'me.juliankirsch'
 
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
@@ -23,6 +24,7 @@ def options(ctx: OptionsContext):
 
 def configure(ctx: ConfigurationContext):
     ctx.load('compiler_c')
+    ctx.load('gradle_maven_publish', tooldir='tools')
 
     if ctx.env.DEST_OS == 'linux':
         ctx.check_cfg(
