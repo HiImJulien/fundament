@@ -1,4 +1,5 @@
 #include "window_common.h"
+#include "input_common.h"
 #include <fundament/event.h>
 
 #include <assert.h>
@@ -167,3 +168,26 @@ void fn__notify_window_lost_focus(uint32_t idx) {
     // (until notify_window_resized window signals otherwise).
     fn__g_window_context.focused_window.id = 0;
 }
+
+void fn__notify_key_pressed(enum fn_key key, char localized_key) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_key_pressed;
+    ev.window = fn__g_window_context.focused_window;
+    ev.localized_key = localized_key;
+    ev.key = key;
+    
+    fn__push_event(&ev);
+    fn__set_key_state(key, true);    
+}
+
+void fn__notify_key_released(enum fn_key key, char localized_key) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_key_released;
+    ev.window = fn__g_window_context.focused_window;
+    ev.localized_key = localized_key;
+    ev.key = key;
+
+    fn__push_event(&ev);
+    fn__set_key_state(key, false);
+}
+

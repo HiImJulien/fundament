@@ -7,6 +7,7 @@
 //==============================================================================
 
 #include <fundament/window.h>
+#include <fundament/input.h>
 
 #include <stdint.h>
 #include <stddef.h>
@@ -139,4 +140,21 @@ void fn__notify_window_gained_focus(uint32_t idx);
 //
 void fn__notify_window_lost_focus(uint32_t idx);
 
+//
+// Notifies the framework, that a key was pressed.
+//
+// Generates an event with type 'fn_event_type_key_pressed' and updates 
+// the internal key state.
+//
+void fn__notify_key_pressed(enum fn_key key, char localized_key);
+
+//
+// Notifies the framework, that a key was released.
+//
+// Generates an event with type 'fn_event_type_key_released' and updates
+// the internal key state.
+//
+void fn__notify_key_released(enum fn_key key, char localized_key);
+
 #endif  // FUNDAMENT_WINDOW_COMMON_H
+
