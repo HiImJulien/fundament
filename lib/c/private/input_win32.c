@@ -100,6 +100,15 @@ enum fn_key fn__imp_map_virtual_key(WPARAM wParam, LPARAM lParam) {
         case VK_VOLUME_UP:      return fn_key_vol_up;
         case VK_VOLUME_DOWN:    return fn_key_vol_down;
 
+        case VK_LCONTROL:   return fn_left_ctrl;
+        case VK_LSHIFT:     return fn_left_shift;
+        case VK_LMENU:      return fn_left_alt;
+        case VK_LWIN:       return fn_left_system;
+        case VK_RCONTROL:   return fn_right_ctrl;
+        case VK_RSHIFT:     return fn_right_shift;
+        case VK_RMENU:      return fn_right_alt;
+        case VK_RWIN:       return fn_right_system;
+
         default:            return fn_key_unknown;
     }
 }

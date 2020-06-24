@@ -125,8 +125,17 @@ enum fn_key
     fn_key_vol_up   = 0x80,
     fn_key_vol_down = 0x81,
 
+    fn_left_ctrl    = 0xE0,
+    fn_left_shift,
+    fn_left_alt,
+    fn_left_system,
+    fn_right_ctrl,
+    fn_right_shift,
+    fn_right_alt,
+    fn_right_system,
+
     fn_key_unknown,
-    fn_key_count    = 98,
+    fn_key_count    = 106,
 };
 
 //
