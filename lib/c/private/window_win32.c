@@ -104,36 +104,24 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch(msg) {
         case WM_CLOSE:
         case WM_DESTROY:
-            ev.type = fn_event_type_closed;
-            fn__push_event(&ev);
-
+            fn__notify_window_destroyed(index);
             return 0;
 
         case WM_KILLFOCUS:
-            w->focused = false;
-            ev.type = fn_event_type_focus_lost;
-            ev.window.id = index + 1;
-
-            fn__push_event(&ev);
+            fn__notify_window_lost_focus(index);
             return 0;
 
         case WM_SETFOCUS:
-            w->focused = true;
-            ev.type = fn_event_type_focus_gained;
-            ev.window.id = index + 1;
-
-            fn__push_event(&ev);
+            fn__notify_window_gained_focus(index);
             return 0;
 
         case WM_SIZE:
-            w->width = LOWORD(lParam);
-            w->height = HIWORD(lParam);
-            ev.type = fn_event_type_resized;
-            ev.window.id = index + 1;
-            ev.width = w->width;
-            ev.height = w->height;
-            
-            fn__push_event(&ev);
+            fn__notify_window_resized(
+                index,
+                (uint32_t) LOWORD(lParam),
+                (uint32_t) HIWORD(lParam)
+            );
+
             return 0;
 
         case WM_KEYDOWN:

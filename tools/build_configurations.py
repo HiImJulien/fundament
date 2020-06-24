@@ -21,6 +21,7 @@ def configure(ctx: ConfigurationContext):
         debug_flags = ['-ggdb']
         release_flags = ['-O3']
 
+    original_env = ctx.env.derive()
     ctx.setenv('debug', env=ctx.env.derive())
     ctx.env.CFLAGS.extend(debug_flags)
 
@@ -29,7 +30,7 @@ def configure(ctx: ConfigurationContext):
 
     ctx.define('DEBUG', 1)
 
-    ctx.setenv('release', env=ctx.env.derive())
+    ctx.setenv('release', env=original_env)
     ctx.env.CFLAGS.extend(release_flags)
     ctx.define('RELEASE', 1) 
 
