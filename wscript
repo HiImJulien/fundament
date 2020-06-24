@@ -115,11 +115,11 @@ def build(ctx: BuildContext):
         use=dependencies    
     )
 
-    if ctx.options.with_samples:
-        ctx.program(
-            target='simple_window',
-            source='samples/c/simple_window.c',
-            use='fundament',
-            rpath='$ORIGIN'
-        )
+#    if ctx.options.with_samples:
+#       ctx.program(
+#            target='simple_window',
+#            source='samples/c/simple_window.c',
+#            use='fundament',
+#            rpath='$ORIGIN'
+#        )
 
