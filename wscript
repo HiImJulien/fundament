@@ -22,6 +22,9 @@ def options(ctx: OptionsContext):
     ctx.load('dist_build', tooldir='tools')
     ctx.load('objc', tooldir='tools')
 
+    ctx.add_option('--with-samples', action='store_true', default=False, 
+                    help='If set, builds the samples as well.')
+
 def configure(ctx: ConfigurationContext):
     ctx.load('compiler_c')
     ctx.load('gradle_maven_publish', tooldir='tools')
@@ -109,6 +112,15 @@ def build(ctx: BuildContext):
         target='fundament',
         source=source,
         includes='lib/c/public/',
+        export_includes='lib/c/public',
         use=dependencies    
     )
+
+    if ctx.options.with_samples:
+        ctx.program(
+            target='simple_window',
+            source='samples/c/simple_window.c',
+            use='fundament',
+            rpath='$ORIGIN'
+        )
 

@@ -148,6 +148,18 @@ char fn__imp_translate_key(Display* dpy, uint32_t keycode) {
     ev.keycode = keycode;
     ev.state = 0;
 
+    // There is little documentation on using XInput with XCB.
+    // So far I deduced, by simply trying out, that a state behaves like 
+    // this:
+    // 1 -> Shift
+    // 2 -> Tab
+    // 3 -> Uhm, no fucking idea.
+
+    if(fn__get_key_state(fn_key_shift))
+        ev.state = 1;
+    else if(fn__get_key_state(fn_key_tab))
+        ev.state = 2;
+
     const int res = XLookupString(
         &ev,
         buffer,
