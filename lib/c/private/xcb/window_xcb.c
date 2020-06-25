@@ -1,4 +1,5 @@
 #include "window_xcb.h"
+#include "input_xcb.h"
 #include "../input_common.h"
 #include "../window_common.h"
 #include <fundament/event.h>
@@ -325,7 +326,10 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
             xcb_input_device_key_press_event_t* ev = 
                 (xcb_input_device_key_press_event_t*) gev;
 
-            char loc = fn__imp_translate_key(display, (uint32_t) ev->child); 
+            const char loc = fn__imp_translate_key(
+                display, 
+                (uint32_t) ev->child
+            ); 
 
             // Values offset by 8 compared to linux' key codes?
             fn__imp_process_keyboard_input(
@@ -339,9 +343,15 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
             xcb_input_device_key_release_event_t* ev =
                 (xcb_input_device_key_release_event_t*) gev;
 
+            const char loc = fn__imp_translate_key(
+                display, 
+                (uint32_t) ev->child
+            );
+
             fn__imp_process_keyboard_input(
                 (uint32_t) ev->child,
-                false
+                false,
+                loc
             );
         } break;
 

@@ -2,7 +2,7 @@
 #include "../window_common.h"
 #include <fundament/event.h>
 
-#include <X11/keysym.h>
+#include <X11/Xutil.h>
 #include <linux/input-event-codes.h>
 
 void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed, char loc) {

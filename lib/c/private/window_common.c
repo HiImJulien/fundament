@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <stdio.h>
-
 struct fn__window_context fn__g_window_context = {
     .windows = NULL,
     .windows_capacity = 0,
@@ -118,7 +116,7 @@ void fn__notify_window_destroyed(uint32_t idx) {
 
     struct fn__window* w = &fn__g_window_context.windows[idx];   
     fn__imp_destroy_window(w->handle);
-    w->handle = (fn_native_window_handle_t) 0;
+    w->handle = fn__g_null_wnd;
     w->width = 0;
     w->height = 0;
     
@@ -189,5 +187,49 @@ void fn__notify_key_released(enum fn_key key, char localized_key) {
 
     fn__push_event(&ev);
     fn__set_key_state(key, false);
+}
+
+void fn__notify_button_pressed(enum fn_button button, int32_t x, int32_t y) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_button_pressed;
+    ev.window = fn__g_window_context.focused_window;
+    ev.button = button;
+    ev.x = x;
+    ev.y = y;
+
+    fn__push_event(&ev);
+    fn__set_button_state(button, true);
+}
+
+void fn__notify_button_released(enum fn_button button, int32_t x, int32_t y) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_button_released;
+    ev.window = fn__g_window_context.focused_window;
+    ev.button = button;
+    ev.x = x;
+    ev.y = y;
+
+    fn__push_event(&ev);
+    fn__set_button_state(button, false); 
+}
+
+void fn__notify_mouse_moved(int32_t x, int32_t y) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_mouse_moved;
+    ev.window = fn__g_window_context.focused_window;
+    ev.button = fn__get_pressed_buttons();
+    ev.x = x;
+    ev.y = y;
+
+    fn__push_event(&ev);
+}
+
+void fn__notify_mouse_wheel_moved(int32_t dt) {
+    struct fn_event ev = {0, };
+    ev.type = fn_event_type_mouse_wheel;
+    ev.window = fn__g_window_context.focused_window;
+    ev.mouse_wheel = dt;
+
+    fn__push_event(&ev);
 }
 

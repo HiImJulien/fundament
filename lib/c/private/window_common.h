@@ -29,6 +29,9 @@
     #include "xcb/window_xcb.h"
 #endif
 
+static const fn_native_window_handle_t fn__g_null_wnd = 
+    (fn_native_window_handle_t) 0;
+
 //
 // Internal representation of a window and its state.
 //
@@ -155,6 +158,36 @@ void fn__notify_key_pressed(enum fn_key key, char localized_key);
 // the internal key state.
 //
 void fn__notify_key_released(enum fn_key key, char localized_key);
+
+//
+// Notifies the framework, that a mouse button was pressed.
+//
+// Generates an event with type 'fn_event_type_button_pressed' and updates
+// the internal button state.
+//
+void fn__notify_button_pressed(enum fn_button button, int32_t x, int32_t y);
+
+//
+// Notifies the framework, that a mouse button was released.
+//
+// Generates an event with type 'fn_event_type_button_released' and updates
+// the internal button state.
+//
+void fn__notify_button_released(enum fn_button button, int32_t x, int32_t y);
+
+//
+// Notifies the framework, that the mouse was moved.
+//
+// Generates an event with type 'fn_event_type_mouse_moved'.
+//
+void fn__notify_mouse_moved(int32_t x, int32_t y);
+
+//
+// Notifies the framework, that the mouse wheel was moved.
+//
+// Generates an event with type 'fn_event_type_mouse_wheel'.
+//
+void fn__notify_mouse_wheel_moved(int32_t dt);
 
 #endif  // FUNDAMENT_WINDOW_COMMON_H
 

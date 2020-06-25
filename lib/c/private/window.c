@@ -20,7 +20,7 @@ struct fn_window fn_create_window() {
         if(index == fn__g_window_context.windows_capacity)
             return (struct fn_window) { .id = 0};
         
-        if(fn__g_window_context.windows[index].handle == NULL)
+        if(fn__g_window_context.windows[index].handle == fn__g_null_wnd)
             break;
     }
 
@@ -33,7 +33,7 @@ void fn_destroy_window(struct fn_window window) {
         return;
 
     struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
-    if(w->handle == NULL)
+    if(w->handle == fn__g_null_wnd)
         return;
 
     fn__imp_destroy_window(w->handle);
@@ -52,7 +52,7 @@ uint32_t fn_window_width(struct fn_window window) {
         return 0;
 
     const struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
-    return w->handle == NULL ? 0 : w->width;
+    return w->handle == fn__g_null_wnd ? 0 : w->width;
 }
 
 uint32_t fn_window_height(struct fn_window window) {
@@ -60,7 +60,7 @@ uint32_t fn_window_height(struct fn_window window) {
         return 0;
 
     const struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
-    return w->handle == NULL ? 0 : w->height;
+    return w->handle == fn__g_null_wnd ? 0 : w->height;
 }
 
 void fn_window_set_width(struct fn_window window, uint32_t width) {
@@ -68,7 +68,7 @@ void fn_window_set_width(struct fn_window window, uint32_t width) {
         return;
 
     struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
-    if(w->handle == NULL)
+    if(w->handle == fn__g_null_wnd)
         return;
 
     w->width = width;
@@ -80,7 +80,7 @@ void fn_window_set_height(struct fn_window window, uint32_t height) {
         return;
 
     struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
-    if(w->handle == NULL)
+    if(w->handle == fn__g_null_wnd)
         return;
 
     w->height = height;
@@ -117,7 +117,7 @@ bool fn_window_visible(struct fn_window window) {
         return false;
 
     const struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
-    return w->handle == NULL ? false : w->visible;
+    return w->handle == fn__g_null_wnd ? false : w->visible;
 }
 
 void fn_window_set_visibility(struct fn_window window, bool visible) {
@@ -125,7 +125,7 @@ void fn_window_set_visibility(struct fn_window window, bool visible) {
         return;
 
     struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
-    if(w->handle == NULL)
+    if(w->handle == fn__g_null_wnd)
         return;
 
     w->visible = visible;
@@ -142,5 +142,5 @@ fn_native_window_handle_t fn_window_handle(struct fn_window window) {
         return (fn_native_window_handle_t) 0;
 
     const struct fn__window* w = &fn__g_window_context.windows[IDX(window)];
-    return w->handle == NULL ? NULL : w->handle; 
+    return w->handle == fn__g_null_wnd ? fn__g_null_wnd : w->handle; 
 }
