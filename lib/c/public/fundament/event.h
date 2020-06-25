@@ -23,6 +23,33 @@ enum fn_event_type {
     fn_event_type_mouse_wheel,
 };
 
+struct size_event {
+    uint32_t    width;
+    uint32_t    height;
+};
+
+struct mouse_button_event {
+    enum fn_button  button;
+    int32_t         x;
+    int32_t         y;
+};
+
+struct mouse_move_event {
+    int32_t         x;
+    int32_t         y;
+};
+
+struct mouse_wheel_event {
+    int32_t         dt;
+    int32_t         x;
+    int32_t         y;
+};
+
+struct keyboard_event {
+    enum fn_key     key;
+    char            letter;
+};
+
 //
 // Event issued by the underlying system.
 //
@@ -36,33 +63,6 @@ struct fn_event {
     // focused. Note, that the handle might be invalid, indicating that no
     // (fundament) window had focus.
     struct fn_window    window;
-
-    struct size_event {
-        uint32_t    width;
-        uint32_t    height;
-    };
-
-    struct mouse_button_event {
-        enum fn_button  button;
-        int32_t         x;
-        int32_t         y;
-    };
-
-    struct mouse_move_event {
-        int32_t         x;
-        int32_t         y;
-    };
-
-    struct mouse_wheel_event {
-        int32_t         dt;
-        int32_t         x;
-        int32_t         y;
-    };
-
-    struct keyboard_event {
-        enum fn_key     key;
-        char            letter;
-    };
 
     union {
         // Holds the new size of a window, if the event type is
