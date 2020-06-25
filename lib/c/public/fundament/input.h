@@ -13,13 +13,12 @@
 //
 // Enumerates all supported physical keyboard keys.
 //
-// Note, that the values are aligned with the 
+// Note, that the values are aligned with the
 // USB HID's key usage pages, as defined per this specification:
 // https://usb.org.10-1-108-210.causewaynow.com/sites/default/files/hut1_12.pdf
 //
-enum fn_key
-{
-    fn_key_a = 0x04,
+enum fn_key {
+    fn_key_a= 0x04,
     fn_key_b,
     fn_key_c,
     fn_key_d,
@@ -121,11 +120,11 @@ enum fn_key
     fn_key_pad_9,
     fn_key_pad_0,
 
-    fn_key_mute     = 0x7F,
-    fn_key_vol_up   = 0x80,
-    fn_key_vol_down = 0x81,
+    fn_key_mute    = 0x7F,
+    fn_key_vol_up  = 0x80,
+    fn_key_vol_down= 0x81,
 
-    fn_left_ctrl    = 0xE0,
+    fn_left_ctrl= 0xE0,
     fn_left_shift,
     fn_left_alt,
     fn_left_system,
@@ -135,13 +134,13 @@ enum fn_key
     fn_right_system,
 
     fn_key_unknown,
-    fn_key_count    = 106,
+    fn_key_count= 106,
 };
 
 //
 // Returns whether specified key is pressed.
 //
-// Note, that this function does NOT query the actual physical state, 
+// Note, that this function does NOT query the actual physical state,
 // but, instead, looks up its state in the frameworks cache.
 //
 API bool fn_is_key_pressed(enum fn_key key);
@@ -150,15 +149,15 @@ API bool fn_is_key_pressed(enum fn_key key);
 //  Enumerates all supported mouse buttons.
 //
 enum fn_button {
-    fn_button_left      = (1u << 0u),
-    fn_button_right     = (1u << 1u),
-    fn_button_middle    = (1u << 2u),
+    fn_button_left  = (1u << 0u),
+    fn_button_right = (1u << 1u),
+    fn_button_middle= (1u << 2u),
 };
 
 //
 //  Returns whether specified button(s) are pressed.
 //
-//  Note, that multiple buttons can be queried by OR'ing 
+//  Note, that multiple buttons can be queried by OR'ing
 //  the button values. E.g.:
 //
 //      fn_is_button_pressed(fn_button_left | fn_button_right);

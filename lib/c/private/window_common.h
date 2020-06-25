@@ -6,17 +6,17 @@
 // across window implementations.
 //==============================================================================
 
-#include <fundament/window.h>
 #include <fundament/input.h>
+#include <fundament/window.h>
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 //==============================================================================
 // Includes the appropriate implementation based on the compile target.
 // This include reside here in order to avoid code duplication,
-// as the function 'fn__imp_deinit_window_context' requires 
+// as the function 'fn__imp_deinit_window_context' requires
 // access to the 'fn__imp_destroy_window' function, while the other functions
 // are needed in the file 'window.c'.
 //==============================================================================
@@ -29,7 +29,7 @@
     #include "xcb/window_xcb.h"
 #endif
 
-static const fn_native_window_handle_t fn__g_null_wnd = 
+static const fn_native_window_handle_t fn__g_null_wnd=
     (fn_native_window_handle_t) 0;
 
 //
@@ -37,32 +37,32 @@ static const fn_native_window_handle_t fn__g_null_wnd =
 //
 // Window handles or comprised of two parts.
 // The upper 8 bit specify the handles "generation",
-// which can be used to prevent handle collision with 
+// which can be used to prevent handle collision with
 // old handles.
 //
 struct fn__window {
-    fn_native_window_handle_t   handle;
-    uint32_t                    width;
-    uint32_t                    height;
-    const char*                 title;
-    bool                        visible;
-    bool                        focused;
+    fn_native_window_handle_t handle;
+    uint32_t                  width;
+    uint32_t                  height;
+    const char*               title;
+    bool                      visible;
+    bool                      focused;
 };
 
 //
 // Encapsulates data shared across the windowing API.
 //
 struct fn__window_context {
-    struct fn__window*      windows;
-    size_t                  windows_capacity;
-    size_t                  windows_size;
+    struct fn__window* windows;
+    size_t             windows_capacity;
+    size_t             windows_size;
 
-    struct fn_event*        events;
-    size_t                  events_capacity;
-    size_t                  events_size;
-    size_t                  events_tail;
+    struct fn_event* events;
+    size_t           events_capacity;
+    size_t           events_size;
+    size_t           events_tail;
 
-    struct fn_window        focused_window;
+    struct fn_window focused_window;
 };
 
 //
@@ -72,14 +72,14 @@ extern struct fn__window_context fn__g_window_context;
 
 //
 // Initializes the global window context.
-// 
+//
 void fn__init_window_context();
 
 //
 // Deinitializes the global window context.
 //
 // Destroys every window that might remain
-// and frees the memory occupied by the 
+// and frees the memory occupied by the
 // event queue.
 //
 void fn__deinit_window_context();
@@ -102,15 +102,15 @@ void fn__push_event(struct fn_event* ev);
 void fn__pop_event(struct fn_event* ev);
 
 //==============================================================================
-// The following section declares 'callback' functions, used 
+// The following section declares 'callback' functions, used
 // to inform the framework about certain events.
 //==============================================================================
 
 //
 // Notifies the framework that the window with index 'idx',
 // was destroyed.
-// 
-// Generates an event with type 'fn_event_type_destroyed' and 
+//
+// Generates an event with type 'fn_event_type_destroyed' and
 // releases the window's resources.
 //
 void fn__notify_window_destroyed(uint32_t idx);
@@ -122,7 +122,7 @@ void fn__notify_window_destroyed(uint32_t idx);
 // Generates an event with type 'fn_event_type_resized' and
 // adjusts the cache dimensions.
 //
-void fn__notify_window_resized(uint32_t idx, uint32_t width, uint32_t height); 
+void fn__notify_window_resized(uint32_t idx, uint32_t width, uint32_t height);
 
 //
 // Notifies the framework that the window with index 'idx'
@@ -138,7 +138,7 @@ void fn__notify_window_gained_focus(uint32_t idx);
 // Notifies the framework that the window with index 'idx'
 // lost focus.
 //
-// Generates an event with type 'fn_event_type_focus_lost' and 
+// Generates an event with type 'fn_event_type_focus_lost' and
 // sets it as the currently focus window in the global context.
 //
 void fn__notify_window_lost_focus(uint32_t idx);
@@ -146,7 +146,7 @@ void fn__notify_window_lost_focus(uint32_t idx);
 //
 // Notifies the framework, that a key was pressed.
 //
-// Generates an event with type 'fn_event_type_key_pressed' and updates 
+// Generates an event with type 'fn_event_type_key_pressed' and updates
 // the internal key state.
 //
 void fn__notify_key_pressed(enum fn_key key, char localized_key);
@@ -190,4 +190,3 @@ void fn__notify_mouse_moved(int32_t x, int32_t y);
 void fn__notify_mouse_wheel_moved(int32_t x, int32_t y, int32_t dt);
 
 #endif  // FUNDAMENT_WINDOW_COMMON_H
-

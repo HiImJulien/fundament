@@ -12,7 +12,9 @@
 #include <stdint.h>
 
 struct fn_event;
-struct fn_window { uint32_t id; };
+struct fn_window {
+    uint32_t id;
+};
 
 //
 // Initializes the windowing module.
@@ -44,7 +46,7 @@ API void fn_destroy_window(struct fn_window window);
 //
 // Returns the current client width of the window.
 //
-// Returns 0, if the handle is invalid or the window is already 
+// Returns 0, if the handle is invalid or the window is already
 // destroyed.
 //
 API uint32_t fn_window_width(struct fn_window window);
@@ -87,7 +89,7 @@ API const char* fn_window_title(struct fn_window window);
 //
 // Sets the current title of the window.
 //
-// Does nothing, if the handle is invalid or either the window 
+// Does nothing, if the handle is invalid or either the window
 // is already destroyed.
 //
 // Note, that the function creates a copy of the string.
@@ -117,18 +119,17 @@ API void fn_poll_events(struct fn_event* ev);
 //==============================================================================
 
 #if defined(_WIN32)
-    typedef struct HWND__* fn_native_window_handle_t;
+typedef struct HWND__* fn_native_window_handle_t;
 #elif defined(__APPLE__) && defined(__OBJC__)
-    @class NSWindow;
-    typedef NSWindow* fn_native_window_handle_t;
+@class NSWindow;
+typedef NSWindow* fn_native_window_handle_t;
 #elif defined(__APPLE__) && !defined(__OBJC__)
-    typedef void* fn_native_window_handle_t;
+typedef void* fn_native_window_handle_t;
 #elif defined(__linux__)
-    typedef uint32_t fn_native_window_handle_t;
+typedef uint32_t fn_native_window_handle_t;
 #else
     #error "Unknown Target!"
 #endif
-
 
 //
 // Returns the native window handle of the window.

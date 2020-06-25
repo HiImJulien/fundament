@@ -3,7 +3,7 @@
 
 #if defined(__cplusplus)
     #define API_BASE extern "C"
-#else 
+#else
     #define API_BASE
 #endif
 

@@ -2,7 +2,7 @@
 #define FUNDAMENT_INPUT_XCB_H
 
 //=============================================================================
-// This module implements the internal functions used to process user input for 
+// This module implements the internal functions used to process user input for
 // the X11 API.
 //=============================================================================
 
@@ -20,7 +20,7 @@ void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed, char loc);
 //
 // Maps the X11/XInput virtual keycodes to a fundament key code.
 // Note, that I have no real idea how this mapping works. However,
-// it looks like these values are offset by 8 when comparing to 
+// it looks like these values are offset by 8 when comparing to
 // 'linux/input-event-codes.h'.
 //
 enum fn_key fn__imp_map_virtual_key(uint32_t keycode);

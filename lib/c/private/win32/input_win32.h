@@ -28,13 +28,13 @@ enum fn_key fn__imp_map_virtual_key(WPARAM wParam, LPARAM lParam);
 void fn__imp_process_mouse_input(UINT msg, LPARAM lParam);
 
 //
-// Processes the Win32 event 
+// Processes the Win32 event
 //
 void fn__imp_process_mouse_move(LPARAM lParam);
 
 //
-// Translates 'WM_KEYDOWN' and 'WM_KEYUP' events to 
-// 
+// Translates 'WM_KEYDOWN' and 'WM_KEYUP' events to
+//
 //
 char fn__imp_translate_to_char(WPARAM wParam, LPARAM lParam);
 

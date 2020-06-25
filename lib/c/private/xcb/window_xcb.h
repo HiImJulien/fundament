@@ -17,21 +17,15 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index);
 
 void fn__imp_destroy_window(fn_native_window_handle_t handle);
 
-void fn__imp_window_set_size(
-    fn_native_window_handle_t handle,
-    uint32_t width,
-    uint32_t height
-);
+void fn__imp_window_set_size(fn_native_window_handle_t handle,
+                             uint32_t                  width,
+                             uint32_t                  height);
 
-void fn__imp_window_set_title(
-    fn_native_window_handle_t handle,
-    const char* title
-);
+void fn__imp_window_set_title(fn_native_window_handle_t handle,
+                              const char*               title);
 
-void fn__imp_window_set_visibility(
-    fn_native_window_handle_t handle,
-    bool visible
-);
+void fn__imp_window_set_visibility(fn_native_window_handle_t handle,
+                                   bool                      visible);
 
 void fn__imp_window_poll_events();
 
