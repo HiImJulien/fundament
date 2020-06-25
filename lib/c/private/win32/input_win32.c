@@ -150,14 +150,18 @@ void fn__imp_process_mouse_input(UINT msg, LPARAM lParam) {
             break;
     }
 
-    fn__set_button_state(button, is_press);
-
-    struct fn_event ev = {0, };
-    ev.type = is_press ? fn_event_type_button_pressed : fn_event_type_button_released;
-    ev.x = LOWORD(lParam);
-    ev.y = HIWORD(lParam);
-    ev.button = button;
-    fn__push_event(&ev);
+    if(is_press)
+        fn__notify_button_pressed(
+            button,
+            (int32_t) LOWORD(lParam),
+            (int32_t) HIWORD(lParam) 
+        ); 
+    else
+        fn__notify_button_released(
+            button,
+            (int32_t) LOWORD(lParam),
+            (int32_t) HIWORD(lParam)
+        );
 }
 
 void fn__imp_process_mouse_move(LPARAM lParam) {
