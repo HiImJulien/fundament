@@ -320,39 +320,32 @@ void fn__imp_window_set_visibility(
     xcb_flush(connection);
 }
 
+static inline int32_t fp1616_to_int32(xcb_input_fp1616_t val) {
+    return (int32_t)((float) val / (float)(1 << 16));
+}
+
 static void process_xinput_event(xcb_ge_generic_event_t* gev) {
     switch(gev->event_type) {
-        case XCB_INPUT_KEY_PRESS: {
+        case XCB_INPUT_KEY_PRESS:
+        case XCB_INPUT_KEY_RELEASE: {
+            const bool is_press = gev->event_type == XCB_INPUT_KEY_PRESS;
             xcb_input_device_key_press_event_t* ev = 
                 (xcb_input_device_key_press_event_t*) gev;
 
-            const char loc = fn__imp_translate_key(
-                display, 
-                (uint32_t) ev->child
-            ); 
-
-            // Values offset by 8 compared to linux' key codes?
-            fn__imp_process_keyboard_input(
-                (uint32_t) ev->child,
-                true,
-                loc
-            );
-        } break;
-
-        case XCB_INPUT_KEY_RELEASE: {
-            xcb_input_device_key_release_event_t* ev =
-                (xcb_input_device_key_release_event_t*) gev;
-
-            const char loc = fn__imp_translate_key(
-                display, 
+            const enum fn_key key = fn__imp_map_virtual_key(
                 (uint32_t) ev->child
             );
 
-            fn__imp_process_keyboard_input(
-                (uint32_t) ev->child,
-                false,
-                loc
+            const char letter = fn__imp_translate_key(
+                display,
+                (uint32_t) ev->child
             );
+
+            if(is_press)
+                fn__notify_key_pressed(key, letter);  
+            else
+                fn__notify_key_released(key, letter); 
+
         } break;
 
         case XCB_INPUT_BUTTON_PRESS: 
@@ -361,11 +354,15 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
             xcb_input_button_press_event_t* ev =
                 (xcb_input_button_press_event_t*) gev;
 
-            struct fn_event fev = {0, };
             if(ev->detail == 4 || ev->detail == 5) {
-                fev.type = fn_event_type_mouse_wheel;
-                fev.mouse_wheel = ev->detail == 4 ? 1 : -1;
-                fn__push_event(&fev); 
+                const int32_t dt = ev->detail == 4 ? 1 : -1;
+                fn__notify_mouse_wheel_moved(
+                    fp1616_to_int32(ev->event_x),
+                    fp1616_to_int32(ev->event_y),
+                    dt
+                );
+
+                return;
             }
 
             enum fn_button button = 0;
@@ -376,16 +373,18 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
             else if(ev->detail == 3)
                 button = fn_button_right;
 
-            fn__set_button_state(button, true);
-
-            fev.type = is_press
-                ? fn_event_type_button_pressed
-                : fn_event_type_button_released;
-
-            fev.button = button;
-            fev.x = (int32_t)((float) ev->event_x / (float)(1 << 16));
-            fev.y = (int32_t)((float) ev->event_y / (float)(1 << 16));
-            fn__push_event(&fev);
+            if(is_press)
+                fn__notify_button_pressed(
+                    button,
+                    fp1616_to_int32(ev->event_x),
+                    fp1616_to_int32(ev->event_y)
+                );
+            else
+                fn__notify_button_released(
+                    button,
+                    fp1616_to_int32(ev->event_x),
+                    fp1616_to_int32(ev->event_y)
+                );
                
         } break;
     }
@@ -402,146 +401,53 @@ void fn__imp_window_poll_events() {
                 xcb_client_message_event_t* cev =
                     (xcb_client_message_event_t*) ev;
 
-                uint32_t idx = get_fundament_id_from_window(cev->window);
+                const uint32_t idx = get_fundament_id_from_window(cev->window);
+                if(cev->data.data32[0] == atom_delete_window)
+                    fn__notify_window_destroyed(idx);
 
-                if(cev->data.data32[0] == atom_delete_window) {
-                    fev.type = fn_event_type_closed;
-                    fev.window.id = idx + 1;
-                    fn__push_event(&fev);
-                }
             } break;
 
             case XCB_CONFIGURE_NOTIFY: {
                 xcb_configure_notify_event_t* cev =
                     (xcb_configure_notify_event_t*) ev;
 
-                uint32_t idx = get_fundament_id_from_window(cev->window);
+                const uint32_t idx = get_fundament_id_from_window(cev->window);
                 struct fn__window* win = &fn__g_window_context.windows[idx];
-
                 if(win->width == cev->width && win->height == cev->height)
                     break;
 
-                win->width = cev->width;
-                win->height = cev->height;
+                fn__notify_window_resized(
+                    idx,
+                    (uint32_t) win->width,
+                    (uint32_t) win->height
+                );
 
-                fev.type = fn_event_type_resized;
-                fev.width = win->width;
-                fev.height = win->height;
-
-                fn__push_event(&fev); 
             } break;
 
             case XCB_FOCUS_IN: {
                 xcb_focus_in_event_t* cev =
                     (xcb_focus_in_event_t*) ev;
 
-                uint32_t idx = get_fundament_id_from_window(cev->event); 
-                fev.type = fn_event_type_focus_gained;
-                fev.window.id = idx + 1;
-                fn__push_event(&fev);
+                const uint32_t idx = get_fundament_id_from_window(cev->event); 
+                fn__notify_window_gained_focus(idx);
             } break;
 
             case XCB_FOCUS_OUT: {
                 xcb_focus_out_event_t* cev =
                     (xcb_focus_out_event_t*) ev;
 
-                uint32_t idx = get_fundament_id_from_window(cev->event);
-                fev.type = fn_event_type_focus_lost;
-                fev.window.id = idx + 1;
-                fn__push_event(&fev);
-            } break;
-
-            case XCB_KEY_PRESS: {
-                xcb_key_press_event_t* cev = 
-                    (xcb_key_press_event_t*) ev;
-
-                uint32_t idx = get_fundament_id_from_window(cev->event);
-                
-                fev.type = fn_event_type_key_pressed;
-                fev.window.id = idx + 1;
-                fn__push_event(&fev);
-            } break;
-
-            case XCB_KEY_RELEASE: {
-                xcb_key_release_event_t* cev =
-                    (xcb_key_release_event_t*) ev;
-
-                uint32_t idx = get_fundament_id_from_window(cev->event); 
-                
-                fev.type = fn_event_type_key_released;
-                fev.window.id = idx + 1;
-                fn__push_event(&fev);
-            } break;
-
-            case XCB_BUTTON_PRESS: {
-                xcb_button_press_event_t* cev =
-                    (xcb_button_press_event_t*) ev;
-
-                printf("Ev: %"PRIu32"\n", cev->event);
-                uint32_t idx = get_fundament_id_from_window(cev->event);
-
-                if((cev->detail & XCB_BUTTON_MASK_4) != 0
-                    || cev->detail & XCB_BUTTON_MASK_5) {
-                    fev.type = fn_event_type_mouse_wheel;
-                    fev.window.id = idx + 1;
-                    fev.button = fn__get_pressed_buttons();
-                    fev.x = cev->event_x;
-                    fev.y = cev->event_y;
-                    fn__push_event(&fev);
-                    break;
-                }
-
-                if(cev->detail & XCB_BUTTON_MASK_1)
-                    fn__set_button_state(fn_button_left, true);
-
-                if(cev->detail & XCB_BUTTON_MASK_2)
-                    fn__set_button_state(fn_button_right, true);
-
-                if(cev->detail & XCB_BUTTON_MASK_3)
-                    fn__set_button_state(fn_button_middle, true);
-                    
-                fev.type = fn_event_type_button_pressed;
-                fev.window.id = idx + 1;
-                fev.button = fn__get_pressed_buttons();
-                fev.x = cev->event_x;
-                fev.y = cev->event_y;
-                fn__push_event(&fev);
-            } break;
-
-            case XCB_BUTTON_RELEASE: {
-                xcb_button_release_event_t* cev = 
-                    (xcb_button_release_event_t*) ev;
-
-                uint32_t idx = get_fundament_id_from_window(cev->event);
-
-                if(cev->event & XCB_BUTTON_MASK_1)
-                    fn__set_button_state(fn_button_left, false); 
-
-                if(cev->event & XCB_BUTTON_MASK_2)
-                    fn__set_button_state(fn_button_right, false);
-        
-                if(cev->event & XCB_BUTTON_MASK_3)
-                    fn__set_button_state(fn_button_middle, false);
-
-                fev.type = fn_event_type_button_released;
-                fev.window.id = idx + 1,
-                fev.button = fn__get_pressed_buttons();
-                fev.x = cev->event_x;
-                fev.y = cev->event_y;
-                fn__push_event(&fev);
+                const uint32_t idx = get_fundament_id_from_window(cev->event);
+                fn__notify_window_lost_focus(idx); 
             } break;
 
             case XCB_MOTION_NOTIFY: {
                 xcb_motion_notify_event_t* cev =
                     (xcb_motion_notify_event_t*) ev;
 
-                uint32_t idx = get_fundament_id_from_window(cev->event);
-
-                fev.type = fn_event_type_mouse_moved;
-                fev.window.id = idx + 1;
-                fev.x = cev->event_x;
-                fev.y = cev->event_y;
-                fn__push_event(&fev);
+                fn__notify_mouse_moved(
+                    (uint32_t) cev->event_x,
+                    (uint32_t) cev->event_y
+                );
             } break;
             
             case XCB_GE_GENERIC: {

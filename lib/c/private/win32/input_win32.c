@@ -13,13 +13,17 @@ void fn__imp_process_keyboard_input(UINT msg, WPARAM wParam, LPARAM lParam) {
 
     const bool is_press = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
     const enum fn_key key = fn__imp_map_virtual_key(wParam, lParam);
-    fn__set_key_state(key, is_press);
-
-    struct fn_event ev = {0, };
-    ev.type = is_press ? fn_event_type_key_pressed : fn_event_type_key_released;
-    ev.key = key;
-    ev.localized_key = fn__imp_translate_to_char(wParam, lParam);
-    fn__push_event(&ev);
+    const char letter = fn__imp_translate_to_char(wParam, lParam);
+    if(is_press)
+        fn__notify_key_pressed(
+            key,
+            letter
+        );
+    else
+        fn__notify_key_released(
+            key,
+            letter
+        ); 
 }
 
 enum fn_key fn__imp_map_virtual_key(WPARAM wParam, LPARAM lParam) {
@@ -157,12 +161,10 @@ void fn__imp_process_mouse_input(UINT msg, LPARAM lParam) {
 }
 
 void fn__imp_process_mouse_move(LPARAM lParam) {
-    struct fn_event ev = {0, };
-    ev.type = fn_event_type_mouse_moved;
-    ev.x = LOWORD(lParam);
-    ev.y = HIWORD(lParam);
-    ev.button = fn__get_pressed_buttons();
-    fn__push_event(&ev);
+    fn__notify_mouse_moved(
+        (int32_t) LOWORD(lParam),
+        (int32_t) HIWORD(lParam)
+    );
 }
 
 char fn__imp_translate_to_char(WPARAM wParam, LPARAM lParam) {

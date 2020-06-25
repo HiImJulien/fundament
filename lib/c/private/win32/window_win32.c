@@ -98,8 +98,6 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     }
 
     const uint32_t index = (uint32_t) GetWindowLongPtrA(hWnd, GWLP_USERDATA);
-    struct fn__window* w = &fn__g_window_context.windows[index];
-    struct fn_event ev;
 
     switch(msg) {
         case WM_CLOSE:
@@ -141,7 +139,10 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
 
         case WM_MOUSEMOVE:
-            fn__imp_process_mouse_move(lParam);
+            fn__notify_mouse_moved(
+                (int32_t) LOWORD(lParam),
+                (int32_t) HIWORD(lParam)
+            );
             return 0;
 
         case WM_MOUSEWHEEL: {

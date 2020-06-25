@@ -187,7 +187,7 @@ void fn__notify_mouse_moved(int32_t x, int32_t y);
 //
 // Generates an event with type 'fn_event_type_mouse_wheel'.
 //
-void fn__notify_mouse_wheel_moved(int32_t dt);
+void fn__notify_mouse_wheel_moved(int32_t x, int32_t y, int32_t dt);
 
 #endif  // FUNDAMENT_WINDOW_COMMON_H
 

@@ -9,17 +9,21 @@ void fn__imp_process_keyboard_input(NSEvent* ev) {
     // others are filtered out in 'fn__imp_window_poll_events'.
     const bool is_press = ev.type == NSEventTypeKeyDown;
     const enum fn_key key = fn__imp_map_virtual_key(ev.keyCode);
-    fn__set_key_state(key, is_press);
 
-    char localized_key = 0;
-    if(1 == ev.characters.length)
-        localized_key = [ev.characters UTF8String][0];
+    const char letter = ev.characters.length == 1
+        ? [ev.characters UTF8String][0]
+        : 0;
 
-    struct fn_event fev = {0, };
-    fev.type = is_press ? fn_event_type_key_pressed : fn_event_type_key_released;
-    fev.key = key;
-    fev.localized_key = localized_key;
-    fn__push_event(&fev);
+    if(is_press)
+        fn__notify_key_pressed(
+            key,
+            letter
+        );
+    else
+        fn__notify_key_released(
+            key,
+            letter 
+        );
 }
 
 enum fn_key fn__imp_map_virtual_key(unsigned short keyCode) {
@@ -151,25 +155,33 @@ void fn__imp_process_mouse_input(NSEvent* ev) {
         default: break;
     }
 
-    fn__set_button_state(button, is_pressed);
+    const NSRect frame = ev.window.contentView.frame;
+    const NSPoint loc = ev.locationInWindow;
 
-    struct fn_event fev = {0, };
-    fev.type = is_pressed ? fn_event_type_button_pressed : fn_event_type_button_released;
-    
-    NSWindow* win = ev.window;
-    NSView* view = win.contentView;
-    NSRect frame = view.frame;
-    NSPoint loc = ev.locationInWindow;
+    const int32_t x = loc.x;
+    const int32_t y = frame.size.height - loc.y; 
 
-    fev.x = (int32_t) loc.x;
-    fev.y = (int32_t) frame.size.height - loc.y;
-    fev.button = button;
-    fn__push_event(&fev);
+    if(is_pressed)
+        fn__notify_button_pressed(
+            button,
+            x,
+            y
+        ); 
+    else
+        fn__notify_button_released(
+            button,
+            x,
+            y
+        );
 }
 
 void fn__imp_process_mouse_wheel(NSEvent* ev) {
-    struct fn_event fev = {0, };
-    fev.type = fn_event_type_mouse_wheel;
-    fev.mouse_wheel = ev.deltaZ;
+    NSRect frame = ev.window.contentView.frame;  
+    NSPoint loc = ev.locationInWindow;
 
+    fn__notify_mouse_wheel_moved(
+        (int32_t) ev.deltaZ,
+        (int32_t) loc.x,
+        (int32_t) frame.size.height - loc.y
+    );
 }
