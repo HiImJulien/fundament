@@ -28,32 +28,69 @@ enum fn_event_type {
 //
 struct fn_event {
     enum fn_event_type  type;
+
+    // Stores the window affected.
+    // For events that change the window, this property stores the window that
+    // was affected by the changes.
+    // For input events, this property stores the window that is currently
+    // focused. Note, that the handle might be invalid, indicating that no
+    // (fundament) window had focus.
     struct fn_window    window;
 
-    struct {
+    union {
+        // Holds the new size of a window, if the event type is
+        // 'fn_event_type_resized'.        
+        struct size_event size;
+
+        // Holds the changed button and the position of the mouse,
+        // if the event type is 'fn_event_type_button_pressed' or
+        // 'fn_event_type_button_released'.
+        struct mouse_button_event button;
+
+        // Holds the new position of the mouse, if the event type is
+        // 'fn_event_type_mouse_moved'.
+        struct mouse_move_event mouse_move;
+
+        // Stores the mouse wheel scroll directory the mouse's position,
+        // if the event type is 'fn_event_type_mouse_wheel'.
+        // The value stored in dt specifies the scroll direction.
+        // A positive value means scrolling away from the user.
+        // A negative value means scrolling towards the user.
+        struct mouse_wheel_event mouse_wheel;
+    
+        // Holds the changed key and the letter it corresponds to, 
+        // if the event type is 'fn_event_type_key_pressed'
+        // or 'fn_event_type_key_released'. 
+        struct keyboard_event key;
+
+    };
+
+    struct size_event {
         uint32_t    width;
         uint32_t    height;
     };
 
-    // In case of the 'fn_event_type_button_*' event,
-    // the button property stores the button that changed
-    // its state.
-    // E.g.: If you press the left button, then the property will
-    // store 'fn_button_left'.
-    //
-    // In case of the 'fn_event_type_mouse_moved' event,
-    // the button property stores all buttons that were pressed
-    // while moving the mouse.
-    struct {
+    struct mouse_button_event {
+        enum fn_button  button;
         int32_t         x;
         int32_t         y;
-        enum fn_button  button;
     };
 
-    int32_t         mouse_wheel;
+    struct mouse_move_event {
+        int32_t         x;
+        int32_t         y;
+    };
 
-    char            localized_key;
-    enum fn_key     key;
+    struct mouse_wheel_event {
+        int32_t         dt;
+        int32_t         x;
+        int32_t         y;
+    };
+
+    struct keyboard_event {
+        enum fn_key     key;
+        char            letter;
+    };
 };
 
 #endif  // FUNDAMENT_EVENT_H
