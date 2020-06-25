@@ -1,4 +1,4 @@
-name: Build Base (linux)
+name: Build
 
 on:
     push:
@@ -12,6 +12,9 @@ jobs:
               os: [ubuntu-latest, macOS-latest, windows-latest]
         steps:
         - uses: actions/checkout@v2
+        - uses: actions/setup-python@v2
+          with:
+            python-version: 3.8
         - name: Install tools
           if: ${{ matrix.os == 'ubuntu-latest' }}
           run: | 
@@ -28,12 +31,6 @@ jobs:
             restore-keys: |
                 ${{ matrix.os }}-build-
         - name: Build 
-          if: ${{ matrix.os != 'windows-latest' }}
-          run: |
-            python3 waf configure
-            python3 waf build_package
-        - name: Build on windows
-          if: ${{ matrix.os == 'windows-latest' }}
           run: |
             python waf configure
             python waf build_package 
