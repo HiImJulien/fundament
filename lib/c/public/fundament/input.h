@@ -69,7 +69,6 @@ enum fn_key {
     fn_key_tilde,
     fn_key_semicolon,
     fn_key_tick,
-    fn_key_grave,
     fn_key_comma,
     fn_key_dot,
     fn_key_slash,
@@ -134,7 +133,7 @@ enum fn_key {
     fn_right_system,
 
     fn_key_unknown,
-    fn_key_count= 106,
+    fn_key_count= 105,
 };
 
 //
