@@ -31,6 +31,10 @@ def configure(ctx: ConfigurationContext):
     ctx.define('DEBUG', 1)
 
     ctx.setenv('release', env=original_env)
+
+    if '/Od' in ctx.env.CFLAGS:
+        ctx.env.CFLAGS.remove('/Od')
+
     ctx.env.CFLAGS.extend(release_flags)
     ctx.define('RELEASE', 1) 
 
