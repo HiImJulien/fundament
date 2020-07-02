@@ -1,58 +1,66 @@
 # fundament
-A slick foundation for game developers.
+*Fundament* is a foundation for game developer's to develop their games on.
 
-## About
-**Fundament** provides a foundation for game developers and graphics engineers
-to build their application on. The foundation consists of functions, concepts
-and data structures commonly found in this type of applications.
+## What is fundament?
+It is a library, providing low-level utilities for developers to develop their
+ideas with.
+It is *NOT* a game engine rather than a foundation to build an engine upon.
 
-Functionality include:
-- [IN-PROGRESS]     Cross-platform window creation and management
-- [TODO]            Vector math types and functions implemented ontop of SSE
-- [TODO]            3D Geometry file load for the formats OBJ, PLY, glTF
-- [TODO]            Lightweight/low-level abstractions for the platforms native
-                    rendering API (Metal on macOS, Vulkan on linux, D3D12 on Win32)
-- [TODO]            Asset manager, preventing same resources to be allocated 
-                    multiple times
-- [TODO]            Package API, allowing to easily access the applications
-                    resources from a well-known directory.
-- [TODO]            Toolkit, providing a small 'engine' for people to build
-                    their prototypes on, while providing the ability to dive
-                    in the platform specific details, when necessary.
-- [TODO]            Sound API
+## What does it provide?
+Currently it provides a thin abstraction layer, allowing users to conveniently
+create windows and to receive input events.
 
-Language bindings include:
-- [TODO]            Python bindings
-- [TODO]            Java bindings
-- [TODO]            C# / .NetCore bindings
-- [TODO]            Lua bindings
-- [TODO]            Cxx bindings
+## What is planned for the future?
+The next step is to provide further utilities for loading files formats,
+including:
+- Geometry: .obj, .ply
+- Images: .bmp, .tga
 
-## Tutorials
-Documentation on using the library can be drawn either from the wiki
-or the projects page.
+After this has been achieved, the next step is to provide a thin layer above 
+graphics APIs such as DirectX 12, Metal 2/3 and Vulkan. The goal of this layer
+is provide user's with one API, without having them to worry about the
+underlying API, **WHILE** providing full access to the underlying API, if 
+required.
 
-## Building
-### Building the base library (C)
-Aside from platform specific dependencies, this projects requires a C18 
-(although C11 should be sufficient) and CMake.
+This allows users to create demanding graphics applications for multiple 
+platforms, without dealing with platform specific details. But this also allows
+for users to leverage features of the platform.
 
-- On Windows, the default SDK provided with Visual Studio is enough; MinGW based
-  toolchains should work fine as well, but weren't tested.
-- On macOS, the default SDK provided with XCode is enough.
-- On linux you need to download the 'xcb' development library.
+For instance, geometry shader's will not be supported, since Metal doesn't have
+them. A user may choose to stick to compute shaders, or use geometry shaders 
+exclusively on windows, if it provides an advantage in terms of performance.
 
-The build is configured to provide you the following options:
-- BUILD_SAMPLES (default: OFF)
+## How do I build the library?
+The build system used is [waf](https://waf.io), which requires python 3.
 
-These can be conveniently set in the CMake's configuration step.
-As follows:
 ```
-    cmake . -Bbuild -DBUILD_SAMPLES=ON
+> python3 waf configure
+> python3 waf 
 ```
 
-Sample command line to build the library (without samples)
-```
-    cmake . -Bbuild
-    cmake --build build
-```
+The first command instructs waf to configure the build, checking if all dependencies
+are present or not.
+
+Generally, the default toolchain (i.e. XCode on macOS and MSVC on Windows) are 
+sufficient. For linux few libraries are required.
+
+### Dependencies in linux
+The following libraries are required:
+- xlib-xcb
+- xcb
+- xcb-xinput
+
+## Where can I get prebuilt binaries?
+Currently no prebuilt binaries are provided yet. It is planned to provide
+NuGet packages for Visual Studio users, maven packages for gradle users
+as well as packages in the [releases](https://github.com/HiImJulien/fundament/releases)
+with 'CMakeConfig' files, allowing users to consume the library from within CMake.
+
+Additionally, although, not set in stone yet, packages for Conan and Meson may
+be provided.
+
+## How do I use this library?
+Sorry, I didn't have time to write either good samples or a good tutorial. It
+is planned to provide tutorials in the repositories [wiki](https://github.com/HiImJulien/fundament/wiki).
+
+
