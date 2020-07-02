@@ -5,10 +5,6 @@
 #include <X11/Xutil.h>
 #include <linux/input-event-codes.h>
 
-void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed, char loc) {
-    // TODO: Remove
-}
-
 enum fn_key fn__imp_map_virtual_key(uint32_t keycode) {
     const uint32_t sanitized_key= keycode - 8;
     switch(sanitized_key) {

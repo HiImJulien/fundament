@@ -35,15 +35,14 @@ enum fn_key fn__imp_map_virtual_key(WPARAM wParam, LPARAM lParam) {
         case VK_BACK: return fn_key_backspace;
         case VK_TAB: return fn_key_tab;
         case VK_SPACE: return fn_key_space;
-        // TODO: Hyphen
-        // TODO: Equal
+        case VK_OEM_MINUS: return fn_key_hyphen;
+        case VK_OEM_PLUS: return fn_key_equal;
         case VK_OEM_4: return fn_key_left_bracket;
         case VK_OEM_6: return fn_key_right_bracket;
         case VK_OEM_5: return fn_key_backslash;
         case VK_OEM_3: return fn_key_tilde;
         case VK_OEM_1: return fn_key_semicolon;
-        // TODO: tick
-        // TODO: grave
+        case VK_OEM_7: return fn_key_tick;
         case VK_OEM_COMMA: return fn_key_comma;
         case VK_OEM_PERIOD: return fn_key_dot;
         case VK_OEM_2: return fn_key_slash;
@@ -118,15 +117,10 @@ void fn__imp_process_mouse_input(UINT msg, LPARAM lParam) {
 
     switch(msg) {
         case WM_LBUTTONDOWN: button= fn_button_left; break;
-
         case WM_LBUTTONUP: button= fn_button_left; break;
-
         case WM_RBUTTONDOWN: button= fn_button_right; break;
-
         case WM_RBUTTONUP: button= fn_button_right; break;
-
         case WM_MBUTTONDOWN: button= fn_button_middle; break;
-
         case WM_MBUTTONUP: button= fn_button_middle; break;
     }
 
