@@ -1,11 +1,12 @@
 #include "window_win32.h"
-#include <fundament/event.h>
 #include "../window_common.h"
 #include "input_win32.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <Windowsx.h>
 
 extern IMAGE_DOS_HEADER __ImageBase;
 static const HINSTANCE  g_instance         = (HINSTANCE) &__ImageBase;
@@ -124,11 +125,18 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
 
         case WM_MOUSEWHEEL: {
-            struct fn_event ev = {0, };
-            MOUSEHOOKSTRUCTEX* mhs= (MOUSEHOOKSTRUCTEX*) lParam;
-            ev.type               = fn_event_type_mouse_wheel;
-            ev.mouse_wheel.dt     = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-            fn__push_event(&ev);
+            POINT pt;
+            pt.x = GET_X_LPARAM(lParam);
+            pt.y = GET_Y_LPARAM(lParam);
+            ScreenToClient(hWnd, &pt);
+
+            MOUSEHOOKSTRUCTEX* mhs = (MOUSEHOOKSTRUCTEX*) lParam;
+            fn__notify_mouse_wheel_moved(
+                (int32_t) GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA,
+                (int32_t) pt.x,
+                (int32_t) pt.y
+            );
+
             return 0;
         }
 
