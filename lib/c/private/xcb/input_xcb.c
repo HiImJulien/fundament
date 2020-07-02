@@ -56,10 +56,9 @@ enum fn_key fn__imp_map_virtual_key(uint32_t keycode) {
         // TODO: LBRACKET
         // TODO: RBRACKET
         case KEY_BACKSLASH: return fn_key_backslash;
-        // TODO: Tilde
         case KEY_SEMICOLON: return fn_key_semicolon;
         // TODO: Tick
-        case KEY_GRAVE: return fn_key_grave;
+        case KEY_GRAVE: return fn_key_tilde;
         case KEY_COMMA: return fn_key_comma;
         case KEY_DOT: return fn_key_dot;
         case KEY_SLASH: return fn_key_slash;
