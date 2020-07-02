@@ -124,9 +124,10 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
 
         case WM_MOUSEWHEEL: {
+            struct fn_event ev = {0, };
             MOUSEHOOKSTRUCTEX* mhs= (MOUSEHOOKSTRUCTEX*) lParam;
             ev.type               = fn_event_type_mouse_wheel;
-            ev.mouse_wheel= GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+            ev.mouse_wheel.dt     = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
             fn__push_event(&ev);
             return 0;
         }
