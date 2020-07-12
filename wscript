@@ -8,13 +8,21 @@ import pathlib
 
 from waflib import Options
 from waflib.Context import Context
-from waflib.Build import BuildContext
+from waflib.Build import BuildContext, CleanContext, InstallContext, \
+                         UninstallContext
 from waflib.Configure import ConfigurationContext
 from waflib.Options import OptionsContext
 
 APPNAME = 'fundament'
 VERSION = '0.2'
 GROUP = 'me.juliankirsch'
+
+def init(ctx: Context):
+    # The previous way to ensure, that all builds were either debug or release
+    # deemed a bit hacky.
+    # This is the preferred way, at it is proposed by the waf dev.
+    for cls in [BuildContext, CleanContext, InstallContext, UninstallContext]:
+        cls.variant = 'debug'
 
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
@@ -60,10 +68,14 @@ def configure(ctx: ConfigurationContext):
     if ctx.env.CC_NAME == 'msvc':
         ctx.env.CFLAGS.extend(['/FS', '/DFUNDAMENT_EXPORTS'])
 
+    # Remember whether to build the sample or not.
+    ctx.env.with_samples = ctx.options.with_samples
+
     # Branch the configuration into a debug and release
     # variant.
     ctx.load('build_configurations', tooldir='tools')
     ctx.load('dist_build', tooldir='tools')
+
 
 def build(ctx: BuildContext):
     source = [
@@ -115,11 +127,11 @@ def build(ctx: BuildContext):
         use=dependencies    
     )
 
-#    if ctx.options.with_samples:
-#       ctx.program(
-#            target='simple_window',
-#            source='samples/c/simple_window.c',
-#            use='fundament',
-#            rpath='$ORIGIN'
-#        )
+    if ctx.env.with_samples: 
+        ctx.program(
+            target='simple_window',
+            source='samples/c/simple_window.c',
+            use='fundament',
+            rpath='$ORIGIN'            
+        )
 

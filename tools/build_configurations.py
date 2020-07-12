@@ -28,20 +28,20 @@ def configure(ctx: ConfigurationContext):
     if ctx.env.CC_NAME == 'msvc':
         ctx.env.LINKFLAGS.append('/DEBUG')
 
-    ctx.define('DEBUG', 1)
-
     ctx.setenv('release', env=original_env)
 
     if '/Od' in ctx.env.CFLAGS:
         ctx.env.CFLAGS.remove('/Od')
 
     ctx.env.CFLAGS.extend(release_flags)
-    ctx.define('RELEASE', 1) 
 
-class BuildDebug(BuildContext):
-    cmd = 'build'
-    variant = 'debug'
+class DebugBuild(BuildContext):
+    """builds fundament with debug configurations."""
+    cmd = 'debug'
+    variant = 'debug' 
 
-class BuildRelease(BuildContext):
-    cmd = 'build_release'
+class ReleaseBuild(BuildContext):
+    """builds fundament with release configurations."""
+    cmd = 'release'
     variant = 'release'
+
