@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 
-static bool g_key_state_cache[fn_key_unknown - fn_key_a]= {
+static bool g_key_state_cache[fn_key_count] = {
     false,
 };
 static enum fn_button g_button_state_cache= 0;
@@ -12,12 +12,7 @@ static enum fn_button g_button_state_cache= 0;
 // since the enum values are aligned with USB HID spec.
 //
 inline static size_t get_key_index(enum fn_key key) {
-    if(key < fn_key_mute)
-        return key - fn_key_a;
-    else if(key < fn_left_ctrl)
-        return key - fn_key_mute;
-    else
-        return key - fn_left_ctrl;
+    return key;
 }
 
 void fn__set_key_state(enum fn_key key, bool pressed) {

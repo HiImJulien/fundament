@@ -1,0 +1,111 @@
+#include "input_key_map_xcb.h"
+#include <fundament/input.h>
+
+#include <xcb/input-event-codes.h>
+
+uint16_t fn__imp_map_xcb_key(uint32_t key_code) {
+    switch(key_code) {
+        case XK_a: return fn_key_a;
+        case XK_b: return fn_key_b;
+        case XK_c: return fn_key_c;
+        case XK_d: return fn_key_d;
+        case XK_e: return fn_key_e;
+        case XK_f: return fn_key_f;
+        case XK_g: return fn_key_g;
+        case XK_h: return fn_key_h;
+        case XK_i: return fn_key_i;
+        case XK_j: return fn_key_j;
+        case XK_k: return fn_key_k;
+        case XK_l: return fn_key_l;
+        case XK_m: return fn_key_m;
+        case XK_n: return fn_key_n;
+        case XK_o: return fn_key_o;
+        case XK_p: return fn_key_p;
+        case XK_q: return fn_key_q;
+        case XK_r: return fn_key_r;
+        case XK_s: return fn_key_s;
+        case XK_t: return fn_key_t;
+        case XK_u: return fn_key_u;
+        case XK_v: return fn_key_v;
+        case XK_w: return fn_key_w;
+        case XK_x: return fn_key_x;
+        case XK_y: return fn_key_y;
+        case XK_z: return fn_key_z;
+        case XK_1: return fn_key_1;
+        case XK_2: return fn_key_2;
+        case XK_3: return fn_key_3;
+        case XK_4: return fn_key_4;
+        case XK_5: return fn_key_5;
+        case XK_6: return fn_key_6;
+        case XK_7: return fn_key_7;
+        case XK_8: return fn_key_8;
+        case XK_9: return fn_key_9;
+        case XK_0: return fn_key_0;
+        case XK_Return: return fn_key_enter;
+        case XK_Escape: return fn_key_escape;
+        case XK_BackSpace: return fn_key_backspace;
+        case XK_Tab: return fn_key_tab;
+        case XK_space: return fn_key_space;
+        case XK_minus: return fn_key_hyphen;
+        case XK_equal: return fn_key_equal;
+        case XK_bracketleft: return fn_key_left_bracket;
+        case XK_bracketright: return fn_key_right_bracket;
+        case XK_backslash: return fn_key_backslash;
+        case XK_semicolon: return fn_key_semicolon;
+        case XK_apostrophe: return fn_key_quote;
+        case XK_grave: return fn_key_tilde;
+        case XK_comma: return fn_key_comma;
+        case XK_period: return fn_key_period;
+        case XK_slash: return fn_key_slash;
+        case XK_F1: return fn_key_f1;
+        case XK_F2: return fn_key_f2;
+        case XK_F3: return fn_key_f3;
+        case XK_F4: return fn_key_f4;
+        case XK_F5: return fn_key_f5;
+        case XK_F6: return fn_key_f6;
+        case XK_F7: return fn_key_f7;
+        case XK_F8: return fn_key_f8;
+        case XK_F9: return fn_key_f9;
+        case XK_F10: return fn_key_f10;
+        case XK_F11: return fn_key_f11;
+        case XK_F12: return fn_key_f12;
+        case XK_Pause: return fn_key_pause;
+        case XK_Insert: return fn_key_insert;
+        case XK_Home: return fn_key_home;
+        case XK_Prior: return fn_key_page_up;
+        case XK_Delete: return fn_key_delete;
+        case XK_End: return fn_key_end;
+        case XK_Next: return fn_key_page_down;
+        case XK_Right: return fn_key_right;
+        case XK_Left: return fn_key_left;
+        case XK_Down: return fn_key_down;
+        case XK_Up: return fn_key_up;
+        case XK_KP_Divide: return fn_key_np_divide;
+        case XK_KP_Multiply: return fn_key_np_multiply;
+        case XK_KP_Subtract: return fn_key_np_minus;
+        case XK_KP_Add: return fn_key_np_plus;
+        case XK_KP_End: return fn_key_np_1;
+        case XK_KP_Down: return fn_key_np_2;
+        case XK_KP_Page_Down: return fn_key_np_3;
+        case XK_KP_Left: return fn_key_np_4;
+        case XK_KP_Begin: return fn_key_np_5;
+        case XK_KP_Right: return fn_key_np_6;
+        case XK_KP_Home: return fn_key_np_7;
+        case XK_KP_Up: return fn_key_np_8;
+        case XK_KP_Page_Up: return fn_key_np_9;
+        case XK_KP_Insert: return fn_key_np_0;
+        case XK_Menu: return fn_key_menu;
+        case XK_F13: return fn_key_f13;
+        case XK_F14: return fn_key_f14;
+        case XK_F15: return fn_key_f15;
+        case XK_Control_L: return fn_key_left_ctrl;
+        case XK_Shift_L: return fn_key_left_shift;
+        case XK_Alt_L: return fn_key_left_alt;
+        case XK_Super_L: return fn_key_left_system;
+        case XK_Control_R: return fn_key_right_ctrl;
+        case XK_Shift_R: return fn_key_right_shift;
+        case XK_Alt_R: return fn_key_right_alt;
+        case XK_Super_R: return fn_key_right_system;
+    }
+}
+
