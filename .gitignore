@@ -11,3 +11,7 @@ tags
 .lock-waf*
 .waf*
 waf3*
+
+# Ignore credentials
+credentials*
+google_token
