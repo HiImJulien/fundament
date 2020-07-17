@@ -69,7 +69,7 @@ uint16_t fn__imp_map_appkit_key(uint16_t key_code) {
         case kVK_F10: return fn_key_f10;
         case kVK_F11: return fn_key_f11;
         case kVK_F12: return fn_key_f12;
-        // No known mapping for fn_key_pause.
+        // No known mapping for fn_key_pause
         case kVK_Help: return fn_key_insert;
         case kVK_Home: return fn_key_home;
         case kVK_PageUp: return fn_key_page_up;
@@ -94,7 +94,7 @@ uint16_t fn__imp_map_appkit_key(uint16_t key_code) {
         case kVK_ANSI_Keypad8: return fn_key_np_8;
         case kVK_ANSI_Keypad9: return fn_key_np_9;
         case kVK_ANSI_Keypad0: return fn_key_np_0;
-        // No known mapping for fn_key_menu.
+        // No known mapping for fn_key_menu
         case kVK_F13: return fn_key_f13;
         case kVK_F15: return fn_key_f14;
         case kVK_F15: return fn_key_f15;
@@ -106,6 +106,6 @@ uint16_t fn__imp_map_appkit_key(uint16_t key_code) {
         case kVK_RightShift: return fn_key_right_shift;
         case kVK_RightOption: return fn_key_right_alt;
         case kVK_RightCommand: return fn_key_right_system;
+        default: return fn_key_undefined;
     }
 }
-

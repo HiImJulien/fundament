@@ -1,46 +1,46 @@
 #include "input_key_map_win32.h"
 #include <fundament/input.h>
 
-#include <Winuser.h>
+#include <WinUser.h>
 
-uint16_t fn__imp_map_win32_key(WAPARAM key_code) {
+uint16_t fn__imp_map_win32_key(WPARAM key_code) {
     switch(key_code) {
-        case 'A': return fn_key_a;
-        case 'B': return fn_key_b;
-        case 'C': return fn_key_c;
-        case 'D': return fn_key_d;
-        case 'E': return fn_key_e;
-        case 'F': return fn_key_f;
-        case 'G': return fn_key_g;
-        case 'H': return fn_key_h;
-        case 'I': return fn_key_i;
-        case 'J': return fn_key_j;
-        case 'K': return fn_key_k;
-        case 'L': return fn_key_l;
-        case 'M': return fn_key_m;
-        case 'N': return fn_key_n;
-        case 'O': return fn_key_o;
-        case 'P': return fn_key_p;
-        case 'Q': return fn_key_q;
-        case 'R': return fn_key_r;
-        case 'S': return fn_key_s;
-        case 'T': return fn_key_t;
-        case 'U': return fn_key_u;
-        case 'V': return fn_key_v;
-        case 'W': return fn_key_w;
-        case 'X': return fn_key_x;
-        case 'Y': return fn_key_y;
-        case 'Z': return fn_key_z;
-        case '1': return fn_key_1;
-        case '2': return fn_key_2;
-        case '3': return fn_key_3;
-        case '4': return fn_key_4;
-        case '5': return fn_key_5;
-        case '6': return fn_key_6;
-        case '7': return fn_key_7;
-        case '8': return fn_key_8;
-        case '9': return fn_key_9;
-        case '0': return fn_key_0;
+        case "A": return fn_key_a;
+        case "B": return fn_key_b;
+        case "C": return fn_key_c;
+        case "D": return fn_key_d;
+        case "E": return fn_key_e;
+        case "F": return fn_key_f;
+        case "G": return fn_key_g;
+        case "H": return fn_key_h;
+        case "I": return fn_key_i;
+        case "J": return fn_key_j;
+        case "K": return fn_key_k;
+        case "L": return fn_key_l;
+        case "M": return fn_key_m;
+        case "N": return fn_key_n;
+        case "O": return fn_key_o;
+        case "P": return fn_key_p;
+        case "Q": return fn_key_q;
+        case "R": return fn_key_r;
+        case "S": return fn_key_s;
+        case "T": return fn_key_t;
+        case "U": return fn_key_u;
+        case "V": return fn_key_v;
+        case "W": return fn_key_w;
+        case "X": return fn_key_x;
+        case "Y": return fn_key_y;
+        case "Z": return fn_key_z;
+        case "1": return fn_key_1;
+        case "2": return fn_key_2;
+        case "3": return fn_key_3;
+        case "4": return fn_key_4;
+        case "5": return fn_key_5;
+        case "6": return fn_key_6;
+        case "7": return fn_key_7;
+        case "8": return fn_key_8;
+        case "9": return fn_key_9;
+        case "0": return fn_key_0;
         case VK_RETURN: return fn_key_enter;
         case VK_ESCAPE: return fn_key_escape;
         case VK_BACK: return fn_key_backspace;
@@ -106,6 +106,6 @@ uint16_t fn__imp_map_win32_key(WAPARAM key_code) {
         case VK_RSHIFT: return fn_key_right_shift;
         case VK_RMENU: return fn_key_right_alt;
         case VK_RWIN: return fn_key_right_system;
+        default: return fn_key_undefined;
     }
 }
-

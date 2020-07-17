@@ -90,7 +90,8 @@ def build(ctx: BuildContext):
     if ctx.env.DEST_OS == 'linux':
         source.extend([
             'lib/c/private/xcb/window_xcb.c',
-            'lib/c/private/xcb/input_xcb.c'
+            'lib/c/private/xcb/input_xcb.c',
+            'lib/c/private/xcb/input_key_map_xcb.c'
         ])
 
         dependencies.extend([
