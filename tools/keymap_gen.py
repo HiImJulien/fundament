@@ -9,9 +9,15 @@ Note, that this tool does NOT extend waf.
 """
 
 import csv
-from dataclasses import dataclass
 import pathlib
+import pickle
+
+from dataclasses import dataclass
 from string import Template
+
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
 TOOLS_DIR = pathlib.Path(__file__).absolute().parent
 TEMPLATES_DIR = TOOLS_DIR.joinpath('templates')
@@ -22,6 +28,8 @@ SOURCE_ROOT = REPO_ROOT.joinpath('lib', 'c', 'private')
 HEADER_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input_key_map_platform.h.template')
 SOURCE_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input_key_map_platform.c.template') 
 INPUT_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input.h.template')
+
+SPREADSHEET_ID = '1VPQTYbJqPITDeBr0M5-fUwX6cvYu9hFFXQVaXtD9sN0'
 
 @dataclass
 class PlatformInfo:
@@ -52,6 +60,41 @@ class Mapping:
 
         return ' ' * 8 + f'case {native}: return {self.fundament};\n' 
 
+def get_mappings():
+    print('Loading mappings from sheet...')
+    creds = None
+    token_path = TOOLS_DIR.joinpath('google_token')
+    if token_path.is_file():
+        with open(token_path, 'rb') as token:
+            creds = pickle.load(token)
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES
+            ) 
+
+            creds = flow.run_local_server(port=0)
+
+        with open('google_token', 'wb') as token:
+            pickle.dump(creds, token)
+
+    service = build('sheets', 'v4') 
+    sheet = service.spreadsheets()
+    result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range='Table').execute()
+    values = iter(result.get('values', []))
+    next(values, None)
+
+    mappings = [] 
+    for value in values:
+        mappings.append(Mapping(*value)) 
+  
+    print('Done loading mappings from sheet.')
+    return mappings
+     
+
 def main():
     global HEADER_FILE_TEMPLATE
     global SOURCE_FILE_TEMPLATE
@@ -66,14 +109,8 @@ def main():
     with open(INPUT_FILE_TEMPLATE) as f:
         INPUT_FILE_TEMPLATE = Template(f.read())
 
-    mappings = []
-
-    with open(CSV_FILE_PATH, 'r') as f:
-        reader = csv.reader(f)
-        next(reader, None)
-        
-        for row in reader:
-            mappings.append(Mapping(*row))
+    mappings = get_mappings()
+    print('Generating files.')
 
     for platform in platforms.values():
         header = HEADER_FILE_TEMPLATE.substitute(
@@ -102,9 +139,11 @@ def main():
         header_file = impl_dir.joinpath(f'input_key_map_{platform.platform}.h')
         source_file = impl_dir.joinpath(f'input_key_map_{platform.platform}.c')
 
+        print(f'Generating file {header_file}.')
         with open(header_file, 'w') as f:
             f.write(header)
 
+        print(f'Generating file {source_file}.')
         with open(source_file, 'w') as f:
             f.write(source)
 
@@ -119,9 +158,13 @@ def main():
     values = ''.join(values) 
 
     input_file = REPO_ROOT.joinpath('lib', 'c', 'public', 'fundament', 'input.h')
+
+    print(f'Generating file {input_file}.')
     with open(input_file, 'w') as f:
         content = INPUT_FILE_TEMPLATE.substitute(values=values)
         f.write(content)
+
+    print('Done!')
 
 if __name__ == '__main__':
     main()
