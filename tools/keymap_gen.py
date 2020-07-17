@@ -58,6 +58,8 @@ class Mapping:
         if not native:
             return ' ' * 8 + f'// No known mapping for {self.fundament}\n' 
 
+        native = native.replace('"', '\'')
+
         return ' ' * 8 + f'case {native}: return {self.fundament};\n' 
 
 def get_mappings():
