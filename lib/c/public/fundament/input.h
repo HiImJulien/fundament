@@ -116,7 +116,7 @@ enum fn_key {
     fn_key_right_shift,
     fn_key_right_alt,
     fn_key_right_system,
-    fn_key_count,
+    fn_key_count
 };
 
 //

@@ -21,7 +21,7 @@ SOURCE_ROOT = REPO_ROOT.joinpath('lib', 'c', 'private')
 
 HEADER_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input_key_map_platform.h.template')
 SOURCE_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input_key_map_platform.c.template') 
-
+INPUT_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input.h.template')
 
 @dataclass
 class PlatformInfo:
@@ -55,12 +55,16 @@ class Mapping:
 def main():
     global HEADER_FILE_TEMPLATE
     global SOURCE_FILE_TEMPLATE
+    global INPUT_FILE_TEMPLATE
 
     with open(HEADER_FILE_TEMPLATE) as f:
         HEADER_FILE_TEMPLATE = Template(f.read())
 
     with open(SOURCE_FILE_TEMPLATE) as f:
         SOURCE_FILE_TEMPLATE = Template(f.read())
+
+    with open(INPUT_FILE_TEMPLATE) as f:
+        INPUT_FILE_TEMPLATE = Template(f.read())
 
     mappings = []
 
@@ -103,6 +107,21 @@ def main():
 
         with open(source_file, 'w') as f:
             f.write(source)
+
+    values = []
+    values.append('fn_key_undefined,\n')
+    
+    prefix = 4 * ' '
+    for mapping in mappings:
+        values.append(f'{prefix}{mapping.fundament},\n')
+
+    values.append(f'{prefix}fn_key_count')
+    values = ''.join(values) 
+
+    input_file = REPO_ROOT.joinpath('lib', 'c', 'public', 'fundament', 'input.h')
+    with open(input_file, 'w') as f:
+        content = INPUT_FILE_TEMPLATE.substitute(values=values)
+        f.write(content)
 
 if __name__ == '__main__':
     main()
