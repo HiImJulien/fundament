@@ -256,8 +256,10 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
             xcb_input_device_key_press_event_t* ev=
                 (xcb_input_device_key_press_event_t*) gev;
 
+            // The values of ev->child seem to be 'offset' by 8
+            // when comparing to linux key codes.
             const enum fn_key key =
-                fn__imp_map_xcb_key((uint32_t) ev->child);
+                fn__imp_map_xcb_key((uint32_t) ev->child - 8);
 
             const char letter =
                 fn__imp_translate_key(display, (uint32_t) ev->child);

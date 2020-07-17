@@ -102,8 +102,9 @@ def build(ctx: BuildContext):
 
     if ctx.env.DEST_OS == 'darwin':
         source.extend([
-            'lib/c/private/AppKit/window_AppKit.m',
-            'lib/c/private/AppKit/input_AppKit.m'
+            'lib/c/private/appkit/window_appkit.m',
+            'lib/c/private/appkit/input_appkit.m',
+            'lib/c/private/appkit/input_key_map_appkit.c'
         ])
 
         dependencies.extend([

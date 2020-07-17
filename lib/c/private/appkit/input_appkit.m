@@ -1,4 +1,4 @@
-#include "input_AppKit.h"
+#include "input_appkit.h"
 #include <fundament/event.h>
 #include "../window_common.h"
 

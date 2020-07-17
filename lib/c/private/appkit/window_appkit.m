@@ -1,6 +1,6 @@
-#include "window_AppKit.h"
+#include "window_appkit.h"
 #include "../window_common.h"
-#include "input_AppKit.h"
+#include "input_appkit.h"
 
 #include <AppKit/AppKit.h>
 

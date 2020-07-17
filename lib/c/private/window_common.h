@@ -24,7 +24,7 @@
 #if defined(_WIN32)
     #include "win32/window_win32.h"
 #elif defined(__APPLE__)
-    #include "AppKit/window_AppKit.h"
+    #include "AppKit/window_appkit.h"
 #elif defined(__linux__)
     #include "xcb/window_xcb.h"
 #endif
