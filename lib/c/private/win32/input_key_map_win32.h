@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define WIN32_LEAN_AND_MEAN
-#include <WinDef.h>
+#include <Windows.h>
 
 //==============================================================================
 // This file was generated using the keymap_gen.py script, which is part of the

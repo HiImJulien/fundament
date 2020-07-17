@@ -39,7 +39,7 @@ class PlatformInfo:
     source_includes: list
 
 platforms = {}
-platforms['win32'] = PlatformInfo('win32', '#define WIN32_LEAN_AND_MEAN\n#include <WinDef.h>', 'WPARAM', '#include <WinUser.h>')
+platforms['win32'] = PlatformInfo('win32', '#define WIN32_LEAN_AND_MEAN\n#include <Windows.h>', 'WPARAM', '') 
 platforms['xcb'] = PlatformInfo('xcb', '', 'uint32_t', '#include <linux/input-event-codes.h>')
 platforms['appkit'] = PlatformInfo('appkit', '', 'uint16_t', '#include <Carbon/Carbon.h>')
 

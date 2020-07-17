@@ -1,7 +1,7 @@
 #include "input_key_map_win32.h"
 #include <fundament/input.h>
 
-#include <WinUser.h>
+
 
 uint16_t fn__imp_map_win32_key(WPARAM key_code) {
     switch(key_code) {
