@@ -100,7 +100,7 @@ uint16_t fn__imp_map_appkit_key(uint16_t key_code) {
         case kVK_F15: return fn_key_f15;
         case kVK_Control: return fn_key_left_ctrl;
         case kVK_Shift: return fn_key_left_shift;
-        case kVk_Option: return fn_key_left_alt;
+        case kVK_Option: return fn_key_left_alt;
         case kVK_Command: return fn_key_left_system;
         case kVK_RightControl: return fn_key_right_ctrl;
         case kVK_RightShift: return fn_key_right_shift;
