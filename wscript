@@ -112,7 +112,8 @@ def build(ctx: BuildContext):
     if ctx.env.DEST_OS == 'win32':
         source.extend([
             'lib/c/private/win32/window_win32.c',
-            'lib/c/private/win32/input_win32.c'
+            'lib/c/private/win32/input_win32.c',
+            'lib/c/private/win32/input_key_map_win32.c'
         ])
 
         dependencies.extend([
