@@ -42,7 +42,7 @@ uint16_t fn__imp_map_appkit_key(uint16_t key_code) {
         case kVK_ANSI_9: return fn_key_9;
         case kVK_ANSI_0: return fn_key_0;
         case kVK_Return: return fn_key_enter;
-        case kVK_ANSI_Escape: return fn_key_escape;
+        case kVK_Escape: return fn_key_escape;
         case kVK_Delete: return fn_key_backspace;
         case kVK_Tab: return fn_key_tab;
         case kVK_Space: return fn_key_space;
@@ -96,7 +96,7 @@ uint16_t fn__imp_map_appkit_key(uint16_t key_code) {
         case kVK_ANSI_Keypad0: return fn_key_np_0;
         // No known mapping for fn_key_menu
         case kVK_F13: return fn_key_f13;
-        case kVK_F15: return fn_key_f14;
+        case kVK_F14: return fn_key_f14;
         case kVK_F15: return fn_key_f15;
         case kVK_Control: return fn_key_left_ctrl;
         case kVK_Shift: return fn_key_left_shift;

@@ -22,11 +22,11 @@
 //==============================================================================
 
 #if defined(_WIN32)
-    #include "win32/window_win32.h"
+    #include "./win32/window_win32.h"
 #elif defined(__APPLE__)
-    #include "AppKit/window_appkit.h"
+    #include "./appkit/window_appkit.h"
 #elif defined(__linux__)
-    #include "xcb/window_xcb.h"
+    #include "./xcb/window_xcb.h"
 #endif
 
 static const fn_native_window_handle_t fn__g_null_wnd=
