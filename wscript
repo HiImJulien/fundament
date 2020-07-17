@@ -127,11 +127,3 @@ def build(ctx: BuildContext):
         use=dependencies    
     )
 
-    if ctx.env.with_samples: 
-        ctx.program(
-            target='simple_window',
-            source='samples/c/simple_window.c',
-            use='fundament',
-            rpath='$ORIGIN'            
-        )
-

@@ -3,6 +3,7 @@
 #include "../input_common.h"
 #include "../window_common.h"
 #include "input_xcb.h"
+#include "input_key_map_xcb.h"
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -255,10 +256,10 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev) {
             xcb_input_device_key_press_event_t* ev=
                 (xcb_input_device_key_press_event_t*) gev;
 
-            const enum fn_key key=
-                fn__imp_map_virtual_key((uint32_t) ev->child);
+            const enum fn_key key =
+                fn__imp_map_xcb_key((uint32_t) ev->child);
 
-            const char letter=
+            const char letter =
                 fn__imp_translate_key(display, (uint32_t) ev->child);
 
             if(is_press)
