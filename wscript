@@ -55,6 +55,8 @@ def configure(ctx: ConfigurationContext):
             args=['--cflags', '--libs']
         )
 
+        ctx.check(header='linux/input-event-codes.h', msg='Checking for header input-event-codes.h')
+
     if ctx.env.DEST_OS == 'darwin':
         ctx.check(framework='AppKit', msg='Checking for framework Appkit', 
                     uselib_store='AppKit')
