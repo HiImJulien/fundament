@@ -48,6 +48,8 @@ static size_t fn__imp_entry_idx(fn_native_window_handle_t handle) {
     size_t left = 0;
     size_t right = fn__g_window_context.windows_size - 1;
 
+    printf("L: %zu, R: %zu\n", left, right);
+
     while(left < right) {
         size_t mid = left + (right - left) / 2;
 

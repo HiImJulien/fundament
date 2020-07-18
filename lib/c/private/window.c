@@ -24,6 +24,7 @@ struct fn_window fn_create_window()
     }
 
     fn__g_window_context.windows[index].handle = fn__imp_create_window(index);
+    fn__g_window_context.windows_size++;
     return (struct fn_window) {.id= index + 1};
 }
 
