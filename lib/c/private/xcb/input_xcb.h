@@ -13,11 +13,6 @@
 #include <X11/Xlib.h>
 
 //
-// Processes X11/Xinput key press/release events.
-//
-void fn__imp_process_keyboard_input(uint32_t keycode, bool pressed, char loc);
-
-//
 // Translates a keycode to a localized character representing the key.
 //
 char fn__imp_translate_key(Display* dpy, uint32_t keycode);
