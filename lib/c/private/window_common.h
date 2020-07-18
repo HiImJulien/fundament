@@ -66,6 +66,10 @@ struct fn__window_context {
 
     struct fn_window focused_window;
 
+    #if defined(__APPLE__)
+        bool setup_process;
+    #endif
+
     #if defined(__linux__)
         Display* display;
         xcb_connection_t* connection;
