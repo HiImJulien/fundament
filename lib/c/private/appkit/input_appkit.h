@@ -18,11 +18,6 @@ void fn__imp_process_keyboard_input(NSEvent* ev);
 //
 //
 //
-enum fn_key fn__imp_map_virtual_key(unsigned short keyCode);
-
-//
-//
-//
 void fn__imp_process_mouse_input(NSEvent* ev);
 
 void fn__imp_process_mouse_wheel(NSEvent* ev);

@@ -15,10 +15,7 @@ void fn__imp_process_keyboard_input(NSEvent* ev)
     const char letter =
         ev.characters.length == 1 ? [ev.characters UTF8String][0] : 0;
 
-    if(is_press)
-        fn__notify_key_pressed(key, letter);
-    else
-        fn__notify_key_released(key, letter);
+    fn__notify_key_changed(key, letter, is_press);
 }
 
 void fn__imp_process_mouse_input(NSEvent* ev)
@@ -59,6 +56,8 @@ void fn__imp_process_mouse_input(NSEvent* ev)
         fn__notify_button_pressed(button, x, y);
     else
         fn__notify_button_released(button, x, y);
+
+    fn__notify_button_changed(button, x, y, is_pressed);
 }
 
 void fn__imp_process_mouse_wheel(NSEvent* ev)
