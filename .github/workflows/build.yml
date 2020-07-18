@@ -37,5 +37,7 @@ jobs:
         - uses: actions/upload-artifact@v2
           with:
             name: 'Distributions'
-            path: ${{ github.workspace }}/build/fundament-*.tar.gz
+            path: |
+              ${{ github.workspace }}/build/[debug,release]/[lib]fundament.[so,dylib,dll]
+              ${{ github.workspace }}/lib/c/public/**/*
 
