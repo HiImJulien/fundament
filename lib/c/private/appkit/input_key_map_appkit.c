@@ -57,7 +57,7 @@ uint16_t fn__imp_map_appkit_key(uint16_t key_code) {
         case kVK_ANSI_Comma: return fn_key_comma;
         case kVK_ANSI_Period: return fn_key_period;
         case kVK_ANSI_Slash: return fn_key_slash;
-        case kVk_CapsLock: return fn_key_caps;
+        case kVK_CapsLock: return fn_key_caps;
         case kVK_F1: return fn_key_f1;
         case kVK_F2: return fn_key_f2;
         case kVK_F3: return fn_key_f3;
