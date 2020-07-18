@@ -22,9 +22,7 @@
 //==============================================================================
 
 #if defined(_WIN32)
-
     #include "./win32/window_win32.h"
-
 #elif defined(__APPLE__)
     #include "./appkit/window_appkit.h"
 #elif defined(__linux__)
@@ -154,22 +152,6 @@ void fn__notify_window_lost_focus(uint32_t idx);
 void fn__notify_key_changed(enum fn_key key, char localized_key, bool press);
 
 //
-// Notifies the framework, that a key was pressed.
-//
-// Generates an event with type 'fn_event_type_key_pressed' and updates
-// the internal key state.
-//
-void fn__notify_key_pressed(enum fn_key key, char localized_key);
-
-//
-// Notifies the framework, that a key was released.
-//
-// Generates an event with type 'fn_event_type_key_released' and updates
-// the internal key state.
-//
-void fn__notify_key_released(enum fn_key key, char localized_key);
-
-//
 // Notifies the framework, that a mouse button's state changed.
 //
 // Generates an event with type 'fn_event_type_button_pressed' or
@@ -182,22 +164,6 @@ void fn__notify_button_changed(
     int32_t y,
     bool press
 );
-
-//
-// Notifies the framework, that a mouse button was pressed.
-//
-// Generates an event with type 'fn_event_type_button_pressed' and updates
-// the internal button state.
-//
-void fn__notify_button_pressed(enum fn_button button, int32_t x, int32_t y);
-
-//
-// Notifies the framework, that a mouse button was released.
-//
-// Generates an event with type 'fn_event_type_button_released' and updates
-// the internal button state.
-//
-void fn__notify_button_released(enum fn_button button, int32_t x, int32_t y);
 
 //
 // Notifies the framework, that the mouse was moved.
