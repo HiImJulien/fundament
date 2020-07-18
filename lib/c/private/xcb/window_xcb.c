@@ -269,6 +269,7 @@ static void fn__imp_on_generic(xcb_generic_event_t* gev) {
 
 void fn__imp_init_window_context()
 {
+    //--- Setup connection to server.
     Display* dpy = XOpenDisplay(NULL);
     fn__g_window_context.display = dpy; 
     fn__g_window_context.connection = XGetXCBConnection(dpy); 
@@ -279,6 +280,47 @@ void fn__imp_init_window_context()
         xcb_get_setup(fn__g_window_context.connection)
     ).data;
 
+    //--- Initializes the id_map.
+    fn__g_window_context.id_map = calloc(
+        fn__g_window_context.windows_capacity,
+        sizeof(struct fn__imp_id_map)
+    );  
+
+    //--- Check wether XInput is supported by the server.
+    xcb_query_extension_cookie_t qxi_cookie = xcb_query_extension(
+        fn__g_window_context.connection, 15, "XInputExtension"
+    );
+
+    xcb_query_extension_reply_t* qxi_reply = xcb_query_extension_reply(
+        fn__g_window_context.connection, qxi_cookie, NULL
+    );
+
+    xcb_input_get_extension_version_cookie_t xiv_cookie =
+        xcb_input_get_extension_version(
+        fn__g_window_context.connection, 15, "XInputExtension"
+    ); 
+
+    xcb_input_get_extension_version_reply_t* xiv_reply =
+        xcb_input_get_extension_version_reply(
+        fn__g_window_context.connection, xiv_cookie, NULL
+    );
+
+    xcb_flush(fn__g_window_context.connection); 
+
+    static const uint16_t xinput_lib_version = 0;
+    const uint16_t xinput_version = (xiv_reply->server_major << 8)
+        || xiv_reply->server_minor; 
+
+    if(qxi_reply->present && xinput_lib_version >= xinput_version) {
+        fn__g_window_context.has_xinput = true;
+        fn__g_window_context.opcode_xinput = qxi_reply->major_opcode;
+    } else
+        fn__g_window_context.has_xinput = false;
+
+    free(qxi_reply);
+    free(xiv_reply);
+
+    //--- Retrieve extended window manager hint atoms.
     xcb_intern_atom_cookie_t protocols_cookie = xcb_intern_atom(
         fn__g_window_context.connection, 1, 12, "WM_PROTOCOLS"
     );
@@ -295,60 +337,13 @@ void fn__imp_init_window_context()
         fn__g_window_context.connection, delete_window_cookie, 0
     );
 
-    // Check whether XInput is supported.
-    xcb_query_extension_cookie_t qxi_cookie = xcb_query_extension(
-        fn__g_window_context.connection, 15, "XInputExtension"
-    );
-
-    xcb_query_extension_reply_t* qxi_reply = xcb_query_extension_reply(
-        fn__g_window_context.connection, qxi_cookie, NULL
-    );
-
-    xcb_input_get_extension_version_cookie_t xiv_cookie = 
-        xcb_input_get_extension_version(
-            fn__g_window_context.connection, 15, "XInputExtension"
-    );
-
-    xcb_input_get_extension_version_reply_t* xiv_reply = 
-        xcb_input_get_extension_version_reply(
-        fn__g_window_context.connection, xiv_cookie, NULL
-    );
-
     xcb_flush(fn__g_window_context.connection);
 
     fn__g_window_context.atom_protocols = protocols_reply->atom;
     fn__g_window_context.atom_delete_window = delete_window_reply->atom;
 
-    const uint16_t reported_version =
-        (xiv_reply->server_major << 8) | xiv_reply->server_minor;
-
-    if(qxi_reply->present && xinput_version >= reported_version) {
-        fn__g_window_context.has_xinput = true;
-        fn__g_window_context.opcode_xinput = qxi_reply->major_opcode;
-
-        xcb_input_event_mask_t head = {
-            .deviceid= XCB_INPUT_DEVICE_ALL, 
-            .mask_len= sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)
-        };
-
-        xcb_input_xi_select_events(
-            fn__g_window_context.connection, 
-            fn__g_window_context.screen->root, 
-            1, 
-            &head
-        );
-
-        xcb_flush(fn__g_window_context.connection);
-    }
-
     free(protocols_reply);
     free(delete_window_reply);
-    free(qxi_reply);
-
-    fn__g_window_context.id_map = calloc(
-        fn__g_window_context.windows_capacity,
-        sizeof(struct fn__imp_id_map)
-    );  
 }
 
 fn_native_window_handle_t fn__imp_create_window(uint32_t index)
@@ -358,12 +353,21 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
     );
 
     const uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    const uint32_t mask_values[] = {
+    uint32_t mask_values[] = {
         fn__g_window_context.screen->white_pixel,
-        XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS |
-        XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
-        XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY};
+        XCB_EVENT_MASK_EXPOSURE 
+        | XCB_EVENT_MASK_STRUCTURE_NOTIFY
+    };
+
+    const uint32_t input_mask = XCB_EVENT_MASK_BUTTON_PRESS
+        | XCB_EVENT_MASK_BUTTON_RELEASE
+        | XCB_EVENT_MASK_POINTER_MOTION
+        | XCB_EVENT_MASK_KEY_PRESS
+        | XCB_EVENT_MASK_KEY_RELEASE
+    ;
+
+    if(!fn__g_window_context.has_xinput)
+        mask_values[1] |= input_mask;
 
     xcb_create_window(
         fn__g_window_context.connection, 
