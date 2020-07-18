@@ -4,6 +4,7 @@ This file is used by the Waf build system to drive this project's build.
 
 import enum
 import tarfile
+import os
 import pathlib
 
 from waflib import Options
@@ -17,12 +18,30 @@ APPNAME = 'fundament'
 VERSION = '0.2'
 GROUP = 'me.juliankirsch'
 
+RC_DATA = {
+    'FILEVERSION' : '0,0,0,0',
+    'PRODUCTVERSION' : VERSION,
+    'COMPANYNAME' : 'juliankirsch.me',
+    'FILEDESCRIPTION' : 'A slick foundation for game developers.',
+    'COPYRIGHT' : 'Copyright 2020 Julian Kirsch <contact@juliankirsch.me>',
+    'TRADEMARK' : 'All Rights Reserved',
+    'ORIGINALFILENAME' : 'fundament.dll',
+    'PRODUCTNAME' : 'fundament Runtime',
+}
+
 def init(ctx: Context):
     # The previous way to ensure, that all builds were either debug or release
     # deemed a bit hacky.
     # This is the preferred way, at it is proposed by the waf dev.
     for cls in [BuildContext, CleanContext, InstallContext, UninstallContext]:
         cls.variant = 'debug'
+
+    if not os.environ.get('CI'):
+        return
+
+    major, minor = VERSION.split('.')
+    build_number = os.environ.get('GITHUB_RUN_NUMBER')
+    RC_DATA['PRODUCTVERSION'] = f'{major}.{minor}-{build_number}' 
 
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
@@ -114,15 +133,24 @@ def build(ctx: BuildContext):
         ])
 
     if ctx.env.DEST_OS == 'win32':
+        ctx(
+            features='subst',
+            source='lib/c/private/win32/fundament.rc.in',
+            target='fundament.rc',
+            **RC_DATA
+        )
+
         source.extend([
             'lib/c/private/win32/window_win32.c',
             'lib/c/private/win32/input_win32.c',
-            'lib/c/private/win32/input_key_map_win32.c'
+            'lib/c/private/win32/input_key_map_win32.c',
+            'fundament.rc'
         ])
 
         dependencies.extend([
             'user32'
         ]) 
+
 
     artefact = ctx.shlib(
         target='fundament',
