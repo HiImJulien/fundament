@@ -15,41 +15,81 @@
 #include <xcb/xcb.h>
 #include <xcb/xinput.h>
 
-// This atom is used to attach the window id,
-// which the again is used to by the event handler
-// to determine the exact window.
-static xcb_atom_t atom_fundament_id = 0;
+static uint16_t xinput_version = 
+    (((uint8_t) XCB_INPUT_MAJOR_VERSION << 8) 
+    | (uint8_t) XCB_INPUT_MINOR_VERSION);
 
-static bool xinput_present = false;
-static uint8_t xinput_opcode = 0;
-static uint16_t xinput_version = (((uint8_t) XCB_INPUT_MAJOR_VERSION << 8) |
-                                  (uint8_t) XCB_INPUT_MINOR_VERSION);
+//
+// Used to map xcb's window ids to fundament window indicies.
+//
+struct fn__imp_id_map {
+    xcb_window_t window;
+    uint32_t index;
+};
 
-static uint32_t get_fundament_id_from_window(fn_native_window_handle_t handle)
-{
-    xcb_get_property_cookie_t id_cookie = xcb_get_property(
-        fn__g_window_context.connection, 
-        false, 
-        handle, 
-        atom_fundament_id, 
-        XCB_ATOM_INTEGER, 
-        0, 
-        1
-    );
+//
+// Callback for qsort, sorting id map entries.
+//
+static int fn__imp_xcb_id_cmp(const void* vlhs, const void* vrhs) {
+    struct fn__imp_id_map* lhs = (struct fn__imp_id_map*) vlhs;
+    struct fn__imp_id_map* rhs = (struct fn__imp_id_map*) vrhs; 
 
-    xcb_get_property_reply_t* reply = xcb_get_property_reply(
-        fn__g_window_context.connection, 
-        id_cookie, 
-        NULL
-    );
+    if(lhs->window < rhs->window)
+        return -1;
 
-    xcb_flush(fn__g_window_context.connection);
+    if(lhs->window > rhs->window)
+        return +1;
 
-    uint32_t idx = *(uint32_t*) xcb_get_property_value(reply);
-    xcb_flush(fn__g_window_context.connection);
-    free(reply);
+    if(lhs->window == rhs->window)
+        return 0;
+}
 
-    return idx;
+static size_t fn__imp_entry_idx(fn_native_window_handle_t handle) {
+    size_t left = 0;
+    size_t right = fn__g_window_context.windows_size - 1;
+
+    while(left < right) {
+        size_t mid = left + (right - left) / 2;
+
+        if(fn__g_window_context.id_map[mid].window == handle)
+            return mid;
+        else if(fn__g_window_context.id_map[mid].window < handle)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+
+    return 0;
+}
+
+static uint32_t fn__imp_entry_at(fn_native_window_handle_t handle) {
+    size_t idx = fn__imp_entry_idx(handle);
+    return fn__g_window_context.id_map[idx].index;
+}
+
+static void fn__imp_remove_id(fn_native_window_handle_t handle) {
+    size_t idx = fn__imp_entry_idx(handle); 
+
+    for(; idx < fn__g_window_context.windows_size - 1; ++idx) {
+        struct fn__imp_id_map temp; 
+        memcpy(
+            &temp, 
+            &fn__g_window_context.id_map[idx],
+            sizeof(struct fn__imp_id_map)
+        );
+
+        memcpy(
+            &fn__g_window_context.id_map[idx],
+            &fn__g_window_context.id_map[idx + 1],
+            sizeof(struct fn__imp_id_map)
+        );
+
+        memcpy(
+            &fn__g_window_context.id_map[idx + 1],
+            &temp,
+            sizeof(struct fn__imp_id_map)
+        );
+    }
 }
 
 void fn__imp_init_window_context()
@@ -80,14 +120,6 @@ void fn__imp_init_window_context()
         fn__g_window_context.connection, delete_window_cookie, 0
     );
 
-    xcb_intern_atom_cookie_t id_cookie = xcb_intern_atom(
-        fn__g_window_context.connection, 0, 12, "FUNDAMENT_ID"
-    );
-
-    xcb_intern_atom_reply_t* id_cookie_reply = xcb_intern_atom_reply(
-        fn__g_window_context.connection, id_cookie, 0
-    );
-
     // Check whether XInput is supported.
     xcb_query_extension_cookie_t qxi_cookie = xcb_query_extension(
         fn__g_window_context.connection, 15, "XInputExtension"
@@ -111,8 +143,6 @@ void fn__imp_init_window_context()
 
     fn__g_window_context.atom_protocols = protocols_reply->atom;
     fn__g_window_context.atom_delete_window = delete_window_reply->atom;
-    // TODO: Replace with actual hashmap.
-    atom_fundament_id = id_cookie_reply->atom;
 
     const uint16_t reported_version =
         (xiv_reply->server_major << 8) | xiv_reply->server_minor;
@@ -138,8 +168,12 @@ void fn__imp_init_window_context()
 
     free(protocols_reply);
     free(delete_window_reply);
-    free(id_cookie_reply);
     free(qxi_reply);
+
+    fn__g_window_context.id_map = calloc(
+        fn__g_window_context.windows_capacity,
+        sizeof(struct fn__imp_id_map)
+    );  
 }
 
 fn_native_window_handle_t fn__imp_create_window(uint32_t index)
@@ -183,17 +217,6 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
         &fn__g_window_context.atom_delete_window
     );
 
-    xcb_change_property(
-        fn__g_window_context.connection, 
-        XCB_PROP_MODE_REPLACE, 
-        handle, 
-        atom_fundament_id,
-        XCB_ATOM_INTEGER, 
-        32, 
-        1, 
-        &index
-    );
-
     xcb_map_window(fn__g_window_context.connection, handle);
     xcb_flush(fn__g_window_context.connection);
 
@@ -219,6 +242,18 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
         xcb_flush(fn__g_window_context.connection);
     }
 
+    fn__g_window_context.id_map[index] = (struct fn__imp_id_map) {
+        .window = handle,
+        .index = index
+    };   
+
+    qsort(
+        fn__g_window_context.id_map,
+        fn__g_window_context.windows_size,
+        sizeof(struct fn__imp_id_map),
+        &fn__imp_xcb_id_cmp
+    );
+
     return handle;
 }
 
@@ -226,6 +261,7 @@ void fn__imp_destroy_window(fn_native_window_handle_t handle)
 {
     xcb_destroy_window(fn__g_window_context.connection, handle);
     xcb_flush(fn__g_window_context.connection);
+    fn__imp_remove_id(handle);
 }
 
 void fn__imp_window_set_size(
@@ -364,16 +400,18 @@ void fn__imp_window_poll_events()
             case XCB_CLIENT_MESSAGE: {
                 xcb_client_message_event_t* cev = (xcb_client_message_event_t*) ev;
 
-                const uint32_t idx = get_fundament_id_from_window(cev->window);
-                if(cev->data.data32[0] == fn__g_window_context.atom_delete_window)
+                const uint32_t idx = fn__imp_entry_at(cev->window);
+                if(cev->data.data32[0] == fn__g_window_context.atom_delete_window) {
                     fn__notify_window_destroyed(idx);
+                    fn__imp_remove_id(cev->window);
+                }
 
             } break;
 
             case XCB_CONFIGURE_NOTIFY: {
                 xcb_configure_notify_event_t* cev = (xcb_configure_notify_event_t*) ev;
 
-                const uint32_t idx = get_fundament_id_from_window(cev->window);
+                const uint32_t idx = fn__imp_entry_at(cev->window);
                 struct fn__window* win = &fn__g_window_context.windows[idx];
                 if(win->width == cev->width && win->height == cev->height)
                     break;
@@ -387,14 +425,14 @@ void fn__imp_window_poll_events()
             case XCB_FOCUS_IN: {
                 xcb_focus_in_event_t* cev = (xcb_focus_in_event_t*) ev;
 
-                const uint32_t idx = get_fundament_id_from_window(cev->event);
+                const uint32_t idx = fn__imp_entry_at(cev->event);
                 fn__notify_window_gained_focus(idx);
             } break;
 
             case XCB_FOCUS_OUT: {
                 xcb_focus_out_event_t* cev = (xcb_focus_out_event_t*) ev;
 
-                const uint32_t idx = get_fundament_id_from_window(cev->event);
+                const uint32_t idx = fn__imp_entry_at(cev->event);
                 fn__notify_window_lost_focus(idx);
             }
                 break;

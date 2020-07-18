@@ -76,6 +76,8 @@ struct fn__window_context {
 
         bool has_xinput;
         uint8_t opcode_xinput;
+
+        struct fn__imp_id_map* id_map;
     #endif
 };
 
