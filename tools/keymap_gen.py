@@ -50,7 +50,6 @@ class Mapping:
     fundament: str
     usb: str
     win32: str
-    win32_extended_bit: str
     appkit: str
     xlib: str
     xcb: str 

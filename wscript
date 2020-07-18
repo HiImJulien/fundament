@@ -104,6 +104,10 @@ def configure(ctx: ConfigurationContext):
     ctx.load('dist_build', tooldir='tools')
     ctx.load('clang_compilation_database', tooldir='tools')
 
+    ctx.define('FUNDAMENT_VERSION', VERSION)
+    ctx.define('FUNDAMENT_VERSION_MAJOR', int(VERSION.split('.')[0]))
+    ctx.define('FUNDAMENT_VERSION_MINOR', int(VERSION.split('.')[1]))
+    ctx.write_config_header('config.h')
 
 def build(ctx: BuildContext):
     source = [
