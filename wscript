@@ -43,6 +43,10 @@ def init(ctx: Context):
     build_number = os.environ.get('GITHUB_RUN_NUMBER')
     RC_DATA['PRODUCTVERSION'] = f'{major}.{minor}-{build_number}' 
 
+    file_version = VERSION.replace('.', ',')
+    file_version = f'{file_version}.{build_number}.0'
+    RC_DATA['FILEVERSION'] = file_version
+
 def options(ctx: OptionsContext):
     ctx.load('compiler_c')
     ctx.load('build_configurations', tooldir='tools')
