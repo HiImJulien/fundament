@@ -15,9 +15,6 @@
 #include <xcb/xcb.h>
 #include <xcb/xinput.h>
 
-static Display* display = NULL;
-static xcb_connection_t* connection = NULL;
-static xcb_screen_t* screen = NULL;
 static xcb_atom_t atom_protocols = 0;
 static xcb_atom_t atom_delete_window = 0;
 
@@ -34,16 +31,25 @@ static uint16_t xinput_version = (((uint8_t) XCB_INPUT_MAJOR_VERSION << 8) |
 static uint32_t get_fundament_id_from_window(fn_native_window_handle_t handle)
 {
     xcb_get_property_cookie_t id_cookie = xcb_get_property(
-        connection, false, handle, atom_fundament_id, XCB_ATOM_INTEGER, 0, 1
+        fn__g_window_context.connection, 
+        false, 
+        handle, 
+        atom_fundament_id, 
+        XCB_ATOM_INTEGER, 
+        0, 
+        1
     );
 
     xcb_get_property_reply_t* reply = xcb_get_property_reply(
-        connection, id_cookie, NULL);
+        fn__g_window_context.connection, 
+        id_cookie, 
+        NULL
+    );
 
-    xcb_flush(connection);
+    xcb_flush(fn__g_window_context.connection);
 
     uint32_t idx = *(uint32_t*) xcb_get_property_value(reply);
-    xcb_flush(connection);
+    xcb_flush(fn__g_window_context.connection);
     free(reply);
 
     return idx;
@@ -51,52 +57,60 @@ static uint32_t get_fundament_id_from_window(fn_native_window_handle_t handle)
 
 void fn__imp_init_window_context()
 {
-    display = XOpenDisplay(0);
-    connection = XGetXCBConnection(display);
-    XSetEventQueueOwner(display, XCBOwnsEventQueue);
+    Display* dpy = XOpenDisplay(NULL);
+    fn__g_window_context.display = dpy; 
+    fn__g_window_context.connection = XGetXCBConnection(dpy); 
 
-    screen = xcb_setup_roots_iterator(xcb_get_setup(connection)).data;
+    XSetEventQueueOwner(dpy, XCBOwnsEventQueue);
+
+    fn__g_window_context.screen = xcb_setup_roots_iterator(
+        xcb_get_setup(fn__g_window_context.connection)
+    ).data;
 
     xcb_intern_atom_cookie_t protocols_cookie = xcb_intern_atom(
-        connection, 1, 12, "WM_PROTOCOLS"
+        fn__g_window_context.connection, 1, 12, "WM_PROTOCOLS"
     );
 
     xcb_intern_atom_reply_t* protocols_reply = xcb_intern_atom_reply(
-        connection, protocols_cookie, 0
+        fn__g_window_context.connection, protocols_cookie, 0
     );
 
     xcb_intern_atom_cookie_t delete_window_cookie = xcb_intern_atom(
-        connection, 1, 16, "WM_DELETE_WINDOW"
+        fn__g_window_context.connection, 1, 16, "WM_DELETE_WINDOW"
     );
 
     xcb_intern_atom_reply_t* delete_window_reply = xcb_intern_atom_reply(
-        connection, delete_window_cookie, 0
+        fn__g_window_context.connection, delete_window_cookie, 0
     );
 
     xcb_intern_atom_cookie_t id_cookie = xcb_intern_atom(
-        connection, 0, 12, "FUNDAMENT_ID"
+        fn__g_window_context.connection, 0, 12, "FUNDAMENT_ID"
     );
 
     xcb_intern_atom_reply_t* id_cookie_reply = xcb_intern_atom_reply(
-        connection, id_cookie, 0
+        fn__g_window_context.connection, id_cookie, 0
     );
 
     // Check whether XInput is supported.
     xcb_query_extension_cookie_t qxi_cookie = xcb_query_extension(
-        connection, 15, "XInputExtension"
+        fn__g_window_context.connection, 15, "XInputExtension"
     );
 
     xcb_query_extension_reply_t* qxi_reply = xcb_query_extension_reply(
-        connection, qxi_cookie, NULL);
-
-    xcb_input_get_extension_version_cookie_t xiv_cookie = xcb_input_get_extension_version(
-        connection, 15, "XInputExtension"
+        fn__g_window_context.connection, qxi_cookie, NULL
     );
 
-    xcb_input_get_extension_version_reply_t* xiv_reply = xcb_input_get_extension_version_reply(
-        connection, xiv_cookie, NULL);
+    xcb_input_get_extension_version_cookie_t xiv_cookie = 
+        xcb_input_get_extension_version(
+            fn__g_window_context.connection, 15, "XInputExtension"
+    );
 
-    xcb_flush(connection);
+    xcb_input_get_extension_version_reply_t* xiv_reply = 
+        xcb_input_get_extension_version_reply(
+        fn__g_window_context.connection, xiv_cookie, NULL
+    );
+
+    xcb_flush(fn__g_window_context.connection);
 
     atom_protocols = protocols_reply->atom;
     atom_delete_window = delete_window_reply->atom;
@@ -112,9 +126,14 @@ void fn__imp_init_window_context()
         xcb_input_event_mask_t head = {.deviceid= XCB_INPUT_DEVICE_ALL, .mask_len=
         sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)};
 
-        xcb_input_xi_select_events(connection, screen->root, 1, &head);
+        xcb_input_xi_select_events(
+            fn__g_window_context.connection, 
+            fn__g_window_context.screen->root, 
+            1, 
+            &head
+        );
 
-        xcb_flush(connection);
+        xcb_flush(fn__g_window_context.connection);
     }
 
     free(protocols_reply);
@@ -125,33 +144,58 @@ void fn__imp_init_window_context()
 
 fn_native_window_handle_t fn__imp_create_window(uint32_t index)
 {
-    fn_native_window_handle_t handle = xcb_generate_id(connection);
+    fn_native_window_handle_t handle = xcb_generate_id(
+        fn__g_window_context.connection
+    );
 
     const uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    const uint32_t mask_values[] = {screen->white_pixel,
+    const uint32_t mask_values[] = {
+        fn__g_window_context.screen->white_pixel,
         XCB_EVENT_MASK_EXPOSURE | XCB_EVENT_MASK_BUTTON_PRESS |
         XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
         XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE |
         XCB_EVENT_MASK_STRUCTURE_NOTIFY};
 
     xcb_create_window(
-        connection, XCB_COPY_FROM_PARENT, handle, screen->root, 0, 0, 150, 150,
-        10, XCB_WINDOW_CLASS_INPUT_OUTPUT, screen->root_visual, mask,
+        fn__g_window_context.connection, 
+        XCB_COPY_FROM_PARENT, 
+        handle, 
+        fn__g_window_context.screen->root, 
+        0, 
+        0, 
+        150, 
+        150,
+        10, 
+        XCB_WINDOW_CLASS_INPUT_OUTPUT, 
+        fn__g_window_context.screen->root_visual, 
+        mask,
         mask_values
     );
 
     xcb_change_property(
-        connection, XCB_PROP_MODE_REPLACE, handle, atom_protocols, 4, 32, 1,
+        fn__g_window_context.connection, 
+        XCB_PROP_MODE_REPLACE, 
+        handle, 
+        atom_protocols, 
+        4, 
+        32, 
+        1,
         &atom_delete_window
     );
 
     xcb_change_property(
-        connection, XCB_PROP_MODE_REPLACE, handle, atom_fundament_id,
-        XCB_ATOM_INTEGER, 32, 1, &index
+        fn__g_window_context.connection, 
+        XCB_PROP_MODE_REPLACE, 
+        handle, 
+        atom_fundament_id,
+        XCB_ATOM_INTEGER, 
+        32, 
+        1, 
+        &index
     );
 
-    xcb_map_window(connection, handle);
-    xcb_flush(connection);
+    xcb_map_window(fn__g_window_context.connection, handle);
+    xcb_flush(fn__g_window_context.connection);
 
     if(xinput_present) {
         xcb_input_event_mask_t head = {.deviceid= XCB_INPUT_DEVICE_ALL, .mask_len=
@@ -163,9 +207,14 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
                   XCB_INPUT_XI_EVENT_MASK_BUTTON_PRESS |
                   XCB_INPUT_XI_EVENT_MASK_BUTTON_RELEASE;
 
-        xcb_input_xi_select_events(connection, handle, 1, &head);
+        xcb_input_xi_select_events(
+            fn__g_window_context.connection, 
+            handle, 
+            1, 
+            &head
+        );
 
-        xcb_flush(connection);
+        xcb_flush(fn__g_window_context.connection);
     }
 
     return handle;
@@ -173,8 +222,8 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
 
 void fn__imp_destroy_window(fn_native_window_handle_t handle)
 {
-    xcb_destroy_window(connection, handle);
-    xcb_flush(connection);
+    xcb_destroy_window(fn__g_window_context.connection, handle);
+    xcb_flush(fn__g_window_context.connection);
 }
 
 void fn__imp_window_set_size(
@@ -184,11 +233,13 @@ void fn__imp_window_set_size(
     const uint32_t values[] = {width, height};
 
     xcb_configure_window(
-        connection, handle, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
+        fn__g_window_context.connection, 
+        handle, 
+        XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
         values
     );
 
-    xcb_flush(connection);
+    xcb_flush(fn__g_window_context.connection);
 }
 
 void fn__imp_window_set_title(
@@ -197,19 +248,31 @@ void fn__imp_window_set_title(
 {
     // Sets the window's title
     xcb_change_property(
-        connection, XCB_PROP_MODE_REPLACE, handle, XCB_ATOM_WM_NAME,
-        XCB_ATOM_STRING, 8, strlen(title), title
+        fn__g_window_context.connection, 
+        XCB_PROP_MODE_REPLACE, 
+        handle, 
+        XCB_ATOM_WM_NAME,
+        XCB_ATOM_STRING, 
+        8, 
+        strlen(title), 
+        title
     );
 
     // Sets the title of the window icon?
     // Dunno what that is, perhaps because
     // I am using i3?
     xcb_change_property(
-        connection, XCB_PROP_MODE_REPLACE, handle, XCB_ATOM_WM_ICON_NAME,
-        XCB_ATOM_STRING, 8, strlen(title), title
+        fn__g_window_context.connection, 
+        XCB_PROP_MODE_REPLACE, 
+        handle, 
+        XCB_ATOM_WM_ICON_NAME,
+        XCB_ATOM_STRING, 
+        8, 
+        strlen(title), 
+        title
     );
 
-    xcb_flush(connection);
+    xcb_flush(fn__g_window_context.connection);
 }
 
 void fn__imp_window_set_visibility(
@@ -223,11 +286,11 @@ void fn__imp_window_set_visibility(
     // altough I am not sure.
 
     if(visible)
-        xcb_map_window(connection, handle);
+        xcb_map_window(fn__g_window_context.connection, handle);
     else
-        xcb_unmap_window(connection, handle);
+        xcb_unmap_window(fn__g_window_context.connection, handle);
 
-    xcb_flush(connection);
+    xcb_flush(fn__g_window_context.connection);
 }
 
 static inline int32_t fp1616_to_int32(xcb_input_fp1616_t val)
@@ -250,7 +313,7 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev)
             );
 
             const char letter = fn__imp_translate_key(
-                display, (uint32_t) ev->child
+                fn__g_window_context.display, (uint32_t) ev->child
             );
 
             fn__notify_key_changed(key, letter, is_press);
@@ -285,7 +348,6 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev)
                 fp1616_to_int32(ev->event_y),
                 is_press
             );
-
         } break;
     }
 }
@@ -295,7 +357,7 @@ void fn__imp_window_poll_events()
     xcb_generic_event_t* ev = NULL;
     struct fn_event fev = {0,};
 
-    while((ev = xcb_poll_for_event(connection))) {
+    while((ev = xcb_poll_for_event(fn__g_window_context.connection))) {
         switch(ev->response_type & ~0x80) {
             case XCB_CLIENT_MESSAGE: {
                 xcb_client_message_event_t* cev = (xcb_client_message_event_t*) ev;

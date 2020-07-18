@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct fn__window_context fn__g_window_context = {.windows         = NULL, .windows_capacity= 0, .windows_size    = 0, .events         = NULL, .events_capacity= 0, .events_size    = 0, .events_tail    = 0};
+struct fn__window_context fn__g_window_context = {0,};
 
 void fn__init_window_context()
 {

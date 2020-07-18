@@ -27,6 +27,9 @@
     #include "./appkit/window_appkit.h"
 #elif defined(__linux__)
     #include "./xcb/window_xcb.h"
+
+    #include <X11/Xlib.h>
+    #include <xcb/xcb.h>
 #endif
 
 static const fn_native_window_handle_t fn__g_null_wnd = (fn_native_window_handle_t) 0;
@@ -62,6 +65,12 @@ struct fn__window_context {
     size_t events_tail;
 
     struct fn_window focused_window;
+
+    #if defined(__linux__)
+        Display* display;
+        xcb_connection_t* connection;
+        xcb_screen_t* screen;
+    #endif
 };
 
 //
