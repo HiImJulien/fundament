@@ -31,8 +31,9 @@ static char fn__imp_translate_key(uint32_t keycode) {
 
     if(fn__get_key_state(fn_key_left_shift) 
         || fn__get_key_state(fn_key_right_shift))
-        ev.state = 1;
-    // TODO: fn_key_caps is missing.
+        ev.state |= 1;
+    else if(fn__get_key_state(fn_key_caps))
+        ev.state |= 2;
 
     const int res = XLookupString(&ev, buffer, 16, NULL, NULL); 
     return res ? buffer[0] : 0;
