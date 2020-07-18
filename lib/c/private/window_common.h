@@ -147,9 +147,11 @@ void fn__notify_window_lost_focus(uint32_t idx);
 //
 // Notifies the framework, that a key's state was changed.
 //
-// Short hand for fn__notify_key_pressed/fn__notify_key_released.
+// Generates an event either with type 'fn_event_type_key_pressed' or
+// 'fn_event_type_key_released', depending on the parameter 'press', and
+// updates the internal key state.
 //
-void fn__notify_key_changed(enum fn_key key, char localized_key, bool pressed);
+void fn__notify_key_changed(enum fn_key key, char localized_key, bool press);
 
 //
 // Notifies the framework, that a key was pressed.
@@ -166,6 +168,20 @@ void fn__notify_key_pressed(enum fn_key key, char localized_key);
 // the internal key state.
 //
 void fn__notify_key_released(enum fn_key key, char localized_key);
+
+//
+// Notifies the framework, that a mouse button's state changed.
+//
+// Generates an event with type 'fn_event_type_button_pressed' or
+// 'fn_event_type_button_released', depending on the parameter 'press', and
+// updates the internal button state.
+//
+void fn__notify_button_changed(
+    enum fn_button button,
+    int32_t x,
+    int32_t y,
+    bool press
+);
 
 //
 // Notifies the framework, that a mouse button was pressed.

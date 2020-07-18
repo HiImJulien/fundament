@@ -156,11 +156,16 @@ void fn__notify_window_lost_focus(uint32_t idx)
     fn__g_window_context.focused_window.id = 0;
 }
 
-void fn__notify_key_changed(enum fn_key key, char localized_key, bool pressed) {
-    if(pressed)
-        fn__notify_key_pressed(key, localized_key);
-    else
-        fn__notify_key_released(key, localized_key);
+void fn__notify_key_changed(enum fn_key key, char localized_key, bool press)
+{
+    struct fn_event ev = {0,};
+    ev.type = press ? fn_event_type_key_pressed : fn_event_type_key_released;
+    ev.window = fn__g_window_context.focused_window;
+    ev.key.key = key;
+    ev.key.letter = localized_key;
+
+    fn__push_event(&ev);
+    fn__set_key_state(key, press);
 }
 
 void fn__notify_key_pressed(enum fn_key key, char localized_key)
@@ -185,6 +190,26 @@ void fn__notify_key_released(enum fn_key key, char localized_key)
 
     fn__push_event(&ev);
     fn__set_key_state(key, false);
+}
+
+void fn__notify_button_changed(
+    enum fn_button button,
+    int32_t x,
+    int32_t y,
+    bool press)
+{
+    struct fn_event ev = {0,};
+    ev.type = press
+                ? fn_event_type_button_pressed
+                : fn_event_type_button_released;
+
+    ev.window = fn__g_window_context.focused_window;
+    ev.button.button = button;
+    ev.button.x = x;
+    ev.button.y = y;
+
+    fn__push_event(&ev);
+    fn__set_button_state(button, press);
 }
 
 void fn__notify_button_pressed(enum fn_button button, int32_t x, int32_t y)

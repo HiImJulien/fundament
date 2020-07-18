@@ -146,26 +146,26 @@ static void fn__imp_process_mouse_input(UINT msg, LPARAM lParam) {
     enum fn_button button = 0;
 
     switch(msg) {
-        case WM_LBUTTONDOWN:    button = fn_button_left; break;
-        case WM_LBUTTONUP:      button = fn_button_left; break;
-        case WM_RBUTTONDOWN:    button = fn_button_right; break;
-        case WM_RBUTTONUP:      button = fn_button_right; break;
-        case WM_MBUTTONDOWN:    button = fn_button_middle; break;
-        case WM_MBUTTONUP:      button = fn_button_middle; break;
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+            button = fn_button_left; break;
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+            button = fn_button_right; break;
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+            button = fn_button_middle; break;
+        default:
+            // Opt out, if the key is not known.
+            return;
     }
 
-    if(is_press)
-        fn__notify_button_pressed(
-            button,
-            (int32_t) LOWORD(lParam),
-            (int32_t) HIWORD(lParam)
-        );
-    else
-        fn__notify_button_released(
-            button,
-            (int32_t) LOWORD(lParam),
-            (int32_t) HIWORD(lParam)
-        );
+    fn__notify_button_changed(
+        button,
+        (int32_t) LOWORD(lParam),
+        (int32_t) HIWORD(lParam),
+        is_press
+    );
 }
 
 LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
