@@ -253,13 +253,8 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev)
                 display, (uint32_t) ev->child
             );
 
-            if(is_press)
-                fn__notify_key_pressed(key, letter);
-            else
-                fn__notify_key_released(key, letter);
-
-        }
-            break;
+            fn__notify_key_changed(key, letter, is_press);
+        } break;
 
         case XCB_INPUT_BUTTON_PRESS:
         case XCB_INPUT_BUTTON_RELEASE: {
@@ -284,17 +279,14 @@ static void process_xinput_event(xcb_ge_generic_event_t* gev)
             else if(ev->detail == 3)
                 button = fn_button_right;
 
-            if(is_press)
-                fn__notify_button_pressed(
-                    button, fp1616_to_int32(ev->event_x),
-                    fp1616_to_int32(ev->event_y));
-            else
-                fn__notify_button_released(
-                    button, fp1616_to_int32(ev->event_x),
-                    fp1616_to_int32(ev->event_y));
+            fn__notify_button_changed(
+                button,
+                fp1616_to_int32(ev->event_x),
+                fp1616_to_int32(ev->event_y),
+                is_press
+            );
 
-        }
-            break;
+        } break;
     }
 }
 
