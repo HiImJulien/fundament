@@ -131,9 +131,9 @@ API bool fn_is_key_pressed(enum fn_key key);
 //  Enumerates all supported mouse buttons.
 //
 enum fn_button {
-    fn_button_left  = (1u << 0u),
+    fn_button_left = (1u << 0u),
     fn_button_right = (1u << 1u),
-    fn_button_middle= (1u << 2u),
+    fn_button_middle = (1u << 2u),
 };
 
 //

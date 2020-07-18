@@ -22,15 +22,16 @@
 //==============================================================================
 
 #if defined(_WIN32)
+
     #include "./win32/window_win32.h"
+
 #elif defined(__APPLE__)
     #include "./appkit/window_appkit.h"
 #elif defined(__linux__)
     #include "./xcb/window_xcb.h"
 #endif
 
-static const fn_native_window_handle_t fn__g_null_wnd=
-    (fn_native_window_handle_t) 0;
+static const fn_native_window_handle_t fn__g_null_wnd = (fn_native_window_handle_t) 0;
 
 //
 // Internal representation of a window and its state.
@@ -42,11 +43,11 @@ static const fn_native_window_handle_t fn__g_null_wnd=
 //
 struct fn__window {
     fn_native_window_handle_t handle;
-    uint32_t                  width;
-    uint32_t                  height;
-    const char*               title;
-    bool                      visible;
-    bool                      focused;
+    uint32_t width;
+    uint32_t height;
+    const char* title;
+    bool visible;
+    bool focused;
 };
 
 //
@@ -54,13 +55,13 @@ struct fn__window {
 //
 struct fn__window_context {
     struct fn__window* windows;
-    size_t             windows_capacity;
-    size_t             windows_size;
+    size_t windows_capacity;
+    size_t windows_size;
 
     struct fn_event* events;
-    size_t           events_capacity;
-    size_t           events_size;
-    size_t           events_tail;
+    size_t events_capacity;
+    size_t events_size;
+    size_t events_tail;
 
     struct fn_window focused_window;
 };
@@ -142,6 +143,13 @@ void fn__notify_window_gained_focus(uint32_t idx);
 // sets it as the currently focus window in the global context.
 //
 void fn__notify_window_lost_focus(uint32_t idx);
+
+//
+// Notifies the framework, that a key's state was changed.
+//
+// Short hand for fn__notify_key_pressed/fn__notify_key_released.
+//
+void fn__notify_key_changed(enum fn_key key, char localized_key, bool pressed);
 
 //
 // Notifies the framework, that a key was pressed.

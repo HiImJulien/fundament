@@ -15,7 +15,7 @@ def configure(ctx: ConfigurationContext):
     release_flags = []
 
     if ctx.env.CC_NAME == 'msvc':
-        debug_flags = ['/Zi', '/DDEBUG', '/D_DEBUG', '/MDd', '/Od']
+        debug_flags = ['/Zi', '/DDEBUG', '/D_DEBUG', '/MDd', '/Od', '/WX']
         release_flags = ['/O2', '/Oi', '/DNDEBUG', '/Gy']
     else:
         debug_flags = ['-ggdb']

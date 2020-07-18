@@ -30,8 +30,8 @@ struct size_event {
 
 struct mouse_button_event {
     enum fn_button button;
-    int32_t        x;
-    int32_t        y;
+    int32_t x;
+    int32_t y;
 };
 
 struct mouse_move_event {
@@ -47,7 +47,7 @@ struct mouse_wheel_event {
 
 struct keyboard_event {
     enum fn_key key;
-    char        letter;
+    char letter;
 };
 
 //

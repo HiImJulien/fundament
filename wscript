@@ -53,6 +53,8 @@ def options(ctx: OptionsContext):
     ctx.load('dist_build', tooldir='tools')
     ctx.load('objc', tooldir='tools')
 
+    ctx.load('clang_compilation_database', tooldir='tools')
+
     ctx.add_option('--with-samples', action='store_true', default=False, 
                     help='If set, builds the samples as well.')
 
@@ -100,6 +102,7 @@ def configure(ctx: ConfigurationContext):
     # variant.
     ctx.load('build_configurations', tooldir='tools')
     ctx.load('dist_build', tooldir='tools')
+    ctx.load('clang_compilation_database', tooldir='tools')
 
 
 def build(ctx: BuildContext):
@@ -146,7 +149,6 @@ def build(ctx: BuildContext):
 
         source.extend([
             'lib/c/private/win32/window_win32.c',
-            'lib/c/private/win32/input_win32.c',
             'lib/c/private/win32/input_key_map_win32.c',
             'fundament.rc'
         ])
