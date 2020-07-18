@@ -1,7 +1,6 @@
 #include "window_appkit.h"
 #include "input_key_map_appkit.h"
 #include "../window_common.h"
-#include "input_appkit.h"
 
 #include <AppKit/AppKit.h>
 
