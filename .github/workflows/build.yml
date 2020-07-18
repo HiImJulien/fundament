@@ -38,6 +38,11 @@ jobs:
           with:
             name: 'Distributions'
             path: |
-              ${{ github.workspace }}/build/[debug,release]/[lib]fundament.[so,dylib,dll]
+              ${{ github.workspace }}/build/debug/libfundament.so
+              ${{ github.workspace }}/build/release/libfundament.so
+              ${{ github.workspace }}/build/debug/libfundament.dylib
+              ${{ github.workspace }}/build/release/libfundament.dylib
+              ${{ github.workspace }}/build/debug/fundament.dll
+              ${{ github.workspace }}/build/release/fundament.dll
               ${{ github.workspace }}/lib/c/public/**/*
 
