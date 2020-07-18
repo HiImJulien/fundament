@@ -67,6 +67,7 @@ enum fn_key {
     fn_key_comma,
     fn_key_period,
     fn_key_slash,
+    fn_key_caps,
     fn_key_f1,
     fn_key_f2,
     fn_key_f3,
@@ -131,9 +132,9 @@ API bool fn_is_key_pressed(enum fn_key key);
 //  Enumerates all supported mouse buttons.
 //
 enum fn_button {
-    fn_button_left = (1u << 0u),
+    fn_button_left  = (1u << 0u),
     fn_button_right = (1u << 1u),
-    fn_button_middle = (1u << 2u),
+    fn_button_middle= (1u << 2u),
 };
 
 //

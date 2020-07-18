@@ -29,6 +29,7 @@ HEADER_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input_key_map_platform.h.template
 SOURCE_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input_key_map_platform.c.template') 
 INPUT_FILE_TEMPLATE = TEMPLATES_DIR.joinpath('input.h.template')
 
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 SPREADSHEET_ID = '1VPQTYbJqPITDeBr0M5-fUwX6cvYu9hFFXQVaXtD9sN0'
 
 @dataclass
