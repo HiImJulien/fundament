@@ -52,11 +52,6 @@ void fn__imp_process_mouse_input(NSEvent* ev)
     const int32_t x = loc.x;
     const int32_t y = frame.size.height - loc.y;
 
-    if(is_pressed)
-        fn__notify_button_pressed(button, x, y);
-    else
-        fn__notify_button_released(button, x, y);
-
     fn__notify_button_changed(button, x, y, is_pressed);
 }
 
