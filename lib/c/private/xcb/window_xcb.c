@@ -15,9 +15,6 @@
 #include <xcb/xcb.h>
 #include <xcb/xinput.h>
 
-static xcb_atom_t atom_protocols = 0;
-static xcb_atom_t atom_delete_window = 0;
-
 // This atom is used to attach the window id,
 // which the again is used to by the event handler
 // to determine the exact window.
@@ -112,19 +109,22 @@ void fn__imp_init_window_context()
 
     xcb_flush(fn__g_window_context.connection);
 
-    atom_protocols = protocols_reply->atom;
-    atom_delete_window = delete_window_reply->atom;
+    fn__g_window_context.atom_protocols = protocols_reply->atom;
+    fn__g_window_context.atom_delete_window = delete_window_reply->atom;
+    // TODO: Replace with actual hashmap.
     atom_fundament_id = id_cookie_reply->atom;
 
     const uint16_t reported_version =
         (xiv_reply->server_major << 8) | xiv_reply->server_minor;
 
     if(qxi_reply->present && xinput_version >= reported_version) {
-        xinput_present = true;
-        xinput_opcode = qxi_reply->major_opcode;
+        fn__g_window_context.has_xinput = true;
+        fn__g_window_context.opcode_xinput = qxi_reply->major_opcode;
 
-        xcb_input_event_mask_t head = {.deviceid= XCB_INPUT_DEVICE_ALL, .mask_len=
-        sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)};
+        xcb_input_event_mask_t head = {
+            .deviceid= XCB_INPUT_DEVICE_ALL, 
+            .mask_len= sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)
+        };
 
         xcb_input_xi_select_events(
             fn__g_window_context.connection, 
@@ -176,11 +176,11 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
         fn__g_window_context.connection, 
         XCB_PROP_MODE_REPLACE, 
         handle, 
-        atom_protocols, 
+        fn__g_window_context.atom_protocols, 
         4, 
         32, 
         1,
-        &atom_delete_window
+        &fn__g_window_context.atom_delete_window
     );
 
     xcb_change_property(
@@ -197,9 +197,11 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
     xcb_map_window(fn__g_window_context.connection, handle);
     xcb_flush(fn__g_window_context.connection);
 
-    if(xinput_present) {
-        xcb_input_event_mask_t head = {.deviceid= XCB_INPUT_DEVICE_ALL, .mask_len=
-        sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)};
+    if(fn__g_window_context.has_xinput) {
+        xcb_input_event_mask_t head = {
+            .deviceid= XCB_INPUT_DEVICE_ALL, 
+            .mask_len= sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)
+        };
 
         uint32_t* mask = xcb_input_event_mask_mask(&head);
         mask[0] = XCB_INPUT_XI_EVENT_MASK_KEY_PRESS |
@@ -363,11 +365,10 @@ void fn__imp_window_poll_events()
                 xcb_client_message_event_t* cev = (xcb_client_message_event_t*) ev;
 
                 const uint32_t idx = get_fundament_id_from_window(cev->window);
-                if(cev->data.data32[0] == atom_delete_window)
+                if(cev->data.data32[0] == fn__g_window_context.atom_delete_window)
                     fn__notify_window_destroyed(idx);
 
-            }
-                break;
+            } break;
 
             case XCB_CONFIGURE_NOTIFY: {
                 xcb_configure_notify_event_t* cev = (xcb_configure_notify_event_t*) ev;
@@ -381,16 +382,14 @@ void fn__imp_window_poll_events()
                     idx, (uint32_t) win->width, (uint32_t) win->height
                 );
 
-            }
-                break;
+            } break;
 
             case XCB_FOCUS_IN: {
                 xcb_focus_in_event_t* cev = (xcb_focus_in_event_t*) ev;
 
                 const uint32_t idx = get_fundament_id_from_window(cev->event);
                 fn__notify_window_gained_focus(idx);
-            }
-                break;
+            } break;
 
             case XCB_FOCUS_OUT: {
                 xcb_focus_out_event_t* cev = (xcb_focus_out_event_t*) ev;
@@ -406,16 +405,14 @@ void fn__imp_window_poll_events()
                 fn__notify_mouse_moved((uint32_t) cev->event_x,
                                        (uint32_t) cev->event_y
                 );
-            }
-                break;
+            } break;
 
             case XCB_GE_GENERIC: {
                 xcb_ge_generic_event_t* gev = (xcb_ge_generic_event_t*) ev;
-                if(gev->extension == xinput_opcode)
+                if(fn__g_window_context.has_xinput
+                    && gev->extension == fn__g_window_context.opcode_xinput)
                     process_xinput_event(gev);
-
-            }
-                break;
+            } break;
 
             default:
                 break;

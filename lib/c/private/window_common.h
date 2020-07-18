@@ -70,6 +70,12 @@ struct fn__window_context {
         Display* display;
         xcb_connection_t* connection;
         xcb_screen_t* screen;
+    
+        xcb_atom_t atom_protocols;
+        xcb_atom_t atom_delete_window;
+
+        bool has_xinput;
+        uint8_t opcode_xinput;
     #endif
 };
 
