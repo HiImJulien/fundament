@@ -58,6 +58,9 @@ def options(ctx: OptionsContext):
     ctx.add_option('--with-samples', action='store_true', default=False, 
                     help='If set, builds the samples as well.')
 
+    ctx.add_option('--with_tests', action='store_true', default=False,
+                    help='If set, builds the tests as well.')
+
 def configure(ctx: ConfigurationContext):
     ctx.load('compiler_c')
 
@@ -97,6 +100,7 @@ def configure(ctx: ConfigurationContext):
 
     # Remember whether to build the sample or not.
     ctx.env.with_samples = ctx.options.with_samples
+    ctx.env.with_tests = ctx.options.with_tests
 
     # Branch the configuration into a debug and release
     # variant.
@@ -176,3 +180,17 @@ def build(ctx: BuildContext):
             rpath='$ORIGIN'
         )
 
+    if ctx.env.with_tests:
+        ctx.program(
+            target='keybinding_test',
+            source='tests/keybinding_test.c',
+            use='fundament',
+            rpath='$ORIGIN'
+        )
+
+        ctx.program(
+            target='multiple_window',
+            source='tests/multiple_windows.c',
+            use='fundament',
+            rpath='$ORIGIN'
+        )

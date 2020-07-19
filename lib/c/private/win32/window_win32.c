@@ -3,6 +3,7 @@
 #include "../window_common.h"
 
 #include <stdbool.h>
+#include <stdio.h>
 
 #include <Windowsx.h>
 
@@ -10,8 +11,7 @@ extern IMAGE_DOS_HEADER __ImageBase;
 static const HINSTANCE g_instance = (HINSTANCE) &__ImageBase;
 static const char* g_window_class_name = "fundament.WNDCLASSEX";
 
-void fn__imp_init_window_context()
-{
+void fn__imp_init_window_context() {
     WNDCLASSEXA wc = {0,};
 
     wc.cbSize = sizeof(WNDCLASSEXA);
@@ -22,8 +22,7 @@ void fn__imp_init_window_context()
     RegisterClassExA(&wc);
 }
 
-fn_native_window_handle_t fn__imp_create_window(uint32_t index)
-{
+fn_native_window_handle_t fn__imp_create_window(uint32_t index) {
     fn_native_window_handle_t handle = CreateWindowExA(
         0,
         g_window_class_name,
@@ -42,8 +41,7 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
     return handle;
 }
 
-void fn__imp_destroy_window(fn_native_window_handle_t handle)
-{
+void fn__imp_destroy_window(fn_native_window_handle_t handle) {
     DestroyWindow(handle);
 }
 
@@ -51,8 +49,7 @@ void fn__imp_window_set_size(
     fn_native_window_handle_t handle,
     uint32_t width,
     uint32_t height
-)
-{
+) {
     RECT rect = {0, 0, width, height};
     const bool has_menu = GetMenu(handle) != NULL;
     const DWORD style = (DWORD) GetWindowLongPtrA(handle, GWL_STYLE);
@@ -73,13 +70,11 @@ void fn__imp_window_set_size(
 
 void fn__imp_window_set_title(
     fn_native_window_handle_t handle, const char* title
-)
-{
+) {
     SetWindowTextA(handle, title);
 }
 
-void fn__imp_window_poll_events()
-{
+void fn__imp_window_poll_events() {
     MSG msg;
     while(PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
@@ -89,16 +84,14 @@ void fn__imp_window_poll_events()
 
 void fn__imp_window_set_visibility(
     fn_native_window_handle_t handle, bool visible
-)
-{
+) {
     ShowWindow(handle, visible ? SW_SHOWDEFAULT : SW_HIDE);
 }
 
 //
 // Translates a scan code to its letter/character representation.
 //
-static char fn__imp_translate_to_letter(WPARAM wParam, LPARAM lParam)
-{
+static char fn__imp_translate_to_letter(WPARAM wParam, LPARAM lParam) {
     BYTE state[256];
     GetKeyboardState(state);
 
@@ -121,16 +114,14 @@ static void fn__imp_process_keyboard_input(
     UINT msg,
     WPARAM wParam,
     LPARAM lParam
-)
-{
+) {
     if((msg != WM_KEYDOWN)
        && (msg != WM_SYSKEYDOWN)
        && (msg != WM_KEYUP)
-       && (msg != WM_SYSKEYUP)
-        )
+       && (msg != WM_SYSKEYUP))
         return;
 
-    const bool is_press = (msg == WM_KEYDOWN) || (msg == WM_KEYUP);
+    const bool is_press = (msg == WM_KEYDOWN) || (msg == WM_SYSKEYDOWN);
     const enum fn_key key = fn__imp_map_win32_key(wParam);
     const char letter = fn__imp_translate_to_letter(wParam, lParam);
     fn__notify_key_changed(key, letter, is_press);
@@ -179,7 +170,6 @@ LRESULT fn__imp_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch(msg) {
         case WM_CLOSE:
-        case WM_DESTROY:
             fn__notify_window_destroyed(index);
             return 0;
 
