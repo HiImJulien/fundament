@@ -7,6 +7,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <X11/Xlib-xcb.h>
 #include <X11/Xlib.h>
@@ -257,7 +258,8 @@ static void fn__imp_on_xinput(xcb_ge_generic_event_t* gev) {
 // Proceeses events of type 'XCB_GE_GENERIC'.
 //
 static void fn__imp_on_generic(xcb_generic_event_t* gev) {
-    xcb_ge_generic_event_t* ev = (xcb_ge_generic_event_t*) ev;
+    printf("Here!\n");
+    xcb_ge_generic_event_t* ev = (xcb_ge_generic_event_t*) gev;
 
    if(fn__g_window_context.has_xinput 
       && ev->extension == fn__g_window_context.opcode_xinput) 
@@ -308,11 +310,7 @@ void fn__imp_init_window_context()
 
     xcb_flush(fn__g_window_context.connection); 
 
-    static const uint16_t xinput_lib_version = 0;
-    const uint16_t xinput_version = (xiv_reply->server_major << 8)
-        || xiv_reply->server_minor; 
-
-    if(qxi_reply->present && xinput_lib_version >= xinput_version) {
+    if(qxi_reply->present) {
         fn__g_window_context.has_xinput = true;
         fn__g_window_context.opcode_xinput = qxi_reply->major_opcode;
     } else
