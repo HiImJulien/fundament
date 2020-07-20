@@ -356,6 +356,7 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
         fn__g_window_context.screen->white_pixel,
         XCB_EVENT_MASK_EXPOSURE 
         | XCB_EVENT_MASK_STRUCTURE_NOTIFY
+        | XCB_EVENT_MASK_FOCUS_CHANGE
     };
 
     const uint32_t input_mask = XCB_EVENT_MASK_BUTTON_PRESS
@@ -400,7 +401,7 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
 
     if(fn__g_window_context.has_xinput) {
         xcb_input_event_mask_t head = {
-            .deviceid= XCB_INPUT_DEVICE_ALL, 
+            .deviceid= XCB_INPUT_DEVICE_ALL_MASTER,
             .mask_len= sizeof(xcb_input_xi_event_mask_t) / sizeof(uint32_t)
         };
 
