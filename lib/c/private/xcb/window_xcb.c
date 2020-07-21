@@ -1,5 +1,4 @@
 #include "window_xcb.h"
-#include <fundament/event.h>
 #include "../input_common.h"
 #include "../window_common.h"
 #include "input_key_map_xcb.h"
@@ -18,6 +17,69 @@
 //==============================================================================
 // The following section defines utility functions used in the implementation.
 //==============================================================================
+
+struct fn__imp_map_entry {
+    xcb_window_t    window;
+    uint32_t        index;
+};
+
+static int fn__imp_map_entry_comparator(const void* vlhs, const void* vrhs) {
+    const struct fn__imp_map_entry* lhs = vlhs;
+    const struct fn__imp_map_entry* rhs = vrhs;
+
+    if(lhs->window < rhs->window)
+        return -1;
+    else if(lhs->window > rhs->window)
+        return 1;
+    else
+        return 0;
+}
+
+static size_t fn__imp_entry_index_at(xcb_window_t window, bool* found) {
+    size_t left = 0;
+    size_t right = fn__g_window_context.map_entries_size - 1;
+    *found = false;
+
+    while(left <= right) {
+        const size_t mid = left + (right - left) / 2;
+        
+        if(fn__g_window_context.map_entries[mid].window == window) {
+            *found = true;
+            return mid;
+        } else if(fn__g_window_context.map_entries[mid].window < window)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+
+    return 0;
+}
+
+static uint32_t fn__imp_entry_at(xcb_window_t window, bool* found) {
+    const size_t index = fn__imp_entry_index_at(window, found);
+    return fn__g_window_context.map_entries[index].index;
+}
+
+static void fn__imp_insert_entry(struct fn__imp_map_entry entry) {
+    const size_t index = fn__g_window_context.map_entries_size++;
+    fn__g_window_context.map_entries[index] = entry;
+
+    qsort(
+        fn__g_window_context.map_entries,
+        fn__g_window_context.map_entries_size,
+        sizeof(struct fn__imp_map_entry),
+        fn__imp_map_entry_comparator
+    );
+}
+
+static void fn__imp_remove_entry(xcb_window_t window) {
+    bool found;
+    const size_t index = fn__imp_entry_index_at(window, &found);
+    if(!found)
+        return;
+
+    // TODO!!!!
+}
 
 //
 // Returns the letter, that represents the given keycode.
@@ -40,92 +102,6 @@ static char fn__imp_translate_key(uint32_t keycode) {
     return res ? buffer[0] : 0;
 }
 
-static uint16_t xinput_version = 
-    (((uint8_t) XCB_INPUT_MAJOR_VERSION << 8) 
-    | (uint8_t) XCB_INPUT_MINOR_VERSION);
-
-//
-// Used to map xcb's window ids to fundament window indicies.
-//
-struct fn__imp_id_map {
-    xcb_window_t window;
-    uint32_t index;
-};
-
-//
-// Callback for qsort, sorting id map entries.
-//
-static int fn__imp_xcb_id_cmp(const void* vlhs, const void* vrhs) {
-    struct fn__imp_id_map* lhs = (struct fn__imp_id_map*) vlhs;
-    struct fn__imp_id_map* rhs = (struct fn__imp_id_map*) vrhs; 
-
-    if(lhs->window < rhs->window)
-        return -1;
-
-    if(lhs->window > rhs->window)
-        return +1;
-
-    if(lhs->window == rhs->window)
-        return 0;
-}
-
-//
-// Returns the index of the entry that matches the given handle.
-//
-static size_t fn__imp_entry_idx(fn_native_window_handle_t handle) {
-    size_t left = 0;
-    size_t right = fn__g_window_context.windows_size - 1;
-
-    while(left < right) {
-        size_t mid = left + (right - left) / 2;
-
-        if(fn__g_window_context.id_map[mid].window == handle)
-            return mid;
-        else if(fn__g_window_context.id_map[mid].window < handle)
-            left = mid + 1;
-        else
-            right = mid - 1;
-    }
-
-    return 0;
-}
-
-//
-// Returns the index of the window that matches the given handle.
-//
-static uint32_t fn__imp_entry_at(fn_native_window_handle_t handle) {
-    size_t idx = fn__imp_entry_idx(handle);
-    return fn__g_window_context.id_map[idx].index;
-}
-
-//
-// Removes the handle from the tree.
-//
-static void fn__imp_remove_id(fn_native_window_handle_t handle) {
-    size_t idx = fn__imp_entry_idx(handle); 
-
-    for(; idx < fn__g_window_context.windows_size - 1; ++idx) {
-        struct fn__imp_id_map temp; 
-        memcpy(
-            &temp, 
-            &fn__g_window_context.id_map[idx],
-            sizeof(struct fn__imp_id_map)
-        );
-
-        memcpy(
-            &fn__g_window_context.id_map[idx],
-            &fn__g_window_context.id_map[idx + 1],
-            sizeof(struct fn__imp_id_map)
-        );
-
-        memcpy(
-            &fn__g_window_context.id_map[idx + 1],
-            &temp,
-            sizeof(struct fn__imp_id_map)
-        );
-    }
-}
-
 //
 // Processes events of type 'XCB_CLIENT_MESSAGE'.
 //
@@ -133,9 +109,10 @@ static void fn__imp_on_client_message(xcb_generic_event_t* gev) {
     xcb_client_message_event_t* ev = (xcb_client_message_event_t*) gev; 
 
     if(ev->data.data32[0] == fn__g_window_context.atom_delete_window) {
-        const uint32_t idx = fn__imp_entry_at(ev->window);
-        fn__notify_window_destroyed(idx);
-        fn__imp_remove_id(ev->window);
+        bool found;
+        const uint32_t idx = fn__imp_entry_index_at(ev->window, &found);
+        if(found) fn__notify_window_destroyed(idx);
+        fn__imp_remove_entry(ev->window); 
     }
 }
 
@@ -145,7 +122,11 @@ static void fn__imp_on_client_message(xcb_generic_event_t* gev) {
 static void fn__imp_on_configure_notify(xcb_generic_event_t* gev) {
     xcb_configure_notify_event_t* ev = (xcb_configure_notify_event_t*) gev;
 
-    const uint32_t idx = fn__imp_entry_at(ev->window);
+    bool found;
+    const uint32_t idx = fn__imp_entry_at(ev->window, &found);
+    if(!found)
+        return;
+
     struct fn__window* win = &fn__g_window_context.windows[idx];
 
     if(win->width == ev->width && win->height == ev->height)
@@ -164,8 +145,10 @@ static void fn__imp_on_configure_notify(xcb_generic_event_t* gev) {
 static void fn__imp_on_focus_in(xcb_generic_event_t* gev) {
     xcb_focus_in_event_t* ev = (xcb_focus_in_event_t*) gev;
 
-    const uint32_t idx = fn__imp_entry_at(ev->event);
-    fn__notify_window_gained_focus(idx);
+    bool found;
+    const uint32_t idx = fn__imp_entry_at(ev->event, &found);
+    if(found)
+        fn__notify_window_gained_focus(idx);
 }
 
 //
@@ -174,8 +157,10 @@ static void fn__imp_on_focus_in(xcb_generic_event_t* gev) {
 static void fn__imp_on_focus_out(xcb_generic_event_t* gev) {
     xcb_focus_out_event_t* ev = (xcb_focus_out_event_t*) gev;
 
-    const uint32_t idx = fn__imp_entry_at(ev->event);
-    fn__notify_window_lost_focus(idx);
+    bool found;
+    const uint32_t idx = fn__imp_entry_at(ev->event, &found);
+    if(found) 
+        fn__notify_window_lost_focus(idx);
 }
 
 //
@@ -284,10 +269,20 @@ void fn__imp_init_window_context()
     ).data;
 
     //--- Initializes the id_map.
-    fn__g_window_context.id_map = calloc(
-        fn__g_window_context.windows_capacity,
-        sizeof(struct fn__imp_id_map)
-    );  
+
+    printf("Capacity: %zu\n", fn__g_window_context.windows_capacity);
+
+    fn__g_window_context.map_entries_size = 0;
+    fn__g_window_context.map_entries = malloc(
+        sizeof(struct fn__imp_map_entry)
+        * fn__g_window_context.windows_capacity
+    );
+
+    memset(
+        fn__g_window_context.map_entries, 
+        0, 
+        sizeof(struct fn__imp_map_entry) * fn__g_window_context.windows_capacity
+    );
 
     //--- Check wether XInput is supported by the server.
     xcb_query_extension_cookie_t qxi_cookie = xcb_query_extension(
@@ -421,17 +416,10 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
         xcb_flush(fn__g_window_context.connection);
     }
 
-    fn__g_window_context.id_map[index] = (struct fn__imp_id_map) {
+    fn__imp_insert_entry((struct fn__imp_map_entry) {
         .window = handle,
-        .index = index
-    };   
-
-    qsort(
-        fn__g_window_context.id_map,
-        fn__g_window_context.windows_size,
-        sizeof(struct fn__imp_id_map),
-        &fn__imp_xcb_id_cmp
-    );
+        .index = index 
+    });
 
     return handle;
 }
@@ -440,7 +428,6 @@ void fn__imp_destroy_window(fn_native_window_handle_t handle)
 {
     xcb_destroy_window(fn__g_window_context.connection, handle);
     xcb_flush(fn__g_window_context.connection);
-    fn__imp_remove_id(handle);
 }
 
 void fn__imp_window_set_size(
@@ -513,7 +500,6 @@ void fn__imp_window_set_visibility(
 void fn__imp_window_poll_events()
 {
     xcb_generic_event_t* ev = NULL;
-    struct fn_event fev = {0,};
 
     while((ev = xcb_poll_for_event(fn__g_window_context.connection))) {
         switch(ev->response_type & ~0x80) {
