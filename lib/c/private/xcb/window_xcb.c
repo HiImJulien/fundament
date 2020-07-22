@@ -3,10 +3,8 @@
 #include "../window_common.h"
 #include "input_key_map_xcb.h"
 
-#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include <X11/Xlib-xcb.h>
 #include <X11/Xlib.h>
@@ -45,9 +43,6 @@ static size_t fn__imp_entry_index_at(xcb_window_t window, bool* found) {
 
     while(left <= right) {
         const size_t mid = left + (right - left) / 2;
-
-        printf("-- %zu %zu -- %zu\n", left, right, mid);
-        
         if(fn__g_window_context.map_entries[mid].window == window) {
             *found = true;
             return mid;
@@ -262,7 +257,6 @@ static void fn__imp_on_xinput(xcb_ge_generic_event_t* gev) {
 // Proceeses events of type 'XCB_GE_GENERIC'.
 //
 static void fn__imp_on_generic(xcb_generic_event_t* gev) {
-    printf("Here!\n");
     xcb_ge_generic_event_t* ev = (xcb_ge_generic_event_t*) gev;
 
    if(fn__g_window_context.has_xinput 
@@ -288,9 +282,6 @@ void fn__imp_init_window_context()
     ).data;
 
     //--- Initializes the id_map.
-
-    printf("Capacity: %zu\n", fn__g_window_context.windows_capacity);
-
     fn__g_window_context.map_entries_size = 0;
     fn__g_window_context.map_entries = malloc(
         sizeof(struct fn__imp_map_entry)
