@@ -35,6 +35,8 @@ void fn__deinit_window_context()
     fn__g_window_context.events_capacity = 0;
     fn__g_window_context.events_size = 0;
     fn__g_window_context.events_tail = 0;
+
+    fn__imp_deinit_window_context();
 }
 
 void fn__push_event(struct fn_event* ev)

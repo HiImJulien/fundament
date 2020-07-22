@@ -16,6 +16,11 @@
 void fn__imp_init_window_context();
 
 //
+// Does nothing.
+//
+void fn__imp_deinit_window_context();
+
+//
 // Creates a new window using 'CreateWindowExA' and
 // sets the window index as 'user data' of the window.
 //

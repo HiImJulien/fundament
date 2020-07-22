@@ -350,6 +350,12 @@ void fn__imp_init_window_context()
     free(delete_window_reply);
 }
 
+void fn__imp_deinit_window_context() {
+    free(fn__g_window_context.map_entries);
+    fn__g_window_context.map_entries_size = 0;
+    XCloseDisplay(fn__g_window_context.display); 
+}
+
 fn_native_window_handle_t fn__imp_create_window(uint32_t index)
 {
     fn_native_window_handle_t handle = xcb_generate_id(

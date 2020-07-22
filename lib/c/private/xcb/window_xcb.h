@@ -15,6 +15,11 @@
 void fn__imp_init_window_context();
 
 //
+// Frees up the window map and disconnects the client from the Xserver.
+//
+void fn__imp_deinit_window_context();
+
+//
 // Creates a new window, enables XInput events for it, when applicable,
 // and sets the extended window manager hints.
 //

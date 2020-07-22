@@ -11,6 +11,11 @@
 void fn__imp_init_window_context();
 
 //
+// Does nothing; 
+//
+void fn__imp_deinit_window_context();
+
+//
 // Creates a new instance of 'NSWindow' and 'fn_window_delegate',
 // sets the latter as the priors delegate.
 //
