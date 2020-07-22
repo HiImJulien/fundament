@@ -22,7 +22,7 @@ void fn__imp_init_window_context() {
     RegisterClassExA(&wc);
 }
 
-void fn__imp_init_window_context() {}
+void fn__imp_deinit_window_context() {}
 
 fn_native_window_handle_t fn__imp_create_window(uint32_t index) {
     fn_native_window_handle_t handle = CreateWindowExA(
