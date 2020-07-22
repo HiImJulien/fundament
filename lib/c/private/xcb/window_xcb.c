@@ -36,12 +36,17 @@ static int fn__imp_map_entry_comparator(const void* vlhs, const void* vrhs) {
 }
 
 static size_t fn__imp_entry_index_at(xcb_window_t window, bool* found) {
-    size_t left = 0;
-    size_t right = fn__g_window_context.map_entries_size - 1;
+    int32_t left = 0;
+    int32_t right = fn__g_window_context.map_entries_size - 1;
     *found = false;
+
+    if(fn__g_window_context.map_entries_size == 0)
+        return 0;
 
     while(left <= right) {
         const size_t mid = left + (right - left) / 2;
+
+        printf("-- %zu %zu -- %zu\n", left, right, mid);
         
         if(fn__g_window_context.map_entries[mid].window == window) {
             *found = true;
@@ -74,11 +79,18 @@ static void fn__imp_insert_entry(struct fn__imp_map_entry entry) {
 
 static void fn__imp_remove_entry(xcb_window_t window) {
     bool found;
-    const size_t index = fn__imp_entry_index_at(window, &found);
+    const size_t index = fn__imp_entry_index_at(window, &found); 
+
     if(!found)
         return;
 
-    // TODO!!!!
+    for(size_t it = index; it < fn__g_window_context.map_entries_size - 1; ++it) {
+        struct fn__imp_map_entry* dest = &fn__g_window_context.map_entries[it];   
+        struct fn__imp_map_entry* src = &fn__g_window_context.map_entries[it + 1];
+        *dest = *src;
+    } 
+
+    fn__g_window_context.map_entries_size--; 
 }
 
 //
@@ -113,6 +125,13 @@ static void fn__imp_on_client_message(xcb_generic_event_t* gev) {
         const uint32_t idx = fn__imp_entry_index_at(ev->window, &found);
         if(found) fn__notify_window_destroyed(idx);
         fn__imp_remove_entry(ev->window); 
+
+        xcb_destroy_window(
+            fn__g_window_context.connection,
+            ev->window
+        );
+
+        xcb_flush(fn__g_window_context.connection);
     }
 }
 
