@@ -194,3 +194,9 @@ def build(ctx: BuildContext):
             use='fundament',
             rpath='$ORIGIN'
         )
+
+        ctx.program(
+            target='math',
+            source='tests/math.c',
+            use='fundament'
+        )
