@@ -54,6 +54,7 @@ def options(ctx: OptionsContext):
     ctx.load('objc', tooldir='tools')
 
     ctx.load('clang_compilation_database', tooldir='tools')
+    ctx.load('nuget_package', tooldir='tools')
 
     ctx.add_option('--with-samples', action='store_true', default=False, 
                     help='If set, builds the samples as well.')
@@ -112,6 +113,8 @@ def configure(ctx: ConfigurationContext):
     ctx.define('FUNDAMENT_VERSION_MAJOR', int(VERSION.split('.')[0]))
     ctx.define('FUNDAMENT_VERSION_MINOR', int(VERSION.split('.')[1]))
     ctx.write_config_header('config.h')
+
+    ctx.load('nuget_package', tooldir='tools')
 
 def build(ctx: BuildContext):
     source = [

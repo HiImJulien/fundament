@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package>
+    <metadata>
+        <id>fundament</id>
+        <version>0.0.0</version>
+        <description>A slick foundation for game developers.</description>
+        <tags>Native, native, game, game-engine, game-dev</tags>
+        <authors>Julian Kirsch</authors>
+    </metadata>
+    <files>
+        <file src="**\*.dll" target="native\bin" />
+        <file src="**\*.lib" target="native\lib" />
+        <file src="..\..\lib\c\public\fundament\*.h" target="native\include\fundament" />
+        <file src="..\config.h" target="native\include\fundament" />
+    </files>
+</package>
