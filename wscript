@@ -185,13 +185,6 @@ def build(ctx: BuildContext):
 
     if ctx.env.with_tests:
         ctx.program(
-            target='keybinding_test',
-            source='tests/keybinding_test.c',
-            use='fundament',
-            rpath='$ORIGIN'
-        )
-
-        ctx.program(
             target='multiple_window',
             source='tests/multiple_windows.c',
             use='fundament',

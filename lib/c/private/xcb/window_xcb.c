@@ -250,6 +250,16 @@ static void fn__imp_on_xinput(xcb_ge_generic_event_t* gev) {
                 press
             );
         } break;
+
+        case XCB_INPUT_MOTION: {
+            xcb_input_motion_event_t* ev = 
+                (xcb_input_motion_event_t*) gev;
+
+            const int32_t x = fn__imp_fp1616_to_int32(ev->event_x);
+            const int32_t y = fn__imp_fp1616_to_int32(ev->event_y); 
+
+            fn__notify_mouse_moved(x, y);
+        }
     }
 }
 
@@ -417,10 +427,11 @@ fn_native_window_handle_t fn__imp_create_window(uint32_t index)
         };
 
         uint32_t* mask = xcb_input_event_mask_mask(&head);
-        mask[0] = XCB_INPUT_XI_EVENT_MASK_KEY_PRESS |
-                  XCB_INPUT_XI_EVENT_MASK_KEY_RELEASE |
-                  XCB_INPUT_XI_EVENT_MASK_BUTTON_PRESS |
-                  XCB_INPUT_XI_EVENT_MASK_BUTTON_RELEASE;
+        mask[0] = XCB_INPUT_XI_EVENT_MASK_KEY_PRESS 
+                    | XCB_INPUT_XI_EVENT_MASK_KEY_RELEASE 
+                    | XCB_INPUT_XI_EVENT_MASK_BUTTON_PRESS
+                    | XCB_INPUT_XI_EVENT_MASK_BUTTON_RELEASE
+                    | XCB_INPUT_XI_EVENT_MASK_MOTION; 
 
         xcb_input_xi_select_events(
             fn__g_window_context.connection, 
