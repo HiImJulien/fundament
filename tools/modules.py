@@ -294,8 +294,10 @@ class GenerateNuspecFileTask(Task):
 
 
 class GenerateTargetsFileTask(Task):
-    def set_meta(self, meta: Meta):
-        self.meta = meta
+
+    def __init__(self, module: module, env):
+        super().__init__(env=env)
+        self.module = module
 
     def run(self):
         project = ET.Element(
@@ -310,34 +312,36 @@ class GenerateTargetsFileTask(Task):
 
         link_group = ET.SubElement(item_def_group, "Link")
         link_lib = ET.SubElement(link_group, "AdditionalDependencies")
-        link_lib.text = f"$(MSBuildThisFileDirectory)lib\\$(Configuration.ToLower())\\{self.meta.uid}.lib;%(AdditionalDependencies)"
+        link_lib.text = f"$(MSBuildThisFileDirectory)lib\\$(Configuration.ToLower())\\{self.module.product.name}.lib;%(AdditionalDependencies)"
+
+        escape_uid = self.module.meta.uid.replace('.', '_')
 
         item_group = ET.SubElement(project, "ItemGroup")
         ET.SubElement(
             item_group,
-            f"{self.meta.uid}Files",
+            f"{escape_uid}Files",
             Include=
-            f"$(MSBuildThisFileDirectory)bin\\$(Configuration.ToLower())\\{self.meta.uid}.dll"
+            f"$(MSBuildThisFileDirectory)bin\\$(Configuration.ToLower())\\{self.module.product.name}.dll"
         )
         ET.SubElement(
             item_group,
-            f"{self.meta.uid}Files",
+            f"{self.module.meta.uid}Files",
             Include=
-            f"$(MSBuildThisFileDirectory)bin\\$(Configuration.ToLower())\\{self.meta.uid}.dll.manifest"
+            f"$(MSBuildThisFileDirectory)bin\\$(Configuration.ToLower())\\{self.module.product.name}.dll.manifest"
         )
 
         copy_target = ET.SubElement(project,
             "Target",
-            Name=f"{self.meta.uid}CopyFiles",
+            Name=f"{escape_uid}CopyFiles",
             AfterTargets="AfterBuild"
         )
 
         ET.SubElement(
             copy_target,
             "Copy",
-            SourceFiles=f"@({self.meta.uid}Files)",
+            SourceFiles=f"@({escape_uid}Files)",
             DestinationFiles=
-            f"@({self.meta.uid}Files->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')",
+            f"@({escape_uid}Files->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')",
             SkipUnchangedFiles="true"
         )
 
@@ -389,10 +393,9 @@ class PackageContext(BuildContext):
             self.add_to_group(gen)
 
             res = self.path.find_or_declare(f'../{mod.meta.uid}.targets')
-            gen_targets = GenerateTargetsFileTask(env=self.env)
+            gen_targets = GenerateTargetsFileTask(module=mod, env=self.env)
             gen_targets.set_inputs(mod.source)
             gen_targets.set_outputs(res)
-            gen_targets.set_meta(mod.meta)
             self.add_to_group(gen_targets)
 
             nuget = None
