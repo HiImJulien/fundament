@@ -1,8 +1,8 @@
 {
 	"meta": {
-		"uid": "fundament",
+		"uid": "kirsch.fundament",
 		"version": "0.3.0",
-		"description": "Yeet",
+		"description": "A slick foundation for game developers.",
 		"tags": [
 			"Native",
 			"native",
