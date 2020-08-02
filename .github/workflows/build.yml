@@ -40,4 +40,6 @@ jobs:
           if: ${{ matrix.os == 'windows-latest' }}
           run: |
             nuget setApiKey ${{ secrets.NUGET_API_KEY }} -Source nuget.org
-            nuget push **/kirsch.*.nupkg -Source nuget.org -SkipDuplicate
+            nuget push **/kirsch.*.nupkg -Source nuget.org -SkipDuplicate 
+            nuget sources Add -Name GitHub -Source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json -Username ${{ github.repository_owner }} -Password ${{ secrets.GITHUB_TOKEN }}
+            nuget push **/kirsch.*.nupkg -Source GitHub -SkipDuplicate
