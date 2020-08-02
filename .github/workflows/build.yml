@@ -28,8 +28,9 @@ jobs:
           env:
             cache-name: cache-build
           with:
-            path: ./build
-            key: ${{ matrix.os }}-build-${{ hashFiles('wscript') }}
+            path: 
+              ./build
+            key: ${{ matrix.os }}-build-${{ hashFiles('wscript') }}-${{ hashFiles('lib') }}
             restore-keys: |
                 ${{ matrix.os }}-build-
         - name: Build 
