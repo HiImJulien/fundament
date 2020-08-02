@@ -31,7 +31,7 @@ jobs:
           with:
             path: 
               ./build
-            key: ${{ matrix.os }}-build-${{ hashFiles('wscript') }}-${{ hashFiles('lib') }}
+            key: ${{ matrix.os }}-build-${{ hashFiles('wscript', 'lib', 'tools') }}
             restore-keys: |
                 ${{ matrix.os }}-build-
         - name: Build

@@ -325,7 +325,7 @@ class GenerateTargetsFileTask(Task):
         )
         ET.SubElement(
             item_group,
-            f"{self.module.meta.uid}Files",
+            f"{escape_uid}Files",
             Include=
             f"$(MSBuildThisFileDirectory)bin\\$(Configuration.ToLower())\\{self.module.product.name}.dll.manifest"
         )
