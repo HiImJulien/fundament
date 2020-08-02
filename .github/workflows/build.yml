@@ -25,6 +25,7 @@ jobs:
             sudo apt-get install libxcb*-dev -y
             sudo apt-get install pkg-config -y
         - uses: actions/cache@v2
+          id: build_cache
           env:
             cache-name: cache-build
           with:
@@ -33,12 +34,13 @@ jobs:
             key: ${{ matrix.os }}-build-${{ hashFiles('wscript') }}-${{ hashFiles('lib') }}
             restore-keys: |
                 ${{ matrix.os }}-build-
-        - name: Build 
+        - name: Build
+          if: steps.build_cache.outputs.cache-hit != 'true'
           run: |
             python waf configure
             python waf package
         - name: Push package
-          if: ${{ matrix.os == 'windows-latest' }}
+          if: ${{ matrix.os == 'windows-latest' && (steps.build_cache.outputs.cache-hit != 'true') }} 
           run: |
             nuget setApiKey ${{ secrets.NUGET_API_KEY }} -Source nuget.org
             nuget push **/kirsch.*.nupkg -Source nuget.org -SkipDuplicate 
