@@ -16,7 +16,8 @@
 		"owners": [
 			"Julian Kirsch"
 		],
-		"project_url": "https://github.com/HiImJulien/fundament"
+		"project_url": "https://github.com/HiImJulien/fundament",
+		"logo":  "logo.png"
 	},
 	"dependencies": [
 		{

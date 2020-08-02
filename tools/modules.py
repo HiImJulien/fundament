@@ -24,6 +24,7 @@ class Meta:
     authors: List[str]
     owners: List[str]
     project_url: str
+    logo: str
 
 
 @dataclass
@@ -63,7 +64,8 @@ class Module:
                     meta_dict.get('description', ''),
                     meta_dict.get('tags', []), meta_dict.get('authors', []),
                     meta_dict.get('owners', []),
-                    meta_dict.get('project_url', ''))
+                    meta_dict.get('project_url', ''),
+                    meta_dict.get('logo', ''))
 
         dependencies = []
         dependencies_dict = module.get('dependencies', [])
@@ -219,6 +221,11 @@ def create_variant_configurations(ctx: Context):
 
 
 class GenerateNuspecFileTask(Task):
+
+    def __init__(self, module: Module, env):
+        super().__init__(env=env)
+        self.module = module
+
     def keyword(self):
         return "Generating nuspec from"
 
@@ -270,6 +277,17 @@ class GenerateNuspecFileTask(Task):
                       "file",
                       src=f"{meta.uid}.targets",
                       target=f"build\\native\\{meta.uid}.targets")
+
+
+        if self.module.meta.logo:
+            logo_node = self.module.source.parent.find_resource(self.module.meta.logo)
+            
+            ET.SubElement(files,
+                "file",
+                src=str(logo_node),
+                target="images\\logo.png")
+
+            ET.SubElement(xmeta, "icon").text = "images\\logo.png"
 
         tree = ET.ElementTree(root)
         tree.write(str(self.outputs[0]))
@@ -362,7 +380,7 @@ class PackageContext(BuildContext):
             return
 
         for mod in self.modules:
-            gen = GenerateNuspecFileTask(env=self.env)
+            gen = GenerateNuspecFileTask(module=mod, env=self.env)
             gen.set_meta(mod.meta)
             gen.set_inputs(mod.source)
 
