@@ -1,0 +1,84 @@
+{
+	"meta": {
+		"uid": "fundament",
+		"version": "0.3.0",
+		"description": "Yeet",
+		"tags": [
+			"Native",
+			"native",
+			"game",
+			"game-engine",
+			"game-dev"
+		],
+		"authors": [
+			"Julian Kirsch"
+		],
+		"owners": [
+			"Julian Kirsch"
+		],
+		"project_url": "https://github.com/HiImJulien/fundament"
+	},
+	"dependencies": [
+		{
+			"target": "win32",
+			"type": "lib",
+			"name": "user32"
+		},
+		{
+			"target": "linux",
+			"type": "pkg",
+			"name": "xcb"
+		},
+		{
+			"target": "linux",
+			"type": "pkg",
+			"name": "xcb-xinput"
+		},
+		{
+			"target": "linux",
+			"type": "pkg",
+			"name": "x11-xcb"
+		},
+		{
+			"target": "linux",
+			"type": "header",
+			"name": "linux/input-event-codes.h"
+		},
+		{
+			"target": "darwin",
+			"type": "framework",
+			"name": "AppKit"
+		}
+	],
+	"product": {
+		"type": "shared",
+		"name": "fundament",
+		"includes": [
+			"c/public"
+		],
+		"files": [
+			"c/private/input.c",
+			"c/private/input_common.c",
+			"c/private/window.c",
+			"c/private/window_common.c"
+		],
+		"win32:files": [
+			"c/private/win32/input_key_map_win32.c",
+			"c/private/win32/window_win32.c"
+		],
+		"darwin:files": [
+			"c/private/appkit/input_key_map_appkit.c",
+			"c/private/appkit/window_appkit.m"
+		],
+		"linux:files": [
+			"c/private/xcb/input_key_map_xcb.c",
+			"c/private/xcb/window_xcb.c"
+		]
+	},
+	"package": [
+		{
+			"type": "nuget",
+			"repository": ""
+		}
+	]
+}
