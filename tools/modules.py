@@ -125,7 +125,7 @@ def configure(ctx: Context):
         if branch.endswith("\n"):
             branch = branch[:-1]
 
-        ctx.env.IS_PRODUCTION = (branch is "master")
+        ctx.env.IS_PRODUCTION = (branch == "master")
     else:
         ctx.env.IS_PRODUCTION = False
 
@@ -389,7 +389,7 @@ class PackageContext(BuildContext):
             gen.set_inputs(mod.source)
 
             nuspec_file = self.path.find_resource(f'../{mod.meta.uid}.nuspec')
-            if nuspec_file and nuspec_file.exists()
+            if nuspec_file and nuspec_file.exists():
                 nuspec_file.delete()
 
             nuspec_file = self.path.find_or_declare(f'../{mod.meta.uid}.nuspec')
