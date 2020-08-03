@@ -388,8 +388,13 @@ class PackageContext(BuildContext):
             gen.set_meta(mod.meta)
             gen.set_inputs(mod.source)
 
-            res = self.path.find_or_declare(f'../{mod.meta.uid}.nuspec')
-            gen.set_outputs(res)
+            nuspec_file = self.path.find_resource(f'../{mod.meta.uid}.nuspec')
+            if nuspec_file and nuspec_file.exists()
+                nuspec_file.delete()
+
+            nuspec_file = self.path.find_or_declare(f'../{mod.meta.uid}.nuspec')
+
+            gen.set_outputs(nuspec_file)
             self.add_to_group(gen)
 
             res = self.path.find_or_declare(f'../{mod.meta.uid}.targets')
