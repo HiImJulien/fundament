@@ -10,9 +10,9 @@
 // Encapsulates a win32 OpenGL context.
 //
 struct fn__opengl_context_win32 {
-	uint8_t	generation;
-	HGLRC 	handle;
-	HDC 	device_context;
+    uint8_t generation;
+    HGLRC   handle;
+    HDC     device_context;
 };
 
 typedef struct fn__opengl_context_win32 fn__opengl_context_t;
@@ -49,4 +49,4 @@ bool fn__imp_create_gl_context(fn__opengl_context_t* ctx);
 //
 void fn__imp_destroy_gl_context(fn__opengl_context_t* ctx);
 
-#endif 	// FUNDAMENT_GL_CONTEXT_WIN32_H
+#endif  // FUNDAMENT_GL_CONTEXT_WIN32_H
