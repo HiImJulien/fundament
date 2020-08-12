@@ -19,7 +19,7 @@ def target_is_linux(ctx):
     return (ctx.env.DEST_OS == "linux")
 
 @conf
-def target_is_macOs(ctx):
+def target_is_macOS(ctx):
     return (ctx.env.DEST_OS == "darwin")
 
 @conf
@@ -68,7 +68,7 @@ def configure(ctx: ConfigurationContext):
     if ctx.target_is_win32():
         ctx.check(lib="user32", uselib_store="fundament_deps", msg="Checking for 'user32.lib'")
 
-    if ctx.target_is_macOs():
+    if ctx.target_is_macOS():
         ctx.check(framework="AppKit", uselib_store="fundament_deps", msg="Checking for 'AppKit'")
 
     # Step 2: Create both, debug and release configurations.
@@ -103,9 +103,9 @@ def build(ctx: BuildContext):
         "lib/c/private/xcb/window_xcb.c"
     ]
 
-    macOs_sources = [
-        "lib/c/private/appkit/input_key_map_appkit.c",
-        "lib/c/private/appkit/window_appkit.m"
+    macOS_sources = [
+        "lib/c/private/macOS/input_key_map_appkit.c",
+        "lib/c/private/macOS/window_appkit.m"
     ]
 
     win32_sources = [
@@ -115,8 +115,8 @@ def build(ctx: BuildContext):
 
     if ctx.target_is_linux():
         sources += linux_sources
-    elif ctx.target_is_macOs():
-        sources += macOs_sources
+    elif ctx.target_is_macOS():
+        sources += macOS_sources
     elif ctx.target_is_win32():
         sources += win32_sources
     else:
