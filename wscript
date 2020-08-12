@@ -26,7 +26,9 @@ def target_is_macOs(ctx):
 def target_is_win32(ctx):
     return (ctx.env.DEST_OS == "win32")
 
-#========================nt to use the ff https://www.jeffongames.com/2012/12/using-waf-to-build-an-ios-universal-framework/
+#=======================================================================================================================
+# Extended waf to build Objective C sources. This is based off 
+# https://www.jeffongames.com/2012/12/using-waf-to-build-an-ios-universal-framework/
 #=======================================================================================================================
 
 @TaskGen.extension('.m')
@@ -96,20 +98,29 @@ def build(ctx: BuildContext):
         "lib/c/private/window_common.c"
     ]
 
+    linux_sources = [
+        "lib/c/private/xcb/input_key_map_xcb.c",
+        "lib/c/private/xcb/window_xcb.c"
+    ]
+
+    macOs_sources = [
+        "lib/c/private/appkit/input_key_map_appkit.c",
+        "lib/c/private/appkit/window_appkit.m"
+    ]
+
     win32_sources = [
         "lib/c/private/win32/input_key_map_win32.c",
         "lib/c/private/win32/window_win32.c"
     ]
 
-    xcb_sources = [
-        "lib/c/private/xcb/input_key_map_xcb.c",
-        "lib/c/private/xcb/window_xcb.c"
-    ]
-
     if ctx.target_is_linux():
-        sources += xcb_sources
-    if ctx.target_is_win32():
+        sources += linux_sources
+    elif ctx.target_is_macOs():
+        sources += macOs_sources
+    elif ctx.target_is_win32():
         sources += win32_sources
+    else:
+        ctx.fatal("Trying to build for unknown target OS.")
 
     ctx.shlib(
         target="fundament",
