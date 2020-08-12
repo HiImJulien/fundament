@@ -99,8 +99,8 @@ def build(ctx: BuildContext):
     ]
 
     linux_sources = [
-        "lib/c/private/xcb/input_key_map_xcb.c",
-        "lib/c/private/xcb/window_xcb.c"
+        "lib/c/private/linux/input_key_map_xcb.c",
+        "lib/c/private/linux/window_xcb.c"
     ]
 
     macOS_sources = [
