@@ -92,25 +92,25 @@ def configure(ctx: ConfigurationContext):
 
 def build(ctx: BuildContext):    
     sources = [
-        "lib/c/private/input.c",
-        "lib/c/private/input_common.c",
-        "lib/c/private/window.c",
-        "lib/c/private/window_common.c"
+        "platform/c/private/input.c",
+        "platform/c/private/input_common.c",
+        "platform/c/private/window.c",
+        "platform/c/private/window_common.c"
     ]
 
     linux_sources = [
-        "lib/c/private/linux/input_key_map_xcb.c",
-        "lib/c/private/linux/window_xcb.c"
+        "platform/c/private/linux/input_key_map_xcb.c",
+        "platform/c/private/linux/window_xcb.c"
     ]
 
     macOS_sources = [
-        "lib/c/private/macOS/input_key_map_appkit.c",
-        "lib/c/private/macOS/window_appkit.m"
+        "platform/c/private/macOS/input_key_map_appkit.c",
+        "platform/c/private/macOS/window_appkit.m"
     ]
 
     win32_sources = [
-        "lib/c/private/win32/input_key_map_win32.c",
-        "lib/c/private/win32/window_win32.c"
+        "platform/c/private/win32/input_key_map_win32.c",
+        "platform/c/private/win32/window_win32.c"
     ]
 
     if ctx.target_is_linux():
@@ -125,8 +125,9 @@ def build(ctx: BuildContext):
     ctx.shlib(
         target="fundament",
         source=sources,
-        includes="lib/c/public",
-        export_includes="lib/c/public",
+        includes="platform/c/public",
+        defines="FUNDAMENT_EXPORTS",
+        export_includes="platform/c/public",
         use="fundament_deps",
     )
     
