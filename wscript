@@ -58,6 +58,11 @@ def options(ctx: OptionsContext):
 def configure(ctx: ConfigurationContext):
     ctx.load("compiler_c")
 
+    if ctx.options.exclude_ogl:
+        ctx.env.EXCLUDED_FEATURES.append_unique('ogl')
+
+    ctx.recurse("playground")
+
     # Step 1: Check, whether all external dependencies exist.
     if ctx.target_is_linux():
         ctx.check_cfg(package="xcb", uselib_store="fundament_deps", args=["--cflags", "--libs"])
@@ -131,5 +136,5 @@ def build(ctx: BuildContext):
         use="fundament_deps",
     )
     
-
+    ctx.recurse("playground")
     
