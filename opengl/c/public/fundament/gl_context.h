@@ -30,7 +30,7 @@ struct fn_gl_context{ uint32_t id; };
 //
 // Defines all creation parameters for an OpenGL context.
 //
-struct fn_opengl_context_desc {
+struct fn_gl_context_desc {
     uint8_t major_version;
     uint8_t minor_version;
     uint8_t red_bits;
@@ -48,7 +48,7 @@ struct fn_opengl_context_desc {
 // Creates a new OpenGL context.
 //
 API struct fn_gl_context fn_create_gl_context(
-    const struct fn_opengl_context_desc* desc
+    const struct fn_gl_context_desc* desc
 );
 
 //

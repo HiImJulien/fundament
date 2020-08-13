@@ -7,7 +7,7 @@
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 
-struct fn_opengl_context_desc;
+struct fn_gl_context_desc;
 
 //
 // Encapsulates a glx OpenGL context.
@@ -39,7 +39,7 @@ void fn__imp_deinit_gl_module(void);
 //
 bool fn__imp_create_gl_context(
     fn__opengl_context_t* ctx,
-    const struct fn_opengl_context_desc* desc
+    const struct fn_gl_context_desc* desc
 );
 
 //

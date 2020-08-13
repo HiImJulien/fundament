@@ -19,7 +19,7 @@ void fn__imp_deinit_gl_module() {
 
 bool fn__imp_create_gl_context(
     fn__opengl_context_t* ctx,
-    const struct fn_opengl_context_desc* desc) {
+    const struct fn_gl_context_desc* desc) {
 
     const int visual_attribs[] = {
         GLX_X_RENDERABLE,   True,

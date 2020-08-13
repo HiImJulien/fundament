@@ -6,6 +6,8 @@
 
 #include <Windows.h>
 
+struct fn_gl_context_desc;
+
 //
 // Encapsulates a win32 OpenGL context.
 //
@@ -42,7 +44,10 @@ void fn__imp_deinit_gl_module(void);
 //
 // Creates a new OpenGL context.
 //
-bool fn__imp_create_gl_context(fn__opengl_context_t* ctx);
+bool fn__imp_create_gl_context(
+    fn__opengl_context_t* ctx,
+    const struct fn_gl_context_desc* desc
+);
 
 //
 // Destroys the OpenGL context.

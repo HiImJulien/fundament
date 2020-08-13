@@ -37,7 +37,7 @@ void fn_deinit_gl_module() {
 }
 
 struct fn_gl_context fn_create_gl_context(
-    const struct fn_opengl_context_desc* desc
+    const struct fn_gl_context_desc* desc
 ) {
     return (struct fn_gl_context) { 0 };
 }
