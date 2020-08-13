@@ -62,5 +62,10 @@ bool fn__imp_gl_context_make_current(
 //
 void fn__imp_gl_context_present(void);
 
+//
+// Enables/Disables vsync on the current context.
+//
+void fn__imp_gl_context_set_vsync(bool vsync);
+
 #endif  // FUNDAMENT_GL_CONTEXT_GLX_H
 

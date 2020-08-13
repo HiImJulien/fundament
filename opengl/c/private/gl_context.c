@@ -77,3 +77,7 @@ bool fn_gl_context_make_current(
 void fn_gl_context_present() {
     fn__imp_gl_context_present();
 }
+
+void fn_gl_context_set_vsync(bool vsync) {
+    fn__imp_gl_context_set_vsync(vsync);
+}
