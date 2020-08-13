@@ -3,6 +3,8 @@
 #include "../../../../platform/c/private/window_common.h"
 // TODO: Fix this ugly shit.
 
+#include <stdio.h>
+
 fn__create_context_attribs fn__g_create_context_attribs = NULL;
 fn__swap_interval fn__g_swap_interval = NULL;
 
@@ -43,7 +45,7 @@ bool fn__imp_create_gl_context(
         visual_attribs,
         &fbc_count
     );
-        
+
     int context_flags = 0;
 
     const int context_attribs[] = {
@@ -52,8 +54,36 @@ bool fn__imp_create_gl_context(
         None
     };
 
-    return false;
+    GLXContext glx_ctx = fn__g_create_context_attribs(
+        fn__g_window_context.display,
+        fbc[0],
+        NULL,
+        true,
+        context_attribs
+    );
+
+    if(glx_ctx)
+        ctx->handle = glx_ctx;
+
+    return glx_ctx;
 }
 
-void fn__imp_destroy_gl_context(fn__opengl_context_t* ctx) {
+bool fn__imp_gl_context_make_current(
+    fn__opengl_context_t* ctx,
+    fn_native_window_handle_t win
+) {
+    return glXMakeCurrent(
+        fn__g_window_context.display,
+        win,
+        ctx->handle
+    );
+}
+
+void fn__imp_gl_context_present() {
+    GLXDrawable surface = glXGetCurrentDrawable();
+    if(surface)
+        glXSwapBuffers(
+            fn__g_window_context.display,
+            surface
+        );
 }

@@ -1,6 +1,8 @@
 #ifndef FUNDAMENT_GL_CONTEXT_GLX_H
 #define FUNDAMENT_GL_CONTEXT_GLX_H
 
+#include <fundament/window.h>
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -46,6 +48,19 @@ bool fn__imp_create_gl_context(
 // Destroys the OpenGL context.
 //
 void fn__imp_destroy_gl_context(fn__opengl_context_t* ctx);
+
+//
+// Sets the context current to the thread and window.
+//
+bool fn__imp_gl_context_make_current(
+    fn__opengl_context_t* ctx,
+    fn_native_window_handle_t win
+);
+
+//
+// Displays the contents of the current drawable's backbuffer.
+//
+void fn__imp_gl_context_present(void);
 
 #endif  // FUNDAMENT_GL_CONTEXT_GLX_H
 

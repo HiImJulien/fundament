@@ -63,11 +63,11 @@ API void fn_destroy_gl_context(
 //
 API bool fn_gl_context_make_current(
     struct fn_gl_context ctx, 
-    struct fn_window window
+    fn_native_window_handle_t win
 );
 
 //
-// Presents 
+// Presents the contents of the current contexts backbuffer.
 //
 API void fn_gl_context_present();
 
