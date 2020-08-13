@@ -71,7 +71,7 @@ def configure(ctx: ConfigurationContext):
         ctx.check(header="linux/input-event-codes.h", msg="Checking for 'linux/input-event-codes.h'")
 
     if ctx.target_is_linux() and 'ogl' not in ctx.env.EXCLUDED_FEATURES:
-        pass
+        ctx.check_cfg(package="glx", uselib_store="fundament_deps", args=["--cflags", "--libs"])
 
     if ctx.target_is_win32():
         ctx.check(lib="user32", uselib_store="fundament_deps", msg="Checking for 'user32.lib'")
@@ -136,6 +136,10 @@ def build(ctx: BuildContext):
 
         win32_sources += [
             "opengl/c/private/win32/gl_context_win32.c"
+        ]
+
+        linux_sources += [
+            "opengl/c/private/linux/gl_context_glx.c"
         ]
 
     if ctx.target_is_linux():

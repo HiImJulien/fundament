@@ -6,7 +6,7 @@
 #if defined(_WIN32)
     #include "./win32/gl_context_win32.h"
 #else
-    #error "Unsupported platform!"
+    #include "./linux/gl_context_glx.h"
 #endif
 
 //
