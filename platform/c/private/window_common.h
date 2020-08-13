@@ -26,7 +26,7 @@
 #elif defined(__APPLE__)
     #include "./macOS/window_appkit.h"
 #elif defined(__linux__)
-    #include "./xcb/window_xcb.h"
+    #include "./linux/window_xcb.h"
 
     #include <X11/Xlib.h>
     #include <xcb/xcb.h>
