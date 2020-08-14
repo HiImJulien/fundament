@@ -10,7 +10,7 @@
 //
 // Represents a 3D float vector.
 //
-struct fn_vec3f {
+struct fn_float3 {
     union {
         struct {
             float x;
@@ -22,18 +22,18 @@ struct fn_vec3f {
     };
 };
 
-float fn_vec3f_len(struct fn_vec3f vec);
-struct fn_vec3f fn_vec3f_norm(struct fn_vec3f vec);
-struct fn_vec3f fn_vec3f_add(struct fn_vec3f lhs, struct fn_vec3f rhs);
-struct fn_vec3f fn_vec3f_sub(struct fn_vec3f lhs, struct fn_vec3f rhs);
-float fn_vec3f_dot(struct fn_vec3f lhs, struct fn_vec3f rhs);
+float fn_float3_len(struct fn_float3 vec);
+struct fn_float3 fn_float3_norm(struct fn_float3 vec);
+struct fn_float3 fn_float3_add(struct fn_float3 lhs, struct fn_float3 rhs);
+struct fn_float3 fn_float3_sub(struct fn_float3 lhs, struct fn_float3 rhs);
+float fn_float3_dot(struct fn_float3 lhs, struct fn_float3 rhs);
 
-struct fn_vec3f fn_vec3f_cross(struct fn_vec3f lhs, struct fn_vec3f rhs);
+struct fn_float3 fn_float3_cross(struct fn_float3 lhs, struct fn_float3 rhs);
 
 //
 // Represents a 4D float vector.
 //
-struct fn_vec4f {
+struct fn_float4 {
     union {
         struct {
             float x;
@@ -46,11 +46,11 @@ struct fn_vec4f {
     };
 };
 
-float fn_vec4f_len(struct fn_vec4f vec);
-struct fn_vec4f fn_vec4f_norm(struct fn_vec4f vec);
-struct fn_vec4f fn_vec4f_add(struct fn_vec4f lhs, struct fn_vec4f rhs);
-struct fn_vec4f fn_vec4f_sub(struct fn_vec4f lhs, struct fn_vec4f rhs);
-float fn_vec4f_dot(struct fn_vec4f lhs, struct fn_vec4f rhs);
+float fn_float4_len(struct fn_float4 vec);
+struct fn_float4 fn_float4_norm(struct fn_float4 vec);
+struct fn_float4 fn_float4_add(struct fn_float4 lhs, struct fn_float4 rhs);
+struct fn_float4 fn_float4_sub(struct fn_float4 lhs, struct fn_float4 rhs);
+float fn_float4_dot(struct fn_float4 lhs, struct fn_float4 rhs);
 
 //
 // Represents a 4x4 float matrix.
@@ -64,13 +64,17 @@ struct fn_float4x4 {
             float e14, e24, e34, e44;
         };
 
-        struct fn_vec4f vec[4];
+        struct fn_float4 vec[4];
         float e[16];
     };
 };
 
 struct fn_float4x4 fn_float4x4_identity(void);
 struct fn_float4x4 fn_float4x4_transpose(struct fn_float4x4 mat);
+struct fn_float4x4 fn_float4x4_mul(struct fn_float4x4 lhs, struct fn_float4x4 rhs);
+float fn_float4x4_det(struct fn_float4x4 mat);
+struct fn_float4x4 fn_float4x4_inv(struct fn_float4x4 mat);
+struct fn_float4 fn_float4x4_mul_vec(struct fn_float4x4 lhs, struct fn_float4 rhs);
 
 //==============================================================================
 // The following section defines a reference implementation of the math
@@ -91,7 +95,7 @@ static inline float fn__fsqrt(float val) {
     return y;
 }
 
-inline float fn_vec3f_len(struct fn_vec3f vec) {
+inline float fn_float3_len(struct fn_float3 vec) {
     return 1.f / fn__fsqrt(
         vec.x * vec.x
         + vec.y * vec.y
@@ -99,8 +103,8 @@ inline float fn_vec3f_len(struct fn_vec3f vec) {
     );
 }
 
-inline struct fn_vec3f fn_vec3f_norm(struct fn_vec3f vec) {
-    const float len = fn_vec3f_len(vec);
+inline struct fn_float3 fn_float3_norm(struct fn_float3 vec) {
+    const float len = fn_float3_len(vec);
 
     for(uint8_t it = 0; it < 3; ++it)
         vec.e[it] /= len;
@@ -108,35 +112,35 @@ inline struct fn_vec3f fn_vec3f_norm(struct fn_vec3f vec) {
     return vec;
 }
 
-inline struct fn_vec3f fn_vec3f_add(struct fn_vec3f lhs, struct fn_vec3f rhs) {
-    return (struct fn_vec3f) {
+inline struct fn_float3 fn_float3_add(struct fn_float3 lhs, struct fn_float3 rhs) {
+    return (struct fn_float3) {
         lhs.x + rhs.x,
         lhs.y + rhs.y,
         lhs.z + rhs.z
     };
 }
 
-inline struct fn_vec3f fn_vec3f_sub(struct fn_vec3f lhs, struct fn_vec3f rhs) {
-    return (struct fn_vec3f) {
+inline struct fn_float3 fn_float3_sub(struct fn_float3 lhs, struct fn_float3 rhs) {
+    return (struct fn_float3) {
         lhs.x - rhs.x,
         lhs.y - rhs.y,
         lhs.z - rhs.z
     };
 }
 
-inline float fn_vec3f_dot(struct fn_vec3f lhs, struct fn_vec3f rhs) {
+inline float fn_float3_dot(struct fn_float3 lhs, struct fn_float3 rhs) {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 }
 
-inline struct fn_vec3f fn_vec3f_cross(struct fn_vec3f lhs, struct fn_vec3f rhs) {
-    return (struct fn_vec3f) {
+inline struct fn_float3 fn_float3_cross(struct fn_float3 lhs, struct fn_float3 rhs) {
+    return (struct fn_float3) {
         lhs.y * rhs.z - lhs.z * rhs.y,
         lhs.z * rhs.x - lhs.x * rhs.z,
         lhs.x * rhs.y - lhs.y * rhs.x
     };
 }
 
-inline float fn_vec4f_len(struct fn_vec4f vec) {
+inline float fn_float4_len(struct fn_float4 vec) {
     return 1.f / fn__fsqrt(
         vec.x * vec.x
         + vec.y * vec.y
@@ -145,8 +149,8 @@ inline float fn_vec4f_len(struct fn_vec4f vec) {
     );
 }
 
-inline struct fn_vec4f fn_vec4f_norm(struct fn_vec4f vec) {
-    const float len = fn_vec4f_len(vec);
+inline struct fn_float4 fn_float4_norm(struct fn_float4 vec) {
+    const float len = fn_float4_len(vec);
 
     for(uint8_t it = 0; it < 4; ++it)
         vec.e[it] /= len;
@@ -154,8 +158,8 @@ inline struct fn_vec4f fn_vec4f_norm(struct fn_vec4f vec) {
     return vec;
 }
 
-inline struct fn_vec4f fn_vec4f_add(struct fn_vec4f lhs, struct fn_vec4f rhs) {
-    return (struct fn_vec4f) {
+inline struct fn_float4 fn_float4_add(struct fn_float4 lhs, struct fn_float4 rhs) {
+    return (struct fn_float4) {
         lhs.x + rhs.x,
         lhs.y + rhs.y,
         lhs.z + rhs.z,
@@ -163,8 +167,8 @@ inline struct fn_vec4f fn_vec4f_add(struct fn_vec4f lhs, struct fn_vec4f rhs) {
     };
 }
 
-inline struct fn_vec4f fn_vec4f_sub(struct fn_vec4f lhs, struct fn_vec4f rhs) {
-    return (struct fn_vec4f) {
+inline struct fn_float4 fn_float4_sub(struct fn_float4 lhs, struct fn_float4 rhs) {
+    return (struct fn_float4) {
         lhs.x - rhs.x,
         lhs.y - rhs.y,
         lhs.z - rhs.z,
@@ -172,7 +176,7 @@ inline struct fn_vec4f fn_vec4f_sub(struct fn_vec4f lhs, struct fn_vec4f rhs) {
     };
 }
 
-inline float fn_vec4f_dot(struct fn_vec4f lhs, struct fn_vec4f rhs) {
+inline float fn_float4_dot(struct fn_float4 lhs, struct fn_float4 rhs) {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
 }
 
@@ -193,6 +197,18 @@ inline struct fn_float4x4 fn_float4x4_transpose(struct fn_float4x4 mat) {
             mat.vec[jt].e[it] = temp;
         }
 
+    return mat;
+}
+
+inline struct fn_float4x4 fn_float4x4_mul(struct fn_float4x4 lhs, struct fn_float4x4 rhs) {
+    return lhs;
+}
+
+inline float fn_float4x4_det(struct fn_float4x4 mat) {
+    return 0;
+}
+
+inline struct fn_float4x4 fn_float4x4_inv(struct fn_float4x4 mat) {
     return mat;
 }
 
