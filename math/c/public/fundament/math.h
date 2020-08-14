@@ -201,7 +201,14 @@ inline struct fn_float4x4 fn_float4x4_transpose(struct fn_float4x4 mat) {
 }
 
 inline struct fn_float4x4 fn_float4x4_mul(struct fn_float4x4 lhs, struct fn_float4x4 rhs) {
-    return lhs;
+    struct fn_float4x4 res = {0, };
+
+    for(uint8_t it = 0; it < 4; ++it)
+        for(uint8_t jt = 0; jt < 4; ++jt)
+            for(uint8_t kt = 0; kt < 4; ++kt)
+                res.vec[it].e[jt] += lhs.vec[it].e[kt] * rhs.vec[kt].e[jt];
+    
+    return res;
 }
 
 inline float fn_float4x4_det(struct fn_float4x4 mat) {
@@ -210,6 +217,11 @@ inline float fn_float4x4_det(struct fn_float4x4 mat) {
 
 inline struct fn_float4x4 fn_float4x4_inv(struct fn_float4x4 mat) {
     return mat;
+}
+
+inline struct fn_float4 fn_float4x4_mul_vec(struct fn_float4x4 lhs, struct fn_float4 rhs) {
+    struct fn_float4 res = {0, };
+    return res;
 }
 
 #endif  // FUNDAMENT_MATH_H
