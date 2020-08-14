@@ -6,6 +6,9 @@
 
 #if defined(__linux__)
     #include <GL/gl.h>
+#elif defined(_WIN32)
+    #include <Windows.h>
+    #include <gl/gl.h>
 #endif
 
 int main() {

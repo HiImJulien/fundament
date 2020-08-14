@@ -23,9 +23,6 @@ typedef struct fn__opengl_context_glx fn__opengl_context_t;
 typedef GLXContext (*fn__create_context_attribs)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 typedef void (*fn__swap_interval)(Display*, GLXDrawable, int interval);
 
-extern fn__create_context_attribs fn__g_create_context_attribs;
-extern fn__swap_interval fn__g_swap_interval;
-
 //
 // Retrieves the ARB GLX extensions.
 //

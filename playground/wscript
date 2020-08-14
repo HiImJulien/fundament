@@ -1,9 +1,12 @@
 
 def configure(ctx):
-    ctx.load("compiler_c")
+    # ctx.load("compiler_c")
 
     if ctx.target_is_linux():
         ctx.check_cfg(package="gl", uselib_store="gl", args=["--cflags", "--libs"])
+
+    if ctx.target_is_win32():
+    	ctx.check(lib="OpenGL32", uselib_store="gl")
 
 def build(ctx):
     ctx.program(
