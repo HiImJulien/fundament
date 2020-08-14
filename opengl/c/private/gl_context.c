@@ -10,11 +10,37 @@
     #include "./linux/gl_context_glx.h"
 #endif
 
+static const uint32_t INDEX_MASK = 0x0FFF;
+
+//
+// Retrieves the index from an id.
+// 
+static inline uint32_t fn__idx(uint32_t id) {
+	return (id & INDEX_MASK) - 1;
+}
+
+//
+// Retrieves the generation from an id.
+//
+static inline uint8_t fn__gen(uint32_t id) {
+	return id >> 24;
+}
+
+//
+// Makes an id from an index and generation.
+//
+static inline uint32_t fn__id(uint32_t idx, uint8_t generation) {
+	uint8_t* nibbles = (uint8_t*) &idx;
+	nibbles[3] = generation;
+	return idx + 1;
+}
+
 //
 // Encapsulates global variables used by this module.
 //
 struct fn__gl_mod_context {
     fn__opengl_context_t pool[8];
+    uint8_t generation[8];
 };
 
 static struct fn__gl_mod_context* fn__g_gl_mod_context = NULL;
@@ -54,11 +80,21 @@ struct fn_gl_context fn_create_gl_context(
         desc
     );
 
-    return (struct fn_gl_context) { success ? idx + 1 : 0 };
+    const uint8_t gen = fn__g_gl_mod_context->generation[idx];
+    return (struct fn_gl_context) { success ? fn__id(idx, gen) : 0 };
 }
 
 void fn_destroy_gl_context(struct fn_gl_context ctx) {
+	if(ctx.id == 0)
+		return;
 
+    const uint8_t gen = fn__gen(ctx.id);
+    const uint32_t idx = fn__idx(ctx.id);
+
+    if(fn__g_gl_mod_context->generation[idx] != gen)
+    	return;
+
+    fn__imp_destroy_gl_context(&fn__g_gl_mod_context->pool[idx]);
 }
 
 bool fn_gl_context_make_current(
@@ -68,10 +104,18 @@ bool fn_gl_context_make_current(
     if(ctx.id == 0)
         return false;
 
+    const uint8_t gen = fn__gen(ctx.id);
+    const uint32_t idx = fn__idx(ctx.id);
+
+    if(fn__g_gl_mod_context->generation[idx] != gen)
+    	return false;
+
     return fn__imp_gl_context_make_current(
-        &fn__g_gl_mod_context->pool[ctx.id - 1],
+        &fn__g_gl_mod_context->pool[idx],
         win
     );
+
+    fn__g_gl_mod_context->generation[idx]++;
 }
 
 void fn_gl_context_present() {
@@ -86,5 +130,11 @@ fn_native_gl_context_handle_t fn_gl_context_handle(struct fn_gl_context ctx) {
 	if(ctx.id == 0)
 		return false;
 
-	return fn__g_gl_mod_context->pool[ctx.id - 1].handle;
+    const uint8_t gen = fn__gen(ctx.id);
+    const uint32_t idx = fn__idx(ctx.id);
+
+    if(fn__g_gl_mod_context->generation[idx] != gen)
+    	return false;
+
+	return fn__g_gl_mod_context->pool[fn__idx(ctx.id)].handle;
 }
