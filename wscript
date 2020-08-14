@@ -54,12 +54,17 @@ def options(ctx: OptionsContext):
     contexts.remove(UninstallContext)
 
     ctx.load("compiler_c")
+    ctx.add_option("--exclude-ogl", dest="exclude_ogl", default=False, action="store_true", help="Whether to exclude OpenGL context abstraction. (default: False)")
+    ctx.add_option("--exclude-math", dest="exclude_math", default=False, action="store_true", help="Whether to exclude math. (default: False)")
 
 def configure(ctx: ConfigurationContext):
     ctx.load("compiler_c")
 
     if ctx.options.exclude_ogl:
         ctx.env.EXCLUDED_FEATURES.append_unique('ogl')
+
+    if ctx.options.exclude_math:
+        ctx.env.EXCLUDED_FEATURES.append_unique('math')
 
     ctx.recurse("playground")
 
@@ -127,12 +132,17 @@ def build(ctx: BuildContext):
     else:
         ctx.fatal("Trying to build for unknown target OS.")
 
+    includes = ["platform/c/public"]
+
+    if "math" not in ctx.env.EXCLUDED_FEATURES:
+        includes.append("math/c/public")
+
     ctx.shlib(
         target="fundament",
         source=sources,
-        includes="platform/c/public",
+        includes=includes,
         defines="FUNDAMENT_EXPORTS",
-        export_includes="platform/c/public",
+        export_includes=includes,
         use="fundament_deps",
     )
     

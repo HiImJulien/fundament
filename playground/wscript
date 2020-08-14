@@ -6,10 +6,17 @@ def configure(ctx):
         ctx.check_cfg(package="gl", uselib_store="gl", args=["--cflags", "--libs"])
 
 def build(ctx):
-    if ctx.env.DEST_OS != "darwin":
-        ctx.program(
-            target="../gl_window",
-            source="gl_window.c",
-            use=["fundament", "gl"],
-            rpath="$ORIGIN"
-        )
+    # if ctx.env.DEST_OS != "darwin":
+    #     ctx.program(
+    #         target="../gl_window",
+    #         source="gl_window.c",
+    #         use=["fundament", "gl"],
+    #         rpath="$ORIGIN"
+    #     )
+
+    ctx.program(
+        target="../test_math",
+        source="test_math.c",
+        use=["fundament"],
+        rpath="$ORIGIN"
+    )
