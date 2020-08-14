@@ -71,12 +71,6 @@ bool fn__imp_create_gl_context(
 void fn__imp_destroy_gl_context(
     fn__opengl_context_t* ctx
 ) {
-    glXMakeCurrent(
-        fn__g_window_context.display,
-        0,
-        NULL
-    );
-
     glXDestroyContext(
         fn__g_window_context.display,
         ctx->handle
@@ -89,8 +83,8 @@ bool fn__imp_gl_context_make_current(
 ) {
     return glXMakeCurrent(
         fn__g_window_context.display,
-        win,
-        ctx->handle
+        ctx == NULL ? None : win,
+        ctx == NULL ? NULL : ctx->handle
     );
 }
 

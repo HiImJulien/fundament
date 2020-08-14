@@ -136,6 +136,9 @@ bool fn__imp_gl_context_make_current(
 	fn__opengl_context_t* ctx,
 	fn_native_window_handle_t win
 ) {
+	if(ctx == NULL)
+		return wglMakeCurrent(NULL, NULL);
+
 	HDC dc = GetDC(win);
 	int pixel_format = GetPixelFormat(dc);
 	if(pixel_format > 0 && pixel_format != ctx->pixel_format)

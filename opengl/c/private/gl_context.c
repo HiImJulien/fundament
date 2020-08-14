@@ -102,7 +102,10 @@ bool fn_gl_context_make_current(
     fn_native_window_handle_t win
 ) {
     if(ctx.id == 0)
-        return false;
+        return fn__imp_gl_context_make_current(
+        	NULL,
+        	NULL
+    	);
 
     const uint8_t gen = fn__gen(ctx.id);
     const uint32_t idx = fn__idx(ctx.id);
