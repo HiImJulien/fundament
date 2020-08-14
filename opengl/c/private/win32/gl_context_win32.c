@@ -113,7 +113,7 @@ bool fn__imp_create_gl_context(
 
 	const int context_attribs[] = {
 		WGL_CONTEXT_MAJOR_VERSION_ARB, desc->major_version,
-		WGL_CONTEXT_MINOR_VERSION_ARB, desc->major_version,
+		WGL_CONTEXT_MINOR_VERSION_ARB, desc->minor_version,
 		WGL_CONTEXT_FLAGS_ARB, context_flags,
 		WGL_CONTEXT_PROFILE_MASK_ARB, profile_mask,
 		0
