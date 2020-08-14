@@ -129,7 +129,13 @@ bool fn__imp_create_gl_context(
 }
 
 void fn__imp_destroy_gl_context(fn__opengl_context_t* ctx) {
+	if(ctx->device_context)
+		ReleaseDC(WindowFromDC(ctx->device_context), ctx->device_context);
 	wglDeleteContext(ctx->handle);
+
+	ctx->device_context = NULL;
+	ctx->handle = NULL;
+	ctx->pixel_format = 0;
 }
 
 bool fn__imp_gl_context_make_current(

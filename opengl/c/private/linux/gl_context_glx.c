@@ -75,6 +75,8 @@ void fn__imp_destroy_gl_context(
         fn__g_window_context.display,
         ctx->handle
     );
+
+    ctx->handle = NULL;
 }
 
 bool fn__imp_gl_context_make_current(

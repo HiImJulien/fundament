@@ -59,6 +59,13 @@ void fn_init_gl_module() {
 void fn_deinit_gl_module() {
     fn__imp_deinit_gl_module();
 
+    for(uint8_t it = 0; it < 8; ++it)
+    	if(fn__g_gl_mod_context->pool[it].handle != NULL) {
+    		fn__imp_destroy_gl_context(
+    			&fn__g_gl_mod_context->pool[it]
+			);
+		}
+
     free(fn__g_gl_mod_context);
     fn__g_gl_mod_context = NULL;
 }
