@@ -24,6 +24,7 @@ int main() {
     struct fn_gl_context ctx = fn_create_gl_context(&(struct fn_gl_context_desc) {
         .major_version = 4,
         .minor_version = 2,
+        .is_double_buffered = true
     });
 
     if(ctx.id == 0)
@@ -33,6 +34,8 @@ int main() {
         ctx,
         fn_window_handle(win)
     );
+
+    fn_gl_context_set_vsync(true);
 
     if(!success)
         printf("Failed to make OpenGL context current.\n");

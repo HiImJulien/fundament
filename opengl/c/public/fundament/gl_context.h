@@ -82,6 +82,23 @@ API void fn_gl_context_present();
 // 
 API void fn_gl_context_set_vsync(bool sync);
 
+#if defined(_WIN32)
+    typedef struct HGLRC__* fn_native_gl_context_handle_t;
+#elif defined(__linux__)
+    typedef struct __GLXcontext* fn_native_gl_context_handle_t;
+#else
+    #error "gl_context is only supported on windows (Win32) and linux (GLX)."
+#endif
+
+//
+// Returns the native handle of the OpenGL context.
+//
+// Returns NULL, if the passed context is deemed invalid.
+//
+API fn_native_gl_context_handle_t fn_gl_context_handle(
+    struct fn_gl_context ctx
+);
+
 
 
 #endif  // FUNDAMENT_GL_CONTEXT_H

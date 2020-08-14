@@ -81,3 +81,10 @@ void fn_gl_context_present() {
 void fn_gl_context_set_vsync(bool vsync) {
     fn__imp_gl_context_set_vsync(vsync);
 }
+
+fn_native_gl_context_handle_t fn_gl_context_handle(struct fn_gl_context ctx) {
+	if(ctx.id == 0)
+		return false;
+
+	return fn__g_gl_mod_context->pool[ctx.id - 1].handle;
+}
