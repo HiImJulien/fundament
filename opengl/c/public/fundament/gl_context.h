@@ -12,6 +12,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+typedef void(*fn_proc_t)(void);
+
 //
 // Initializes the OpenGL module.
 //
@@ -81,6 +83,25 @@ API void fn_gl_context_present();
 // and enables it, when its above it.
 // 
 API void fn_gl_context_set_vsync(bool sync);
+
+//
+// Checks whether a specified extension is supported by the current context.
+//
+// Note:
+//   - This function requires a context to be current. Calling this function
+//     without a current context returns `false` for any extension. 
+//
+API bool fn_gl_context_extension_supported(const char* extension_name);
+
+//
+// Returns the address of the specified OpenGL function,
+// if it supported by the current context.
+//
+// Note:
+//   - This function requires a context to be current. Calling this function
+//     without a current context returns `NULL` for any function.
+//
+API fn_proc_t fn_gl_context_get_proc(const char* proc_name);
 
 #if defined(_WIN32)
     typedef struct HGLRC__* fn_native_gl_context_handle_t;

@@ -1,16 +1,20 @@
 #include <fundament/gl_context.h>
 
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
 #if defined(_WIN32)
     #include "./win32/gl_context_win32.h"
+	#include "gl/gl.h"
 #else
     #include "./linux/gl_context_glx.h"
+	#include "GL/gl.h"
 #endif
 
 static const uint32_t INDEX_MASK = 0x0FFF;
+static const int fn__GL_NUM_EXTENSIONS = 0x821D;
 
 //
 // Retrieves the index from an id.
@@ -134,6 +138,69 @@ void fn_gl_context_present() {
 
 void fn_gl_context_set_vsync(bool vsync) {
     fn__imp_gl_context_set_vsync(vsync);
+}
+
+bool fn_gl_context_extension_supported(const char* extension_name) {
+	const char* version_info = glGetString(GL_VERSION);
+	if(!version_info)
+		return false;
+
+	// As per specification:
+	// > The GL_VERSION and GL_SHADING_LANGUAGE_VERSION strings begin with a 
+	// > version number. The version number uses one of these forms:
+	// >   major_number.minor_number major_number.minor_number.release_number
+	// > Vendor-specific information may follow the version number. Its format 
+	// > depends on the implementation, but a space always separates the version number and the vendor-specific information.
+	// > All strings are null-terminated.
+	const char major_str[] = {
+		version_info[0],
+		0
+	};
+
+	// glGetString(GL_EXTENSIONS) fails on OpenGL >= 3.0 using nVidia cards.
+	// It is easier to use glGetStringi anyway, which is available on those versions.
+	const int major = atoi(major_str);
+	if(major >= 3) {
+		typedef const GLubyte* (*fn__glGetStringi_t)(GLenum, GLuint);
+		static fn__glGetStringi_t fn__glGetStringi;
+		if(!fn__glGetStringi)
+			fn__glGetStringi = (fn__glGetStringi_t) fn_gl_context_get_proc("glGetStringi");
+
+		GLint extension_count = 0;
+		glGetIntegerv(fn__GL_NUM_EXTENSIONS, &extension_count);
+
+		for(int it = 0; it < extension_count; ++it) {
+			const char* ext = (const char*) fn__glGetStringi(GL_EXTENSIONS, (GLuint) it);
+			if(!ext)
+				return false;
+
+			if(strcmp(extension_name, ext) == 0)
+				return true;
+		}
+	} else {
+		const size_t ext_name_len = strlen(extension_name);
+		const char* ext_list = (const char*) glGetString(GL_EXTENSIONS);
+		const char* cursor = ext_list;
+		const char* cursor_tail = ext_list;
+
+		for(; *cursor != '\0'; cursor++)
+			if(isspace(*cursor) != 0) {
+				const size_t len = cursor - cursor_tail;
+				
+				if(len == ext_name_len
+					&& memcmp(extension_name, cursor_tail, len) == 0)
+					return true;
+
+				cursor_tail = cursor + 1;
+			}
+	}
+
+
+	return false;
+}
+
+fn_proc_t fn_gl_context_get_proc(const char* proc_name) {
+	return fn__imp_gl_context_get_proc(proc_name);
 }
 
 fn_native_gl_context_handle_t fn_gl_context_handle(struct fn_gl_context ctx) {

@@ -2,6 +2,7 @@
 #define FUNDAMENT_GL_CONTEXT_WIN32_H
 
 #include <fundament/window.h>
+#include <fundament/gl_context.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -70,5 +71,10 @@ void fn__imp_gl_context_present(void);
 //
 //
 void fn__imp_gl_context_set_vsync(bool vsync);
+
+//
+//
+//
+fn_proc_t fn__imp_gl_context_get_proc(const char* proc_name);
 
 #endif  // FUNDAMENT_GL_CONTEXT_WIN32_H

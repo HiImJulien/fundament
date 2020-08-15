@@ -22,8 +22,8 @@ int main() {
     fn_window_set_visibility(win, true);
 
     struct fn_gl_context ctx = fn_create_gl_context(&(struct fn_gl_context_desc) {
-        .major_version = 4,
-        .minor_version = 2,
+        .major_version = 2,
+        .minor_version = 0,
         .is_double_buffered = true
     });
 
@@ -37,6 +37,9 @@ int main() {
 
     fn_gl_context_set_vsync(true);
 
+    if(fn_gl_context_extension_supported("GL_ARB_explicit_attrib_location"))
+        printf("GL_ARB_spirv_extensions is supported!\n");
+
     if(!success)
         printf("Failed to make OpenGL context current.\n");
 
@@ -49,7 +52,7 @@ int main() {
         fn_poll_events(&ev);
     }
 
-    
+
 
     fn_deinit_window_module();
     return 0;
