@@ -9,12 +9,15 @@
 
 void fn_init_window_module()
 { 
-    fn__init_window_context(); 
-    fn_info("fundament.platform", "");
+    fn__init_window_context();
+    fn_info("fundament.platform.window", "Initialized window module.");
 }
 
 void fn_deinit_window_module()
-{ fn__deinit_window_context(); }
+{ 
+    fn__deinit_window_context(); 
+    fn_info("fundament.platform.window", "Deinitialized window module.");
+}
 
 struct fn_window fn_create_window()
 {
