@@ -9,9 +9,10 @@ def configure(ctx):
     	ctx.check(lib="OpenGL32", uselib_store="gl")
 
 def build(ctx):
-    ctx.program(
-        target="../gl_window",
-        source="gl_window.c",
-        use=["fundament", "gl"],
-        rpath="$ORIGIN"
-    )
+    if not ctx.target_is_macOS():
+        ctx.program(
+            target="../gl_window",
+            source="gl_window.c",
+            use=["fundament", "gl"],
+            rpath="$ORIGIN"
+        )

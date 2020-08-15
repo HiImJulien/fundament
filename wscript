@@ -130,7 +130,7 @@ def build(ctx: BuildContext):
 
     includes = ["platform/c/public"]
 
-    if "ogl" not in ctx.env.EXCLUDED_FEATURES:
+    if "ogl" not in ctx.env.EXCLUDED_FEATURES and not ctx.target_is_macOS():
         includes.append("opengl/c/public")
 
         sources += [

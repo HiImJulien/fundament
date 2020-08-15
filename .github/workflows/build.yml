@@ -9,7 +9,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
           matrix:
-              os: [ubuntu-latest, macOS-latest, windows-latest]
+              os: [ubuntu-20.04, macOS-latest, windows-latest]
         steps:
         - uses: actions/checkout@v2
           with:
@@ -18,12 +18,15 @@ jobs:
           with:
             python-version: 3.7
         - name: Install tools
-          if: ${{ matrix.os == 'ubuntu-latest' }}
+          if: ${{ matrix.os == 'ubuntu-20.04' }}
           run: | 
             sudo apt-get update
             sudo apt-get install libx11-xcb-dev -y
             sudo apt-get install libxcb*-dev -y
             sudo apt-get install pkg-config -y
+            sudo apt-get install mesa-common-dev -y
+            sudo apt-get install libgl-dev -y
+            sudo apt-get install libglx-dev -y
         - uses: actions/cache@v2
           id: build_cache
           env:

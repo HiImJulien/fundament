@@ -115,7 +115,7 @@ bool fn_gl_context_make_current(
     if(ctx.id == 0)
         return fn__imp_gl_context_make_current(
         	NULL,
-        	NULL
+        	(fn_native_window_handle_t) 0
     	);
 
     const uint8_t gen = fn__gen(ctx.id);

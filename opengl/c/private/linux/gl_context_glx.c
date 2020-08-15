@@ -110,3 +110,7 @@ void fn__imp_gl_context_set_vsync(bool vsync) {
         vsync ? 1 : 0
     );
 }
+
+fn_proc_t fn__imp_gl_context_get_proc(const char* proc_name) {
+    return (fn_proc_t) glXGetProcAddress(proc_name);
+}
