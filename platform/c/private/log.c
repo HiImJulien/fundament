@@ -1,12 +1,8 @@
 #include <fundament/log.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-
-static const char* levels[] = {
-	"INFO",
-	"WARN"
-};
 
 #define fn_black	"\033[30m"  	
 #define fn_red 		"\033[31m"  	
@@ -27,6 +23,20 @@ static const char* levels[] = {
 // since it allows for setting the color of the output.
 //
 static void fn__printf(const char* msg);
+
+static void fn__stdout_callback(
+	enum fn_log_severity, 
+	const char* file, 
+	int line, 
+	const char* topic, 
+	const char* message
+);
+
+static enum fn_log_severity fn__g_min_severity = fn_log_severity_debug; 
+static fn_log_callback_t fn__g_log_callbacks[33] = {
+	fn__stdout_callback,
+	NULL
+};
 
 #if !defined(_WIN32)
 
@@ -103,25 +113,13 @@ static void fn__printf(const char* msg);
 
 #endif 
 
-void fn_log(
+static void fn__stdout_callback(
 	enum fn_log_severity severity, 
 	const char* file, 
-	int line,
+	int line, 
 	const char* topic, 
-	const char* fmt, 
-	...
+	const char* message
 ) {
-	const char* sub_msg = NULL;
-
-	{
-		va_list args;
-		va_start(args, fmt);
-		const size_t msg_size = snprintf(NULL, 0, fmt, args) + 1;
-		sub_msg = malloc(msg_size);
-		snprintf((char*) sub_msg, msg_size, fmt, args);
-		va_end(args);
-	}
-
 	const char* dbg_fmt = fn_cyan "DBG  | " fn_white "%s :: " fn_bwhite " %s \n";
 	const char* info_fmt = fn_green "INFO | " fn_white "%s :: " fn_bwhite " %s \n";
 	const char* warn_fmt = fn_yellow "WARN | " fn_white "%s :: " fn_bwhite " %s \n";
@@ -144,13 +142,43 @@ void fn_log(
 		return;
 
 	const char* msg = NULL;
-	const size_t msg_size = snprintf(NULL, 0, msg_fmt, topic, sub_msg) + 1;
+	const size_t msg_size = snprintf(NULL, 0, msg_fmt, topic, message) + 1;
 
 	msg = malloc(msg_size);
-	snprintf((char*) msg, msg_size, msg_fmt, topic, sub_msg);
+	snprintf((char*) msg, msg_size, msg_fmt, topic, message);
 
 	fn__printf(msg);
+}
 
-	free((char*) msg);
-	free((char*) sub_msg);
+void fn_log_set_min_severity(enum fn_log_severity severity) {
+	fn__g_min_severity = severity;
+}
+
+void fn_log_set_quiet(bool quiet) {
+	fn__g_log_callbacks[0] = quiet ? NULL : fn__stdout_callback;
+}
+
+void fn_log(
+	enum fn_log_severity severity, 
+	const char* file, 
+	int line,
+	const char* topic, 
+	const char* fmt, 
+	...
+) {
+	if(severity < fn__g_min_severity)
+		return;
+
+	va_list args;
+	va_start(args, fmt);
+	const size_t message_size = snprintf(NULL, 0, fmt, args) + 1;
+	const char* message = malloc(message_size);
+	snprintf((char*) message, message_size, fmt, args);
+	va_end(args);
+
+	for(uint8_t it = 0; it < 32; ++it)
+		if(fn__g_log_callbacks[it])
+			fn__g_log_callbacks[it](severity, file, line, topic, message);
+
+	free((char*) message);
 }
