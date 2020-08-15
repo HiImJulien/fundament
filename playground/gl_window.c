@@ -38,7 +38,7 @@ int main() {
     fn_gl_context_set_vsync(true);
 
     if(fn_gl_context_extension_supported("GL_ARB_explicit_attrib_location"))
-        printf("GL_ARB_spirv_extensions is supported!\n");
+        printf("GL_ARB_explicit_attrib_location is supported!\n");
 
     if(!success)
         printf("Failed to make OpenGL context current.\n");
