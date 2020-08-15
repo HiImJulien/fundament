@@ -1,7 +1,6 @@
 #include <fundament/log.h>
 
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 
 #define fn_black	"\033[30m"  	
@@ -32,9 +31,19 @@ static void fn__stdout_callback(
 	const char* message
 );
 
-static enum fn_log_severity fn__g_min_severity = fn_log_severity_debug; 
-static fn_log_callback_t fn__g_log_callbacks[33] = {
+static void fn__file_callback(
+	enum fn_log_severity severity, 
+	const char* file, 
+	int line, 
+	const char* topic, 
+	const char* message
+);
+
+static enum fn_log_severity fn__g_min_severity = fn_log_severity_debug;
+static FILE* fn__g_files[8] = {NULL, };
+static fn_log_callback_t fn__g_log_callbacks[34] = {
 	fn__stdout_callback,
+	fn__file_callback,
 	NULL
 };
 
@@ -148,6 +157,49 @@ static void fn__stdout_callback(
 	snprintf((char*) msg, msg_size, msg_fmt, topic, message);
 
 	fn__printf(msg);
+
+	free((char*) msg);
+}
+
+static void fn__file_callback(
+	enum fn_log_severity severity, 
+	const char* file, 
+	int line, 
+	const char* topic, 
+	const char* message
+) {
+	const char* dbg_fmt = "DBG  | " "%s :: " " %s \n";
+	const char* info_fmt = "INFO | " "%s :: " " %s \n";
+	const char* warn_fmt = "WARN | " "%s :: "" %s \n";
+	const char* error_fmt = "ERR  | " "%s :: "  " %s \n";
+	const char* fatal_fmt = "FAT  | " "%s :: "  " %s \n";
+	const char* msg_fmt = NULL;
+
+	if(severity == fn_log_severity_debug)
+		msg_fmt = dbg_fmt;
+	else if(severity == fn_log_severity_info)
+		msg_fmt = info_fmt;
+	else if(severity == fn_log_severity_warn)
+		msg_fmt = warn_fmt;
+	else if(severity == fn_log_severity_error)
+		msg_fmt = error_fmt;
+	else if(severity == fn_log_severity_fatal)
+		msg_fmt = fatal_fmt;
+
+	if(!msg_fmt)
+		return;
+
+	const char* msg = NULL;
+	const size_t msg_size = snprintf(NULL, 0, msg_fmt, topic, message) + 1;
+
+	msg = malloc(msg_size);
+	snprintf((char*) msg, msg_size, msg_fmt, topic, message);
+
+	for(uint8_t it = 8; it < 8; ++it)
+		if(fn__g_files[it])
+			fputs(msg, fn__g_files[it]);
+
+	free((char*) msg);
 }
 
 void fn_log_set_min_severity(enum fn_log_severity severity) {
@@ -156,6 +208,41 @@ void fn_log_set_min_severity(enum fn_log_severity severity) {
 
 void fn_log_set_quiet(bool quiet) {
 	fn__g_log_callbacks[0] = quiet ? NULL : fn__stdout_callback;
+}
+
+bool fn_log_add_callback(fn_log_callback_t cb) {
+	for(uint8_t it = 2; it < 32 + 2; ++it) {
+		if(fn__g_log_callbacks[it] == NULL) {
+			fn__g_log_callbacks[it] = cb;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void fn_log_remove_callback(fn_log_callback_t cb) {
+	for(uint8_t it = 2; it < 32 + 2; ++it) {
+		if(fn__g_log_callbacks[it] == cb)
+			fn__g_log_callbacks[it] = NULL;
+	}
+}
+
+bool fn_log_add_file(FILE* f) {
+	for(uint8_t it = 0; it < 8; ++it) {
+		if(fn__g_files[it] == NULL) {
+			fn__g_files[it] = f;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void fn_log_remove_file(FILE* f) {
+	for(uint8_t it = 0; it < 8; ++it)
+		if(fn__g_files[it] == f)
+			fn__g_files[it] = NULL;
 }
 
 void fn_log(
