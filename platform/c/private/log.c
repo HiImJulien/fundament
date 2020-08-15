@@ -195,8 +195,8 @@ static void fn__file_callback(
 	msg = malloc(msg_size);
 	snprintf((char*) msg, msg_size, msg_fmt, topic, message);
 
-	for(uint8_t it = 8; it < 8; ++it)
-		if(fn__g_files[it])
+	for(uint8_t it = 0; it < 8; ++it)
+		if(fn__g_files[it] != NULL)
 			fputs(msg, fn__g_files[it]);
 
 	free((char*) msg);
@@ -231,6 +231,7 @@ void fn_log_remove_callback(fn_log_callback_t cb) {
 bool fn_log_add_file(FILE* f) {
 	for(uint8_t it = 0; it < 8; ++it) {
 		if(fn__g_files[it] == NULL) {
+			printf("%p", f);
 			fn__g_files[it] = f;
 			return true;
 		}
@@ -263,7 +264,7 @@ void fn_log(
 	snprintf((char*) message, message_size, fmt, args);
 	va_end(args);
 
-	for(uint8_t it = 0; it < 32; ++it)
+	for(uint8_t it = 0; it < 34; ++it)
 		if(fn__g_log_callbacks[it])
 			fn__g_log_callbacks[it](severity, file, line, topic, message);
 
