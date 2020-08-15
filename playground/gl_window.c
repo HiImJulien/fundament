@@ -28,8 +28,10 @@ int main() {
         .is_double_buffered = true
     });
 
-    if(ctx.id == 0)
-        printf("Failed to create the OpenGL context.\n");
+    if(ctx.id == 0) {
+        fn_fatal("playground.gl_window", "Failed to create OpenGL context.");
+        goto exit;
+    }
 
     bool success = fn_gl_context_make_current(
         ctx,
@@ -38,10 +40,8 @@ int main() {
 
     fn_gl_context_set_vsync(true);
 
-    fn_warn("", "yeet\n");
-
     if(fn_gl_context_extension_supported("GL_ARB_explicit_attrib_location"))
-        printf("GL_ARB_explicit_attrib_location is supported!\n");
+        fn_info("playground.gl_window", "GL_ARB_explicit_attrib_location is supported.");
 
     if(!success)
         printf("Failed to make OpenGL context current.\n");
@@ -55,6 +55,7 @@ int main() {
         fn_poll_events(&ev);
     }
 
+exit:
     fn_deinit_gl_module();
     fn_deinit_window_module();
     return 0;

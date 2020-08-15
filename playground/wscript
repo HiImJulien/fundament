@@ -16,3 +16,10 @@ def build(ctx):
             use=["fundament", "gl"],
             rpath="$ORIGIN"
         )
+
+    ctx.program(
+        target="../log_test",
+        source="log_test.c",
+        use=["fundament", "gl"],
+        rpath="$ORIGIN"
+    )
