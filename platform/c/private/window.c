@@ -1,4 +1,5 @@
 #include <fundament/window.h>
+#include <fundament/log.h>
 #include "window_common.h"
 
 #include <string.h>
@@ -7,7 +8,10 @@
 #define BAD_ID(window) (window.id == 0)
 
 void fn_init_window_module()
-{ fn__init_window_context(); }
+{ 
+    fn__init_window_context(); 
+    fn_info("fundament.platform", "");
+}
 
 void fn_deinit_window_module()
 { fn__deinit_window_context(); }

@@ -109,6 +109,7 @@ def build(ctx: BuildContext):
     sources = [
         "platform/c/private/input.c",
         "platform/c/private/input_common.c",
+        "platform/c/private/log.c",
         "platform/c/private/window.c",
         "platform/c/private/window_common.c"
     ]

@@ -1,6 +1,7 @@
 #include <fundament/window.h>
 #include <fundament/event.h>
 #include <fundament/gl_context.h>
+#include <fundament/log.h>
 
 #include <stdio.h>
 
@@ -36,6 +37,8 @@ int main() {
     );
 
     fn_gl_context_set_vsync(true);
+
+    fn_warn("", "yeet\n");
 
     if(fn_gl_context_extension_supported("GL_ARB_explicit_attrib_location"))
         printf("GL_ARB_explicit_attrib_location is supported!\n");
