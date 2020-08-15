@@ -55,7 +55,8 @@ def options(ctx: OptionsContext):
 
     ctx.load("compiler_c")
 
-    ctx.add_option("--exclude-ogl", dest="exclude_ogl", default=False, action="store_true", help="Whether to exclude OpenGL context abstraction. (default: False)")
+    ctx.add_option("--exclude-ogl", dest="exclude_ogl", default=False, action="store_true", 
+        help="Whether to exclude OpenGL context abstraction. (default: False)")
 
 def configure(ctx: ConfigurationContext):
     ctx.load("compiler_c")

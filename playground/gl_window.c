@@ -52,8 +52,7 @@ int main() {
         fn_poll_events(&ev);
     }
 
-
-
+    fn_deinit_gl_module();
     fn_deinit_window_module();
     return 0;
 }
