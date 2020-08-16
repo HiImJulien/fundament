@@ -1,6 +1,7 @@
 #include <fundament/log.h>
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define fn_black	"\033[30m"  	
