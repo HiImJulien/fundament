@@ -40,12 +40,15 @@ static void fn__file_callback(
 	const char* message
 );
 
+#define fn__max_files 8
+#define fn__max_callbacks 34
+
 static enum fn_log_severity fn__g_min_severity = fn_log_severity_debug;
-static FILE* fn__g_files[8] = {NULL, };
-static fn_log_callback_t fn__g_log_callbacks[34] = {
+static FILE* fn__g_files[fn__max_files] = {NULL, };
+static fn_log_callback_t fn__g_log_callbacks[fn__max_callbacks] = {
 	fn__stdout_callback,
 	fn__file_callback,
-	NULL
+	NULL,
 };
 
 #if !defined(_WIN32)
@@ -165,15 +168,15 @@ static void fn__stdout_callback(
 static void fn__file_callback(
 	enum fn_log_severity severity, 
 	const char* file, 
-	int line, 
+	int line,
 	const char* topic, 
 	const char* message
 ) {
-	const char* dbg_fmt = "DBG  | " "%s :: " " %s \n";
-	const char* info_fmt = "INFO | " "%s :: " " %s \n";
-	const char* warn_fmt = "WARN | " "%s :: "" %s \n";
-	const char* error_fmt = "ERR  | " "%s :: "  " %s \n";
-	const char* fatal_fmt = "FAT  | " "%s :: "  " %s \n";
+	const char* dbg_fmt = "DBG  | %s:%d :: %s :: %s\n";
+	const char* info_fmt = "INFO | %s:%d :: %s :: %s\n";
+	const char* warn_fmt = "WARN | %s:%d :: %s :: %s\n";
+	const char* error_fmt = "ERR  | %s:%d :: %s :: %s\n";
+	const char* fatal_fmt = "FAT  | %s:%d :: %s :: %s\n";
 	const char* msg_fmt = NULL;
 
 	if(severity == fn_log_severity_debug)
@@ -191,10 +194,10 @@ static void fn__file_callback(
 		return;
 
 	const char* msg = NULL;
-	const size_t msg_size = snprintf(NULL, 0, msg_fmt, topic, message) + 1;
+	const size_t msg_size = snprintf(NULL, 0, msg_fmt, file, line, topic, message) + 1;
 
 	msg = malloc(msg_size);
-	snprintf((char*) msg, msg_size, msg_fmt, topic, message);
+	snprintf((char*) msg, msg_size, msg_fmt, file, line, topic, message);
 
 	for(uint8_t it = 0; it < 8; ++it)
 		if(fn__g_files[it] != NULL)
@@ -232,7 +235,6 @@ void fn_log_remove_callback(fn_log_callback_t cb) {
 bool fn_log_add_file(FILE* f) {
 	for(uint8_t it = 0; it < 8; ++it) {
 		if(fn__g_files[it] == NULL) {
-			printf("%p", f);
 			fn__g_files[it] = f;
 			return true;
 		}
@@ -242,7 +244,7 @@ bool fn_log_add_file(FILE* f) {
 }
 
 void fn_log_remove_file(FILE* f) {
-	for(uint8_t it = 0; it < 8; ++it)
+	for(uint8_t it = 0; it < fn__max_files; ++it)
 		if(fn__g_files[it] == f)
 			fn__g_files[it] = NULL;
 }
@@ -265,7 +267,7 @@ void fn_log(
 	snprintf((char*) message, message_size, fmt, args);
 	va_end(args);
 
-	for(uint8_t it = 0; it < 34; ++it)
+	for(uint8_t it = 0; it < fn__max_callbacks; ++it)
 		if(fn__g_log_callbacks[it])
 			fn__g_log_callbacks[it](severity, file, line, topic, message);
 
