@@ -26,6 +26,14 @@ def target_is_macOS(ctx):
 def target_is_win32(ctx):
     return (ctx.env.DEST_OS == "win32")
 
+@conf
+def cc_is_msvc(ctx):
+    return (ctx.env.CC_NAME == "msvc")
+
+@conf
+def cc_is_gcc_kind(ctx):
+    return (ctx.env.CC_NAME == "gcc") or (ctx.env.CCC_NAME == "clang")
+
 #=======================================================================================================================
 # Extended waf to build Objective C sources. This is based off 
 # https://www.jeffongames.com/2012/12/using-waf-to-build-an-ios-universal-framework/
@@ -155,6 +163,10 @@ def build(ctx: BuildContext):
     else:
         ctx.fatal("Trying to build for unknown target OS.")
 
+    cflags = []
+    if ctx.cc_is_gcc_kind():
+        cflags.append("-std=c11")
+
     ctx.shlib(
         target="fundament",
         source=sources,
@@ -162,6 +174,7 @@ def build(ctx: BuildContext):
         export_includes=includes,
         defines="FUNDAMENT_EXPORTS",
         use="fundament_deps",
+        cflags=cflags
     )
     
     ctx.recurse("playground")
