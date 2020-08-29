@@ -17,3 +17,5 @@ waf3*
 # Ignore credentials
 credentials*
 google_token
+
+c_cpp_properties.json
