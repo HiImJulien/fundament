@@ -66,6 +66,8 @@ def options(ctx: OptionsContext):
     ctx.add_option("--exclude-ogl", dest="exclude_ogl", default=False, action="store_true", 
         help="Whether to exclude OpenGL context abstraction. (default: False)")
 
+    ctx.load("clang_compilation_database")
+
 def configure(ctx: ConfigurationContext):
     ctx.load("compiler_c")
 
@@ -99,6 +101,8 @@ def configure(ctx: ConfigurationContext):
     # query for dependencies once and reusing them twice.
 
     # Detach both, since derive only create shallow copies.
+    ctx.load("clang_compilation_database")
+
     dbg = ctx.env.derive().detach()
     rel = ctx.env.derive().detach()
 
