@@ -1,22 +1,25 @@
 
 def configure(ctx):
-    ctx.load("compiler_c")
+    # ctx.load("compiler_c")
 
     if ctx.target_is_linux():
         ctx.check_cfg(package="gl", uselib_store="gl", args=["--cflags", "--libs"])
 
+    if ctx.target_is_win32():
+    	ctx.check(lib="OpenGL32", uselib_store="gl")
+
 def build(ctx):
-    # if ctx.env.DEST_OS != "darwin":
-    #     ctx.program(
-    #         target="../gl_window",
-    #         source="gl_window.c",
-    #         use=["fundament", "gl"],
-    #         rpath="$ORIGIN"
-    #     )
+    if not ctx.target_is_macOS():
+        ctx.program(
+            target="../gl_window",
+            source="gl_window.c",
+            use=["fundament", "gl"],
+            rpath="$ORIGIN"
+        )
 
     ctx.program(
-        target="../test_math",
-        source="test_math.c",
-        use=["fundament"],
+        target="../log_test",
+        source="log_test.c",
+        use=["fundament", "gl"],
         rpath="$ORIGIN"
     )

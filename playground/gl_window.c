@@ -1,11 +1,15 @@
 #include <fundament/window.h>
 #include <fundament/event.h>
 #include <fundament/gl_context.h>
+#include <fundament/log.h>
 
 #include <stdio.h>
 
 #if defined(__linux__)
     #include <GL/gl.h>
+#elif defined(_WIN32)
+    #include <Windows.h>
+    #include <gl/gl.h>
 #endif
 
 int main() {
@@ -19,17 +23,25 @@ int main() {
     fn_window_set_visibility(win, true);
 
     struct fn_gl_context ctx = fn_create_gl_context(&(struct fn_gl_context_desc) {
-        .major_version = 4,
-        .minor_version = 2,
+        .major_version = 2,
+        .minor_version = 0,
+        .is_double_buffered = true
     });
 
-    if(ctx.id == 0)
-        printf("Failed to create the OpenGL context.\n");
+    if(ctx.id == 0) {
+        fn_fatal("playground.gl_window", "Failed to create OpenGL context.");
+        goto exit;
+    }
 
     bool success = fn_gl_context_make_current(
         ctx,
         fn_window_handle(win)
     );
+
+    fn_gl_context_set_vsync(true);
+
+    if(fn_gl_context_extension_supported("GL_ARB_explicit_attrib_location"))
+        fn_info("playground.gl_window", "GL_ARB_explicit_attrib_location is supported.");
 
     if(!success)
         printf("Failed to make OpenGL context current.\n");
@@ -43,6 +55,8 @@ int main() {
         fn_poll_events(&ev);
     }
 
+exit:
+    fn_deinit_gl_module();
     fn_deinit_window_module();
     return 0;
 }

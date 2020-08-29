@@ -15,6 +15,7 @@ void fn__imp_init_window_context() {
     WNDCLASSEXA wc = {0,};
 
     wc.cbSize = sizeof(WNDCLASSEXA);
+    wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wc.hInstance = g_instance;
     wc.lpfnWndProc = fn__imp_callback;
     wc.lpszClassName = g_window_class_name;

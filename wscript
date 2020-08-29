@@ -26,19 +26,27 @@ def target_is_macOS(ctx):
 def target_is_win32(ctx):
     return (ctx.env.DEST_OS == "win32")
 
+@conf
+def cc_is_msvc(ctx):
+    return (ctx.env.CC_NAME == "msvc")
+
+@conf
+def cc_is_gcc_kind(ctx):
+    return (ctx.env.CC_NAME == "gcc") or (ctx.env.CCC_NAME == "clang")
+
 #=======================================================================================================================
 # Extended waf to build Objective C sources. This is based off 
 # https://www.jeffongames.com/2012/12/using-waf-to-build-an-ios-universal-framework/
 #=======================================================================================================================
 
-@TaskGen.extension('.m')
+@TaskGen.extension(".m")
 def objective_c_hook(self, node):
-    return self.create_compiled_task('m', node)
+    return self.create_compiled_task("m", node)
 
 class m(Task.Task):
-    ext_in = ['.h']
-    run_str = '${CC} ${ARCH_ST:ARCH} ${MMFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} ' \
-        '${DEFINES_ST:DEFINES} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}'
+    ext_in = [".h"]
+    run_str = "${CC} ${ARCH_ST:ARCH} ${MMFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} " \
+        "${DEFINES_ST:DEFINES} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}"
     
 #=======================================================================================================================
 # The following sections defines the configuration and build step.
@@ -57,14 +65,16 @@ def options(ctx: OptionsContext):
     ctx.add_option("--exclude-ogl", dest="exclude_ogl", default=False, action="store_true", help="Whether to exclude OpenGL context abstraction. (default: False)")
     ctx.add_option("--exclude-math", dest="exclude_math", default=False, action="store_true", help="Whether to exclude math. (default: False)")
 
+    ctx.add_option("--exclude-ogl", dest="exclude_ogl", default=False, action="store_true", 
+        help="Whether to exclude OpenGL context abstraction. (default: False)")
+
+    ctx.load("clang_compilation_database")
+
 def configure(ctx: ConfigurationContext):
     ctx.load("compiler_c")
 
     if ctx.options.exclude_ogl:
         ctx.env.EXCLUDED_FEATURES.append_unique('ogl')
-
-    if ctx.options.exclude_math:
-        ctx.env.EXCLUDED_FEATURES.append_unique('math')
 
     ctx.recurse("playground")
 
@@ -75,8 +85,15 @@ def configure(ctx: ConfigurationContext):
         ctx.check_cfg(package="x11-xcb", uselib_store="fundament_deps", args=["--cflags", "--libs"])
         ctx.check(header="linux/input-event-codes.h", msg="Checking for 'linux/input-event-codes.h'")
 
+    if ctx.target_is_linux() and 'ogl' not in ctx.env.EXCLUDED_FEATURES:
+        ctx.check_cfg(package="glx", uselib_store="fundament_deps", args=["--cflags", "--libs"])
+
     if ctx.target_is_win32():
         ctx.check(lib="user32", uselib_store="fundament_deps", msg="Checking for 'user32.lib'")
+
+    if ctx.target_is_win32() and 'ogl' not in ctx.env.EXCLUDED_FEATURES:
+        ctx.check(lib="gdi32", uselib_store="fundament_deps", msg="Checking for 'gdi32.lib'")
+        ctx.check(lib="opengl32", uselib_store="fundament_deps", msg="Checking for 'opengl32.lib'")
 
     if ctx.target_is_macOS():
         ctx.check(framework="AppKit", uselib_store="fundament_deps", msg="Checking for 'AppKit'")
@@ -86,6 +103,8 @@ def configure(ctx: ConfigurationContext):
     # query for dependencies once and reusing them twice.
 
     # Detach both, since derive only create shallow copies.
+    ctx.load("clang_compilation_database")
+
     dbg = ctx.env.derive().detach()
     rel = ctx.env.derive().detach()
 
@@ -104,6 +123,7 @@ def build(ctx: BuildContext):
     sources = [
         "platform/c/private/input.c",
         "platform/c/private/input_common.c",
+        "platform/c/private/log.c",
         "platform/c/private/window.c",
         "platform/c/private/window_common.c"
     ]
@@ -123,6 +143,23 @@ def build(ctx: BuildContext):
         "platform/c/private/win32/window_win32.c"
     ]
 
+    includes = ["platform/c/public"]
+
+    if "ogl" not in ctx.env.EXCLUDED_FEATURES and not ctx.target_is_macOS():
+        includes.append("opengl/c/public")
+
+        sources += [
+            "opengl/c/private/gl_context.c"
+        ]
+
+        win32_sources += [
+            "opengl/c/private/win32/gl_context_win32.c"
+        ]
+
+        linux_sources += [
+            "opengl/c/private/linux/gl_context_glx.c"
+        ]
+
     if ctx.target_is_linux():
         sources += linux_sources
     elif ctx.target_is_macOS():
@@ -132,18 +169,18 @@ def build(ctx: BuildContext):
     else:
         ctx.fatal("Trying to build for unknown target OS.")
 
-    includes = ["platform/c/public"]
-
-    if "math" not in ctx.env.EXCLUDED_FEATURES:
-        includes.append("math/c/public")
+    cflags = []
+    if ctx.cc_is_gcc_kind():
+        cflags.append("-std=c11")
 
     ctx.shlib(
         target="fundament",
         source=sources,
         includes=includes,
-        defines="FUNDAMENT_EXPORTS",
         export_includes=includes,
+        defines="FUNDAMENT_EXPORTS",
         use="fundament_deps",
+        cflags=cflags
     )
     
     ctx.recurse("playground")
