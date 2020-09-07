@@ -161,9 +161,11 @@ void fn__imp_window_set_size(
     uint32_t height
 ) {
     NSRect frame = NSMakeRect(0, 0, width, height);
-    frame = [NSWindow frameRectForContentRect:frame styleMask:handle.styleMask];
-
-    [handle setFrame:frame display:YES];
+    frame = [NSWindow frameRectForContentRect: frame
+                                    styleMask: handle.styleMask];
+    
+    [handle setFrame: frame
+             display: YES];
 }
 
 void fn__imp_window_set_title(
