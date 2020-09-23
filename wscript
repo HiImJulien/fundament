@@ -102,6 +102,7 @@ def configure(ctx: ConfigurationContext):
 
     # Detach both, since derive only create shallow copies.
     ctx.load("clang_compilation_database")
+    ctx.env.append_unique("CFLAGS", "-g")
 
     dbg = ctx.env.derive().detach()
     rel = ctx.env.derive().detach()
@@ -123,7 +124,8 @@ def build(ctx: BuildContext):
         "platform/c/private/input_common.c",
         "platform/c/private/log.c",
         "platform/c/private/window.c",
-        "platform/c/private/window_common.c"
+        "platform/c/private/window_common.c",
+        "assets/c/private/mesh.c"
     ]
 
     linux_sources = [
@@ -141,7 +143,7 @@ def build(ctx: BuildContext):
         "platform/c/private/win32/window_win32.c"
     ]
 
-    includes = ["platform/c/public"]
+    includes = ["platform/c/public", "assets/c/public"]
 
     if "ogl" not in ctx.env.EXCLUDED_FEATURES and not ctx.target_is_macOS():
         includes.append("opengl/c/public")
