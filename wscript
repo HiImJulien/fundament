@@ -125,7 +125,8 @@ def build(ctx: BuildContext):
         "platform/c/private/log.c",
         "platform/c/private/window.c",
         "platform/c/private/window_common.c",
-        "assets/c/private/mesh.c"
+        "assets/c/private/mesh.c",
+		"assets/c/private/image.c"
     ]
 
     linux_sources = [
