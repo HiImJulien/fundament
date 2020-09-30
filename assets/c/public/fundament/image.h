@@ -37,11 +37,11 @@ struct fn_image {
 //
 //
 //
-struct fn_image fn_load_tga_image_from_file(const char* path);
+API struct fn_image fn_load_tga_image_from_file(const char* path);
 
 //
 // Loads an TGA image from memory.
 //
-struct fn_image fn_load_tga_image(const uint8_t* memory, size_t size);
+API struct fn_image fn_load_tga_image(const uint8_t* memory, size_t size);
 
 #endif  // FUNDAMENT_IMAGE_H

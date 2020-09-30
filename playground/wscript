@@ -28,3 +28,11 @@ def build(ctx):
         use=["fundament"],
         rpath="$ORIGIN"
     )
+
+    ctx.program(
+        target="../image_test",
+        source="image_test.c",
+        use=["fundament"],
+        rpath="$ORIGIN"
+    )
+

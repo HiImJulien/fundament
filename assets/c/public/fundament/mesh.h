@@ -38,7 +38,7 @@ struct fn_mesh {
 // - This function does NOT support groups, names or materials.
 // - Stops after the first object has been parsed.
 //
-struct fn_mesh fn_load_obj_mesh_from_file(const char* path);
+API struct fn_mesh fn_load_obj_mesh_from_file(const char* path);
 
 //
 // Loads a mesh from memory.
@@ -47,6 +47,6 @@ struct fn_mesh fn_load_obj_mesh_from_file(const char* path);
 // - This function does NOT support groups, names or materials.
 // - Stops after the first object has been parsed.
 //
-struct fn_mesh fn_load_obj_mesh(const char* text);
+API struct fn_mesh fn_load_obj_mesh(const char* text);
 
 #endif 	// FUNDAMENT_MESH_H
