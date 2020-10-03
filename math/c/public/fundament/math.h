@@ -140,6 +140,15 @@ inline struct fn_float3 fn_float3_cross(struct fn_float3 lhs, struct fn_float3 r
     };
 }
 
+inline struct fn_float3 fn_float3_mul_scal(struct fn_float3 lhs, float rhs) {
+    return (struct fn_float3) {
+        lhs.x * rhs,
+        lhs.y * rhs,
+        lhs.z * rhs
+    };
+}
+
+
 inline float fn_float4_len(struct fn_float4 vec) {
     return 1.f / fn__fsqrt(
         vec.x * vec.x
@@ -176,6 +185,15 @@ inline struct fn_float4 fn_float4_sub(struct fn_float4 lhs, struct fn_float4 rhs
     };
 }
 
+inline struct fn_float4 fn_float4_mul_scal(struct fn_float4 lhs, float rhs) {
+    return (struct fn_float4) {
+        lhs.x * rhs,
+        lhs.y * rhs,
+        lhs.z * rhs,
+        lhs.w * rhs
+    };
+}
+
 inline float fn_float4_dot(struct fn_float4 lhs, struct fn_float4 rhs) {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
 }
@@ -187,6 +205,28 @@ inline struct fn_float4x4 fn_float4x4_identity() {
         identity.vec[it].e[it] = 1;
 
     return identity;
+}
+
+inline struct fn_float4x4 fn_float4x4_add(struct fn_float4x4 lhs, struct fn_float4x4 rhs){
+    struct fn_float4x4 res = {0, };
+
+    for(uint8_t it = 0; it < 4; ++it)
+        for(uint8_t jt = 0; jt < 4; ++jt)
+            for(uint8_t kt = 0; kt < 4; ++kt)
+                res.vec[it].e[jt] += lhs.vec[it].e[kt] + rhs.vec[kt].e[jt];
+    
+    return res;
+}
+
+inline struct fn_float4x4 fn_float4x4_sub(struct fn_float4x4 lhs, struct fn_float4x4 rhs){
+    struct fn_float4x4 res = {0, };
+
+    for(uint8_t it = 0; it < 4; ++it)
+        for(uint8_t jt = 0; jt < 4; ++jt)
+            for(uint8_t kt = 0; kt < 4; ++kt)
+                res.vec[it].e[jt] += lhs.vec[it].e[kt] - rhs.vec[kt].e[jt];
+    
+    return res;
 }
 
 inline struct fn_float4x4 fn_float4x4_transpose(struct fn_float4x4 mat) {
@@ -212,15 +252,24 @@ inline struct fn_float4x4 fn_float4x4_mul(struct fn_float4x4 lhs, struct fn_floa
 }
 
 inline float fn_float4x4_det(struct fn_float4x4 mat) {
+    // Berechnung Determinante
+    // Möglichkeiten: Laplacescher Entwicklungssatz
     return 0;
 }
 
 inline struct fn_float4x4 fn_float4x4_inv(struct fn_float4x4 mat) {
+    // Berechnung Inverse
     return mat;
 }
 
 inline struct fn_float4 fn_float4x4_mul_vec(struct fn_float4x4 lhs, struct fn_float4 rhs) {
     struct fn_float4 res = {0, };
+
+    for(uint8_t it = 0; it < 4; ++it)
+        for(uint8_t jt = 0; jt < 4; ++jt)
+            for(uint8_t kt = 0; kt < 4; ++kt)
+                res.e[it] += lhs.vec[it].e[kt] * rhs.e[it];
+
     return res;
 }
 

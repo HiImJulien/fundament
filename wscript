@@ -143,7 +143,7 @@ def build(ctx: BuildContext):
         "platform/c/private/win32/window_win32.c"
     ]
 
-    includes = ["platform/c/public"]
+    includes = ["platform/c/public", "math/c/public/fundament"]
 
     if "ogl" not in ctx.env.EXCLUDED_FEATURES and not ctx.target_is_macOS():
         includes.append("opengl/c/public")
@@ -184,4 +184,3 @@ def build(ctx: BuildContext):
     )
     
     ctx.recurse("playground")
-    

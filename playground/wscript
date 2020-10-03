@@ -23,3 +23,10 @@ def build(ctx):
         use=["fundament", "gl"],
         rpath="$ORIGIN"
     )
+
+    ctx.program(
+        target="../test_math",
+        source="test_math.c",
+        use=["fundament", "gl"],
+        rpath="$ORIGIN"
+    )
