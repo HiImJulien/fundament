@@ -36,3 +36,10 @@ def build(ctx):
         rpath="$ORIGIN"
     )
 
+    ctx.program(
+        target="../graphics_test",
+        source="graphics_test.c",
+        use=["fundament"],
+        rpath="$ORIGIN"
+    )
+

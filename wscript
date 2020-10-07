@@ -96,6 +96,9 @@ def configure(ctx: ConfigurationContext):
     if ctx.target_is_macOS():
         ctx.check(framework="AppKit", uselib_store="fundament_deps", msg="Checking for 'AppKit'")
 
+    if ctx.target_is_macOS() and 'gfx' not in ctx.env.EXCLUDED_FEATURES:
+        ctx.check(framework="Metal", uselib_store="fundament_deps", msg="Checking for 'Metal'")
+
     # Step 2: Create both, debug and release configurations.
     # This step must be done AFTER gathering depenendencies; allowing us to 
     # query for dependencies once and reusing them twice.
@@ -126,7 +129,7 @@ def build(ctx: BuildContext):
         "platform/c/private/window.c",
         "platform/c/private/window_common.c",
         "assets/c/private/mesh.c",
-		"assets/c/private/image.c"
+        "assets/c/private/image.c"
     ]
 
     linux_sources = [
@@ -136,7 +139,7 @@ def build(ctx: BuildContext):
 
     macOS_sources = [
         "platform/c/private/macOS/input_key_map_appkit.c",
-        "platform/c/private/macOS/window_appkit.m"
+        "platform/c/private/macOS/window_appkit.m",
     ]
 
     win32_sources = [
@@ -161,6 +164,12 @@ def build(ctx: BuildContext):
             "opengl/c/private/linux/gl_context_glx.c"
         ]
 
+    if "gfx" not in ctx.env.EXCLUDED_FEATURES: 
+        includes.append("graphics/c/public")
+        
+        sources += [
+            "graphics/c/private/graphics.c"
+        ]
     if ctx.target_is_linux():
         sources += linux_sources
     elif ctx.target_is_macOS():
