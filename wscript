@@ -10,9 +10,9 @@ from waflib.Build import BuildContext, StepContext, InstallContext, UninstallCon
 from waflib.Configure import ConfigurationContext, conf
 from waflib.Options import OptionsContext
 
-#=======================================================================================================================
+#===============================================================================
 # The following section defines utilities.
-#=======================================================================================================================
+#===============================================================================
 
 @conf
 def target_is_linux(ctx):
@@ -34,10 +34,10 @@ def cc_is_msvc(ctx):
 def cc_is_gcc_kind(ctx):
     return (ctx.env.CC_NAME == "gcc") or (ctx.env.CCC_NAME == "clang")
 
-#=======================================================================================================================
+#===============================================================================
 # Extended waf to build Objective C sources. This is based off 
 # https://www.jeffongames.com/2012/12/using-waf-to-build-an-ios-universal-framework/
-#=======================================================================================================================
+#===============================================================================
 
 @TaskGen.extension(".m")
 def objective_c_hook(self, node):
@@ -48,9 +48,9 @@ class m(Task.Task):
     run_str = "${CC} ${ARCH_ST:ARCH} ${MMFLAGS} ${FRAMEWORKPATH_ST:FRAMEWORKPATH} ${CPPPATH_ST:INCPATHS} " \
         "${DEFINES_ST:DEFINES} ${CC_SRC_F}${SRC} ${CC_TGT_F}${TGT}"
     
-#=======================================================================================================================
+#===============================================================================
 # The following sections defines the configuration and build step.
-#=======================================================================================================================
+#===============================================================================
 
 def init(ctx: Context):
     pass
@@ -168,8 +168,14 @@ def build(ctx: BuildContext):
         includes.append("graphics/c/public")
         
         sources += [
-            "graphics/c/private/graphics.c"
+            "graphics/c/private/graphics.c",
+            "graphics/c/private/graphics_common.c"
         ]
+
+        macOS_sources += [
+            "graphics/c/private/metal/graphics_metal.m"
+        ]
+
     if ctx.target_is_linux():
         sources += linux_sources
     elif ctx.target_is_macOS():

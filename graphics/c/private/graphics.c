@@ -1,4 +1,5 @@
 #include <fundament/graphics.h>
+#include "graphics_common.h"
 
 #include <assert.h>
 
@@ -6,11 +7,19 @@
 // The following section implements internal utility functions.
 //==============================================================================
 
-static void fn__get_device_id(uint32_t id) {
+static struct fn__gfx_device* fn__get_device_id(uint32_t id) {
+    if(fn__g_gfx_context == NULL || id == 0)
+        return NULL;
 
+    const uint32_t idx = id - 1;
+    if(fn__g_gfx_context->devices_capacity <= idx)
+        return NULL;
+
+    struct fn__gfx_device* device = &fn__g_gfx_context->devices[idx];
+    return device->handle ? device : NULL;
 }
 
-static void fn__get_device(struct fn_gfx_device device) {
+static struct fn__gfx_device* fn__get_device(struct fn_gfx_device device) {
     return fn__get_device_id(device.id);
 }
 
@@ -22,6 +31,10 @@ static void fn__get_device(struct fn_gfx_device device) {
 //--------------------------------- DEVICES ----------------------------------//
 
 struct fn_gfx_device fn_create_gfx_device() {
+    if(fn__g_gfx_context == NULL) {
+         
+    }
+
     return (struct fn_gfx_device) { 0 };
 }
 
