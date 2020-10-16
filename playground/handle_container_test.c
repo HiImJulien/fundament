@@ -22,7 +22,7 @@ int main() {
         printf("Handle: %"PRIu32" Index: %"PRIu32"\n",
             handle, index);
 
-        if(!fn_check_handle(&container, it + 1, NULL)) {
+        if(!fn_check_handle(&container, handle, NULL)) {
             printf("Failed to check allocated handle.\n");
             return EXIT_FAILURE;
         }
@@ -45,6 +45,11 @@ int main() {
 
         printf("Handle: %"PRIu32" Index: %"PRIu32"\n",
             handle, index);
+
+        if(!fn_check_handle(&container, handle, NULL)) {
+            printf("Failed to check allocated handle.\n");
+            return EXIT_FAILURE;
+        }
     }
 
     printf("--- Tests passed.\n");

@@ -29,6 +29,7 @@
 #include <fundament/api.h>
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 struct fn_handle_container {

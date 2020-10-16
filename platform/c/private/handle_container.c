@@ -78,7 +78,7 @@ bool fn_dealloc_handle(
         return false;
 
     uint8_t generation  = (handle >> 24); 
-    uint32_t id         = ~(0x100 << 24) & handle;
+    uint32_t id         = ~(0xFF << 24) & handle;
 
     if(id == 0)
         return false;
@@ -105,7 +105,7 @@ bool fn_check_handle(
         return false;
 
     uint8_t generation  = (handle >> 24); 
-    handle              &= ~(0x100 << 24);
+    handle              &= ~(0xFF << 24);
     
     if(handle == 0)
         return false;
