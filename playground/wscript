@@ -36,3 +36,10 @@ def build(ctx):
         rpath="$ORIGIN"
     )
 
+    ctx.program(
+        target="../handle_container_test",
+        source="handle_container_test.c",
+        use=["fundament"],
+        rpath="$ORIGIN"
+    )
+

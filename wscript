@@ -102,7 +102,6 @@ def configure(ctx: ConfigurationContext):
 
     # Detach both, since derive only create shallow copies.
     ctx.load("clang_compilation_database")
-    ctx.env.append_unique("CFLAGS", "-g")
 
     dbg = ctx.env.derive().detach()
     rel = ctx.env.derive().detach()
@@ -118,6 +117,8 @@ def configure(ctx: ConfigurationContext):
     ctx.setenv("release", env=rel)
     ctx.setenv("debug", env=dbg)
 
+    ctx.setenv("debug")
+
 def build(ctx: BuildContext):    
     sources = [
         "platform/c/private/input.c",
@@ -125,6 +126,7 @@ def build(ctx: BuildContext):
         "platform/c/private/log.c",
         "platform/c/private/window.c",
         "platform/c/private/window_common.c",
+        "platform/c/private/handle_container.c",
         "assets/c/private/mesh.c",
 		"assets/c/private/image.c"
     ]
