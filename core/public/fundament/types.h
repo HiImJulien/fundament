@@ -15,7 +15,7 @@
     typedef NSWindow* fn_native_window_handle_t;
 #elif defined(__APPLE__) 
     typedef void* fn_native_window_handle_t;
-#elif defined(__WIN32)
+#elif defined(_WIN32)
     typedef struct HWND__* fn_native_window_handle_t;
 #elif defined(__linux__)
     typedef uint32_t fn_native_window_handle_t;

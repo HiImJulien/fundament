@@ -22,7 +22,7 @@ bool fn_initialize_handle_pool(
 
     size_t tmp = capacity;
     for(uint32_t it = 0; it < capacity; ++it)
-        pool->unoccupied_ids[it] = tmp--;
+        pool->unoccupied_ids[it] = (uint32_t) tmp--;
         
     for(uint8_t it = 0; it < capacity; ++it)
         pool->generations[it] = 0;
@@ -57,7 +57,7 @@ bool fn_alloc_handle(
     if(pool->unoccupied_ids_count == 0)
         return false;
 
-    uint32_t tmp        = --pool->unoccupied_ids_count;
+    uint32_t tmp        = (uint32_t) --pool->unoccupied_ids_count;
     uint32_t tmp_handle = pool->unoccupied_ids[tmp];
     uint32_t tmp_gen    = pool->generations[tmp];
 

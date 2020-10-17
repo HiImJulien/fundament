@@ -31,3 +31,17 @@ add_library(
     fundament_window
 )
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_sources(
+        fundament_window
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/win32/win32_window.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/win32/win32_window.h
+    )
+
+    target_link_libraries(
+        fundament_window
+        PUBLIC
+            user32
+    )
+endif()

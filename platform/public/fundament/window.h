@@ -21,6 +21,11 @@ struct fn_window{ uint32_t id; };
 bool fn_init_window();
 
 //
+// Deinitializes the window module. Deinitializes the window module.
+//
+void fn_deinit_window();
+
+//
 // Creates a new window. 
 //
 struct fn_window fn_create_window();
@@ -113,6 +118,11 @@ void fn_window_set_visible(
     struct fn_window window,
     bool visible
 );
+
+//
+// Polls the next event from the internal event queue.
+//
+void fn_poll_events(struct fn_event* ev);
 
 #endif  // FUNDAMENT_WINDOW_H
 
