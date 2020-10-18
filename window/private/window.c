@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <inttypes.h>
+
 //==============================================================================
 //                                INTERNAL API
 //==============================================================================
@@ -23,7 +25,7 @@ static inline struct fn__window* fn__get_window(struct fn_window window) {
         return NULL; 
 
     struct fn__window* ptr = &fn__g_window_context.windows[index]; 
-    return ptr->state ? ptr : NULL;
+    return ptr->state != fn__window_state_closed ? ptr : NULL;
 } 
 
 //==============================================================================
@@ -31,6 +33,10 @@ static inline struct fn__window* fn__get_window(struct fn_window window) {
 //==============================================================================
 
 bool fn_init_window() {
+    if (fn__g_window_context.initialized == true)
+        return true;
+
+    fn__g_window_context.initialized = true;
     fn_initialize_handle_pool(
         &fn__g_window_context.window_pool,
         FN_WINDOW_CAPACITY
@@ -40,6 +46,9 @@ bool fn_init_window() {
 }
 
 void fn_deinit_window() {
+    if (!fn__g_window_context.initialized)
+        return;
+
     for(size_t it = 0; it < FN_WINDOW_CAPACITY; ++it) {
         struct fn__window* ptr = &fn__g_window_context.windows[it];
 
@@ -61,10 +70,8 @@ void fn_deinit_window() {
 
 struct fn_window fn_create_window() {
     uint32_t handle, index; 
-    if(!fn_alloc_handle(&fn__g_window_context.window_pool, &handle, &index)) {
-        printf("Failed to allocate handle.\n");
+    if(!fn_alloc_handle(&fn__g_window_context.window_pool, &handle, &index))
         return (struct fn_window) { 0 };
-    }
 
     struct fn__window* ptr = &fn__g_window_context.windows[index];
     if(!fn__create_imp_window(ptr))
@@ -107,6 +114,11 @@ const char* fn_window_title(struct fn_window window) {
 bool fn_window_visible(struct fn_window window) {
     struct fn__window* ptr = fn__get_window(window);
     return ptr ? (ptr->state > fn__window_state_hidden) : false;
+}
+
+bool fn_window_focused(struct fn_window window) {
+    struct fn__window* ptr = fn__get_window(window);
+    return ptr ? ptr->focused : false;
 }
 
 fn_native_window_handle_t fn_window_handle(struct fn_window window) {
@@ -190,5 +202,6 @@ void fn_window_set_visible(
 
 void fn_poll_events(struct fn_event* ev) {
     fn__imp_pump_events();
+    fn__pop_event(ev);
 }
 

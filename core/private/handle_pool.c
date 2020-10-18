@@ -51,15 +51,15 @@ bool fn_alloc_handle(
 ) {
     assert(pool && handle && index);
     assert(pool->unoccupied_ids && pool->generations
-            && "If this assertion is triggered, then the given pool is in a " \
+            && "If this assertion is triggered, then the given pool is in a" \
                " bad state.");
 
     if(pool->unoccupied_ids_count == 0)
         return false;
 
-    uint32_t tmp        = (uint32_t) --pool->unoccupied_ids_count;
+    size_t   tmp        =  --pool->unoccupied_ids_count;
     uint32_t tmp_handle = pool->unoccupied_ids[tmp];
-    uint32_t tmp_gen    = pool->generations[tmp];
+    uint8_t  tmp_gen    = pool->generations[tmp];
 
     *handle = (tmp_gen << 24) | tmp_handle;
     *index = tmp_handle - 1;
@@ -85,8 +85,9 @@ void fn_dealloc_handle(
     if(pool->generations[idx] != generation)
         return;
 
-    pool->unoccupied_ids[pool->unoccupied_ids_count++] = id;
-    ++pool->generations[idx];
+    const size_t tmp = ++pool->unoccupied_ids_count;
+    pool->unoccupied_ids[tmp] = id;
+    ++pool->generations[tmp];
 }
 
 bool fn_check_handle(

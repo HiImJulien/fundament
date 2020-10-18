@@ -5,7 +5,12 @@ project(fundament
     HOMEPAGE_URL "https://github.com/HiImJulien/fundament"
 )
 
-add_subdirectory(core)
-add_subdirectory(platform)
+option(BUILD_SAMPLES "Whether to build samples or not.")
 
-add_subdirectory(samples)
+add_subdirectory(core)
+add_subdirectory(opengl)
+add_subdirectory(window)
+
+if(BUILD_SAMPLES)
+    add_subdirectory(samples)
+endif()

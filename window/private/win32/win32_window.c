@@ -27,6 +27,23 @@ static LRESULT CALLBACK fn__win32_wnd_proc(
 
     switch(msg) {
         case WM_CLOSE:
+            fn__notify_window_closed(ptr);
+            return 0;
+
+        case WM_KILLFOCUS:
+            fn__notify_window_lost_focus(ptr);
+            return 0;
+
+        case WM_SETFOCUS:
+            fn__notify_window_gained_focus(ptr);
+            return 0;
+
+        case WM_SIZE:
+            fn__notify_window_resized(
+                ptr,
+                (uint32_t) LOWORD(lParam),
+                (uint32_t) HIWORD(lParam)
+            );
             return 0;
 
         default:

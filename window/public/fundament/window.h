@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+struct fn_event;
 struct fn_window{ uint32_t id; };
 
 //
@@ -21,7 +22,7 @@ struct fn_window{ uint32_t id; };
 bool fn_init_window();
 
 //
-// Deinitializes the window module. Deinitializes the window module.
+// Deinitializes the window module.
 //
 void fn_deinit_window();
 
@@ -60,6 +61,11 @@ const char* fn_window_title(struct fn_window window);
 // otherwise returns false.
 //
 bool fn_window_visible(struct fn_window window);
+
+//
+// Returns whether the window is focused or not.
+//
+bool fn_window_focused(struct fn_window window);
 
 //
 // Returns the native handle of the window.

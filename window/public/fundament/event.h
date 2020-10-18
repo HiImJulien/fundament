@@ -10,6 +10,8 @@
 
 #include <fundament/window.h>
 
+#include <stdint.h>
+
 //
 // Enumerates known event types.
 //
@@ -28,11 +30,32 @@ enum fn_event_type {
 };
 
 //
+// Encapsulates the new size.
+//
+struct fn_size_event {
+    uint32_t    width;
+    uint32_t    height;
+};
+
+//
+// Encapsulates the new position.
+//
+struct fn_position_event {
+    uint32_t    x;
+    uint32_t    y;
+};
+
+//
 // Represents an event.
 //
 struct fn_event {
     enum fn_event_type  type; 
     struct fn_window    window;
+
+    union {
+        struct fn_size_event        size;
+        struct fn_position_event    position;
+    };
 };
 
 #endif  // FUNDAMENT_EVENT_H

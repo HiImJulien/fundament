@@ -31,6 +31,7 @@ struct fn__window {
     fn_native_window_handle_t   native;
     uint32_t                    width;
     uint32_t                    height;
+    bool                        focused;
     const char*                 title;
 };
 
@@ -41,6 +42,8 @@ struct fn__window {
 // Encapsulates the modules global state.
 //
 struct fn__window_context {
+    bool                    initialized;
+
     struct fn__window       windows[FN_WINDOW_CAPACITY];  
     struct fn_handle_pool   window_pool;
 
@@ -60,6 +63,42 @@ extern struct fn__window_context fn__g_window_context;
 // The following section provides the internal events APIs.
 //
 //==============================================================================
+
+//
+// Pushes an event to the end of the event queue.
+//
+void fn__push_event(struct fn_event*    in_ev);
+
+//
+// Pops an event from the front of the event queue.
+//
+// Sets `out_ev` to 0 if no event is enqueued.
+//
+void fn__pop_event(struct fn_event*     out_ev);
+
+//
+// Notifies the framework, that window was closed.
+//
+void fn__notify_window_closed(struct fn__window* window);
+
+//
+// Notifies the framework, that a window was resized.
+//
+void fn__notify_window_resized(
+    struct fn__window* window,
+    uint32_t width,
+    uint32_t height
+);
+
+//
+// Notifies the framework, that a window gained focus.
+//
+void fn__notify_window_gained_focus(struct fn__window* window);
+
+//
+// Notifies the framework, that a window lost focus.
+//
+void fn__notify_window_lost_focus(struct fn__window* window);
 
 #endif  // FUNDAMENT_WINDOW_COMMON_H
 

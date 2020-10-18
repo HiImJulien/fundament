@@ -23,5 +23,15 @@
     #error "Unknown target!"
 #endif
     
+#if defined(__APPLE__)
+    // Apple deprecated OpenGL.
+    // I don't see a use in supporting Apple.
+    // - Kirsch
+#elif defined(_WIN32)
+    typedef struct HGLRC__* fn_native_gl_handle_t;
+#elif defined(__linux__)
+    typedef struct __GLXcontextRec* fn_native_gl_handle_t;
+#endif
+
 #endif  // FUNDAMENT_TYPES_H
 

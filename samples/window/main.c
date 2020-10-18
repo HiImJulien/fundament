@@ -28,6 +28,8 @@ int main(int argc, char** argv) {
     while(ev.type != fn_event_type_closed)
         fn_poll_events(&ev);
 
+
+    printf("Deinitializing module.\n");
     fn_deinit_window();
     return EXIT_SUCCESS;
 }
