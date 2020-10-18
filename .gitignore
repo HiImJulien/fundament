@@ -1,5 +1,9 @@
 default/
 build/
+cmake-build-*/
+.idea/
+.vs/
+out/
 
 *.nupkg
 *.nuspec
