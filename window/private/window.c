@@ -13,6 +13,8 @@
 
 #if defined(_WIN32)
     #include "win32/win32_window.h"
+#elif defined(__APPLE__)
+    #include "cocoa/cocoa_window.h"
 #endif
 
 //
@@ -176,12 +178,20 @@ void fn_window_set_title(
     const size_t len = strlen(title);
     ptr->title = malloc(sizeof(char) * (len + 1));
 
+#if defined(__STDC_LIB_EXT1__)
     strncpy_s(
         (char*) ptr->title,
         len + 1,
         title,
         len + 1
     );
+#else
+    strncpy(
+        (char*) ptr->title,
+        title,
+        len + 1
+    );
+#endif
 
     fn__imp_window_set_title(ptr, title);
 }

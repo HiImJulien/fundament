@@ -64,7 +64,7 @@ void fn__notify_window_closed(struct fn__window* window) {
     });
 
     window->state = fn__window_state_closed;
-    free(window->title);
+    free((char*) window->title);
     window->title = NULL;
 
     fn_dealloc_handle(

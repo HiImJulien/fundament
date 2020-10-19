@@ -45,3 +45,28 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
             user32
     )
 endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_sources(
+        fundament_window
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/cocoa/cocoa_window.h
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/cocoa/cocoa_window.m
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/cocoa/cocoa_window_delegate.h
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/cocoa/cocoa_window_delegate.m
+    )
+
+    target_link_libraries(
+        fundament_window
+        PUBLIC
+        "-framework AppKit"
+    )
+    
+    target_compile_features(
+        fundament_window
+        PRIVATE
+            c_std_11
+    )
+    
+endif()
+
