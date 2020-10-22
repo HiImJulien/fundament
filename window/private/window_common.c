@@ -45,7 +45,10 @@ void fn__pop_event(struct fn_event* out_ev) {
     assert(out_ev);
 
     if (fn__g_window_context.events_size == 0) {
-        *out_ev = (struct fn_event){ 0, };
+        *out_ev = (struct fn_event){
+            .type = fn_event_type_none,
+        };
+
         return;
     }
 
@@ -117,6 +120,7 @@ void fn__notify_key_state_changed(
         .type = is_pressed
             ? fn_event_type_key_pressed
             : fn_event_type_key_released,
-        .key = key
+        .key = key,
+        .letter = 0
     });
 }

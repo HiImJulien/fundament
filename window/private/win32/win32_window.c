@@ -48,12 +48,13 @@ static LRESULT CALLBACK fn__win32_wnd_proc(
             );
             return 0;
 
+        case WM_SYSKEYUP:
+        case WM_SYSKEYDOWN:
         case WM_KEYUP:
         case WM_KEYDOWN: {
             enum fn_key key     = fn__win32_map_key(wParam);
             const bool pressed  = (lParam & (1 << 31));
             fn__notify_key_state_changed(key, pressed);
-
             return 0;
         }
 

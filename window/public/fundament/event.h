@@ -56,7 +56,11 @@ struct fn_event {
     union {
         struct fn_size_event        size;
         struct fn_position_event    position;
-        enum fn_key                 key;
+
+        struct {
+            enum fn_key             key;
+            char                    letter;
+        };
     };
 };
 

@@ -33,7 +33,6 @@ int main(int argc, char** argv) {
         fn_poll_events(&ev);
     }
 
-
     printf("Deinitializing module.\n");
     fn_deinit_window();
     return EXIT_SUCCESS;
