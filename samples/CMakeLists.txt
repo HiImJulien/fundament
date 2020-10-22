@@ -10,13 +10,17 @@ target_link_libraries(
     fundament::window
 )
 
-add_executable(
-    opengl_sample
-    ${CMAKE_CURRENT_SOURCE_DIR}/opengl/main.c
-)
 
-target_link_libraries(
-    opengl_sample
-    PRIVATE 
-    fundament::opengl
-)
+# fundament::opengl is not available on macOS
+if(TARGET fundament::opengl)
+    add_executable(
+        opengl_sample
+        ${CMAKE_CURRENT_SOURCE_DIR}/opengl/main.c
+    )
+
+    target_link_libraries(
+        opengl_sample
+        PRIVATE 
+        fundament::opengl
+    )
+endif()
