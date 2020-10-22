@@ -33,5 +33,16 @@
     typedef struct __GLXcontextRec* fn_native_gl_handle_t;
 #endif
 
+#if defined(__STDC_VERSION__ ) && __STDC_VERSION__ >= 201112L
+    #define FN_THREAD_LOCAL _Thread_local
+#elif defined(_MSC_VER)
+    #define FN_THREAD_LOCAL __declspec(thread)
+#elif defined(__GNUC__) || defined(__clang__)
+    #define FN_THREAD_LOCAL __thread;
+#else
+    #define FN_THREAD_LOCAL
+#endif
+
+
 #endif  // FUNDAMENT_TYPES_H
 

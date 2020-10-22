@@ -43,7 +43,7 @@ struct fn_gl_context_desc {
 
 	bool	is_double_buffered;
 	bool	is_debug;
-	bool	is_compaitbility_profile;
+	bool	is_compatibility_profile;
 };
 
 //
@@ -70,5 +70,16 @@ bool fn_gl_context_make_current(
 // Presents the current contents of the current context's backbuffer.
 //
 void fn_gl_context_present();
+
+//
+// Obtains a pointer to an OpenGL/WGL/GLX function.
+//
+typedef void(*fn_gl_proc_t)();
+fn_gl_proc_t fn_gl_context_get_proc(const char* name);
+
+//
+// Returns the native handle of the window.
+//
+fn_native_gl_handle_t fn_gl_context_handle(struct fn_gl_context context);
 
 #endif	// FUNDAMENT_GL_CONTEXT_H

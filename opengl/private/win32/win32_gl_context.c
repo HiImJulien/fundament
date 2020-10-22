@@ -107,6 +107,7 @@ bool fn__create_win32_gl_context(
                                 + desc->blue_bits,
         WGL_RED_BITS_ARB,		desc->red_bits,
         WGL_GREEN_BITS_ARB,		desc->green_bits,
+        WGL_ALPHA_BITS_ARB,     desc->alpha_bits,
         WGL_BLUE_BITS_ARB,		desc->blue_bits,
         WGL_DEPTH_BITS_ARB,		desc->depth_bits,
         WGL_STENCIL_BITS_ARB,	desc->stencil_bits,
@@ -129,7 +130,6 @@ bool fn__create_win32_gl_context(
         &pixel_format_count
     );
 
-
     context->pixel_format = pixel_format;
 
     DescribePixelFormat(
@@ -145,7 +145,7 @@ bool fn__create_win32_gl_context(
     if (desc->is_debug)  context_flags |= WGL_CONTEXT_DEBUG_BIT_ARB;
 
     int profile_mask = 0;
-    if (desc->is_compaitbility_profile)
+    if (desc->is_compatibility_profile)
         profile_mask |= WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB;
     else
         profile_mask |= WGL_CONTEXT_CORE_PROFILE_BIT_ARB;
@@ -193,4 +193,3 @@ void fn__win32_gl_context_present() {
     if (hDC)
         SwapBuffers(hDC);
 }
-

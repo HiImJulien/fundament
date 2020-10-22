@@ -108,3 +108,15 @@ void fn__notify_window_lost_focus(struct fn__window* window) {
 
     window->focused = false;
 }
+
+void fn__notify_key_state_changed(
+    enum fn_key key,
+    bool is_pressed
+) {
+    fn__push_event(&(struct fn_event) {
+        .type = is_pressed
+            ? fn_event_type_key_pressed
+            : fn_event_type_key_released,
+        .key = key
+    });
+}

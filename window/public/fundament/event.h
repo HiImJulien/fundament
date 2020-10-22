@@ -8,6 +8,7 @@
 //
 //==============================================================================
 
+#include <fundament/input.h>
 #include <fundament/window.h>
 
 #include <stdint.h>
@@ -55,6 +56,7 @@ struct fn_event {
     union {
         struct fn_size_event        size;
         struct fn_position_event    position;
+        enum fn_key                 key;
     };
 };
 

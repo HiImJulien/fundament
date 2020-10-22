@@ -7,10 +7,12 @@ add_library(
 target_sources(
     fundament_window
     PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/private/input.c
         ${CMAKE_CURRENT_SOURCE_DIR}/private/window.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/window.h
         ${CMAKE_CURRENT_SOURCE_DIR}/private/window_common.c
         ${CMAKE_CURRENT_SOURCE_DIR}/private/window_common.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/input.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/window.h
 )
 
 target_include_directories(

@@ -47,5 +47,6 @@ void fn__win32_gl_context_present();
 #define fn__destroy_imp_gl_context		fn__destroy_win32_gl_context
 #define fn__imp_gl_context_make_current	fn__make_win32_gl_context_current
 #define fn__imp_gl_context_present		fn__win32_gl_context_present
+#define fn__imp_gl_context_get_proc     wglGetProcAddress
 
 #endif	// FUNDAMENT_WIN32_GL_CONTEXT_H

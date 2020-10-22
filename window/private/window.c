@@ -178,7 +178,7 @@ void fn_window_set_title(
     const size_t len = strlen(title);
     ptr->title = malloc(sizeof(char) * (len + 1));
 
-#if defined(__STDC_LIB_EXT1__)
+#if defined(__STDC_LIB_EXT1__) || defined(_MSC_VER)
     strncpy_s(
         (char*) ptr->title,
         len + 1,

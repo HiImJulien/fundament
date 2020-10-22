@@ -9,6 +9,7 @@
 //
 //==============================================================================
 
+#include <fundament/input.h>
 #include <fundament/handle_pool.h>
 #include <fundament/types.h>
 
@@ -53,6 +54,8 @@ struct fn__window_context {
     size_t                  events_capacity;
     size_t                  events_head;
     size_t                  events_tail;
+
+    bool                    pressed_keys[fn_key_count];
 };
 
 extern struct fn__window_context fn__g_window_context;
@@ -99,6 +102,14 @@ void fn__notify_window_gained_focus(struct fn__window* window);
 // Notifies the framework, that a window lost focus.
 //
 void fn__notify_window_lost_focus(struct fn__window* window);
+
+//
+// Notifies the framework, that key's state has changed.
+//
+void fn__notify_key_state_changed(
+    enum fn_key key,
+    bool is_pressed
+);
 
 #endif  // FUNDAMENT_WINDOW_COMMON_H
 

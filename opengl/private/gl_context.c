@@ -63,3 +63,16 @@ bool fn_gl_context_make_current(
 void fn_gl_context_present() {
 	fn__imp_gl_context_present();
 }
+
+fn_gl_proc_t fn_gl_context_get_proc(const char* name) {
+    return (fn_gl_proc_t) fn__imp_gl_context_get_proc(name);
+}
+
+fn_native_gl_handle_t fn_gl_context_handle(struct fn_gl_context context) {
+    uint32_t index;
+    if(!fn_check_handle(&fn__g_gl_context.context_pool, context.id, &index))
+        return NULL;
+
+    struct fn__gl_context* ptr = &fn__g_gl_context.contexts[index];
+    return ptr->native;
+}

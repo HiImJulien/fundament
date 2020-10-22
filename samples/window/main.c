@@ -25,8 +25,13 @@ int main(int argc, char** argv) {
     printf("Created window.\n");
 
     struct fn_event ev = {0, };
-    while(ev.type != fn_event_type_closed)
+    while(ev.type != fn_event_type_closed) {
+        if(ev.type == fn_event_type_key_pressed
+            && ev.key == fn_key_escape)
+            break;
+
         fn_poll_events(&ev);
+    }
 
 
     printf("Deinitializing module.\n");
