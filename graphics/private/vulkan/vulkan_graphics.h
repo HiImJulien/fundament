@@ -11,7 +11,10 @@ bool fn__init_vulkan_graphics();
 void fn__deinit_vulkan_graphics();
 
 struct fn__surface {
-    VkSurfaceKHR native;
+    VkSurfaceKHR    surface;
+    VkSwapchainKHR  swapchain;
+    VkImage*        images;
+    uint32_t        image_count;
 };
 
 bool fn__create_vulkan_surface(

@@ -1,6 +1,8 @@
 #include "vulkan_graphics.h"
 #include "../graphics_common.h"
 
+#include <stdlib.h>
+
 #include <vulkan/vulkan.h>
 
 #if defined(_WIN32)
@@ -17,6 +19,15 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+static const char* fn__g_required_extensions[] = {
+    VK_KHR_SURFACE_EXTENSION_NAME,
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+};
+
+static const char* fn__g_device_extensions[] = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
 bool fn__init_vulkan_graphics() {
     if(fn__g_graphics_context.instance
         && fn__g_graphics_context.physical_device
@@ -30,7 +41,9 @@ bool fn__init_vulkan_graphics() {
             .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
             .engineVersion = VK_MAKE_VERSION(1, 0, 0),
             .apiVersion = VK_VERSION_1_0
-        }
+        },
+        .enabledExtensionCount = 2,
+        .ppEnabledExtensionNames = fn__g_required_extensions
     };
 
     if(VK_SUCCESS != vkCreateInstance(
@@ -113,7 +126,9 @@ bool fn__init_vulkan_graphics() {
             .queueCount = 1,
             .pQueuePriorities = &queue_priority
         },
-        .queueCreateInfoCount = 1
+        .queueCreateInfoCount = 1,
+        .enabledExtensionCount = 1,
+        .ppEnabledExtensionNames = fn__g_device_extensions
     };
 
     if(VK_SUCCESS != vkCreateDevice(
@@ -161,21 +176,92 @@ bool fn__create_vulkan_surface(
         .hinstance = fn__g_instance
     };
 
-    return VK_SUCCESS == vkCreateWin32SurfaceKHR(
+    if(VK_SUCCESS != vkCreateWin32SurfaceKHR(
         fn__g_graphics_context.instance,
         &surface_desc,
         NULL,
-        &surface->native
-    );
+        &surface->surface))
+            return false;
 #else
     return false;
 #endif
+
+    VkBool32 can_present = false;
+    vkGetPhysicalDeviceSurfaceSupportKHR(
+        fn__g_graphics_context.physical_device,
+        fn__g_graphics_context.queue_family_index,
+        surface->surface,
+        &can_present
+    );
+
+    if(!can_present) {
+        vkDestroySurfaceKHR(
+            fn__g_graphics_context.instance,
+            surface->surface,
+            NULL
+        );
+
+        return false;
+    }
+
+    VkSurfaceFormatKHR surface_format = {
+        .format = VK_FORMAT_R8G8B8A8_SRGB,
+        .colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+    };
+
+    VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
+    VkExtent2D  extent = {
+        .width = 800,
+        .height = 600
+    };
+
+    VkSwapchainCreateInfoKHR swapchain_desc = {
+        .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+        .surface = surface->surface,
+        .minImageCount = 3,
+        .imageFormat = surface_format.format,
+        .imageColorSpace = surface_format.colorSpace,
+        .imageExtent = extent,
+        .imageArrayLayers = 1,
+        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+        .presentMode = present_mode,
+        .clipped = TRUE,
+        .oldSwapchain = VK_NULL_HANDLE
+    };
+
+    if(vkCreateSwapchainKHR(
+        fn__g_graphics_context.device,
+        &swapchain_desc,
+        NULL,
+        &surface->swapchain) != VK_SUCCESS)
+        return false;
+
+    vkGetSwapchainImagesKHR(
+        fn__g_graphics_context.device,
+        surface->swapchain,
+        &surface->image_count,
+        NULL
+    );
+
+    surface->images = malloc(sizeof(VkImage) * surface->image_count);
+    vkGetSwapchainImagesKHR(
+        fn__g_graphics_context.device,
+        surface->swapchain,
+        &surface->image_count,
+        surface->images
+    );
+
+    return can_present;
 }
 
 void fn__destroy_vulkan_surface(struct fn__surface* surface) {
     vkDestroySurfaceKHR(
         fn__g_graphics_context.instance,
-        surface->native,
+        surface->surface,
         NULL
     );
+
+    surface->surface = NULL;
 }

@@ -39,5 +39,10 @@ struct fn_surface fn_create_surface(fn_native_window_handle_t window) {
 }
 
 void fn_destroy_surface(struct fn_surface surface) {
+    uint32_t index;
+    if(!fn_check_handle(&fn__g_graphics_context.surface_pool, surface.id, &index))
+        return;
 
+    struct fn__surface* ptr = &fn__g_graphics_context.surfaces[index];
+    fn__destroy_vulkan_surface(ptr);
 }

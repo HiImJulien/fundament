@@ -11,6 +11,7 @@ struct fn__graphics_context {
     #if defined(FN_USE_VULKAN)
         VkInstance          instance;
         VkPhysicalDevice    physical_device;
+        uint32_t            queue_family_index;
         VkDevice            device;
         VkQueue             queue;
     #endif
