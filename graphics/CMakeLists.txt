@@ -9,6 +9,8 @@ target_sources(
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/private/graphics.c
         ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/graphics.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/private/graphics_common.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/private/graphics_common.h
 )
 
 target_include_directories(
@@ -21,7 +23,6 @@ target_link_libraries(
     fundament_graphics
     PUBLIC
         fundament::core
-        Vulkan::Vulkan
 )
 
 add_library(
@@ -29,3 +30,25 @@ add_library(
     ALIAS
     fundament_graphics
 )
+
+set(FN_USE_VULKAN ON)
+
+if(FN_USE_VULKAN)
+    target_sources(
+        fundament_graphics
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/vulkan/vulkan_graphics.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/vulkan/vulkan_graphics.h
+    )
+
+    target_link_libraries(
+        fundament_graphics
+        PUBLIC
+            Vulkan::Vulkan
+    )
+
+    add_compile_definitions(
+        fundament_graphics
+        FN_USE_VULKAN
+    )
+endif()

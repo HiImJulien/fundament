@@ -43,6 +43,8 @@
     #define FN_THREAD_LOCAL
 #endif
 
+#define FN_WINDOW_CAPACITY              64
+#define FN_INITIAL_EVENT_CAPACITY       256
 
 #endif  // FUNDAMENT_TYPES_H
 
