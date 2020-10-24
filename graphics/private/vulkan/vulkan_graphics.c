@@ -146,6 +146,47 @@ bool fn__init_vulkan_graphics() {
         &fn__g_graphics_context.queue
     );
 
+    VkSemaphoreCreateInfo sem_desc = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+        NULL,
+        0
+    };
+
+    vkCreateSemaphore(
+        fn__g_graphics_context.device,
+        &sem_desc,
+        NULL,
+        &fn__g_graphics_context.image_sem
+    );
+
+    vkCreateSemaphore(
+        fn__g_graphics_context.device,
+        &sem_desc,
+        NULL,
+        &fn__g_graphics_context.render_sem
+    );
+
+    vkCreateCommandPool(
+        fn__g_graphics_context.device,
+        &(VkCommandPoolCreateInfo) {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+            .queueFamilyIndex = fn__g_graphics_context.queue_family_index
+        },
+        NULL,
+        &fn__g_graphics_context.cmd_pool
+    );
+
+    vkAllocateCommandBuffers(
+        fn__g_graphics_context.device,
+        &(VkCommandBufferAllocateInfo) {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+            .commandPool = fn__g_graphics_context.cmd_pool,
+            .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+            .commandBufferCount = 1
+        },
+        &fn__g_graphics_context.cmd_buffer
+    );
+
     return true;
 }
 
@@ -218,7 +259,7 @@ bool fn__create_vulkan_surface(
     VkSwapchainCreateInfoKHR swapchain_desc = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
         .surface = surface->surface,
-        .minImageCount = 3,
+        .minImageCount = 2,
         .imageFormat = surface_format.format,
         .imageColorSpace = surface_format.colorSpace,
         .imageExtent = extent,
@@ -264,4 +305,42 @@ void fn__destroy_vulkan_surface(struct fn__surface* surface) {
     );
 
     surface->surface = NULL;
+}
+
+void fn__present_vulkan_surface(struct fn__surface* surface) {
+    uint32_t image_index;
+    VkResult res = vkAcquireNextImageKHR(
+        fn__g_graphics_context.device,
+        surface->swapchain,
+        UINT64_MAX,
+        fn__g_graphics_context.image_sem,
+        VK_NULL_HANDLE,
+        &image_index
+    );
+
+    if(res != VK_SUCCESS)
+        printf("vkAcquireNextImageKHR didn't return VK_SUCCESS!\n");
+
+    VkPipelineStageFlags  stage_mask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    VkSubmitInfo submit_info = {
+        VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        NULL,
+        1,
+        &fn__g_graphics_context.image_sem,
+        &stage_mask,
+        1,
+        &fn__g_graphics_context.cmd_buffer,
+        1,
+        &fn__g_graphics_context.render_sem
+    };
+
+    res = vkQueueSubmit(
+        fn__g_graphics_context.queue,
+        1,
+        &submit_info,
+        VK_NULL_HANDLE
+    );
+
+    if(res != VK_SUCCESS)
+        printf("vkQueueSubmit failed.\n");
 }

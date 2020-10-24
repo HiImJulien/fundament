@@ -24,6 +24,8 @@ bool fn__create_vulkan_surface(
 
 void fn__destroy_vulkan_surface(struct fn__surface* surface);
 
+void fn__present_vulkan_surface(struct fn__surface* surface);
+
 #define fn__init_imp_graphics   fn__init_vulkan_graphics
 #define fn__deinit_imp_graphics fn__deinit_vulkan_graphics
 
