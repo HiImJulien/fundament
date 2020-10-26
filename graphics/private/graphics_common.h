@@ -30,6 +30,8 @@ struct fn__graphics_context {
     fn__texture_t           textures[FN_TEXTURE_CAPACITY];
     struct fn_handle_pool   command_list_pool;
     fn__command_list_t      command_lists[FN_COMMAND_LIST_CAPACITY];
+    struct fn_handle_pool   shader_pool;
+    fn__shader_t            shaders[FN_SHADER_CAPACITY];
 };
 
 extern struct fn__graphics_context fn__g_graphics_context;

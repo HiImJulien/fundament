@@ -9,6 +9,7 @@ struct fn_texture;
 struct fn_texture_desc;
 struct fn_swap_chain_desc;
 struct fn_render_pass;
+struct fn_shader_desc;
 
 extern struct fn__graphics_backend fn__g_vulkan_backend;
 
@@ -41,6 +42,11 @@ struct fn__vulkan_command_list {
     VkCommandBuffer command_buffer;
 };
 
+typedef struct fn__vulkan_shader fn__shader_t;
+struct fn__vulkan_shader {
+    VkShaderModule  module;
+};
+
 bool fn__init_vulkan_graphics();
 void fn__deinit_vulkan_graphics();
 
@@ -59,6 +65,8 @@ bool fn__create_vulkan_texture(
     struct fn__vulkan_texture* texture,
     const struct fn_texture_desc* desc
 );
+
+bool fn__create_vulkan_shader(fn__shader_t* shader, const struct fn_shader_desc* desc);
 
 bool fn__create_vulkan_command_list(struct fn__vulkan_command_list* cmd);
 void fn__destroy_vulkan_command_list(struct fn__vulkan_command_list* cmd);
@@ -79,6 +87,8 @@ void fn__begin_vulkan_render_pass(
 #define fn__imp_swap_chain_current_texture  fn__vulkan_swap_chain_current_texture
 
 #define fn__create_imp_texture              fn__create_vulkan_texture
+
+#define fn__create_imp_shader               fn__create_vulkan_shader
 
 #define fn__create_imp_command_list         fn__create_vulkan_command_list
 #define fn__destroy_imp_command_list        fn__destroy_vulkan_command_list

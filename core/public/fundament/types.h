@@ -47,6 +47,7 @@
 #define FN_INITIAL_EVENT_CAPACITY           256
 #define FN_TEXTURE_CAPACITY                 16384
 #define FN_COMMAND_LIST_CAPACITY            2048
+#define FN_SHADER_CAPACITY                  2048
 
 #define FN_MAX_ACTIVE_COLOR_ATTACHMENTS     8
 

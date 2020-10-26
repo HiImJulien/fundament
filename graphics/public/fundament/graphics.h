@@ -84,6 +84,23 @@ struct fn_texture fn_create_texture(const struct fn_texture_desc* desc);
 //
 void fn_destroy_texture(struct fn_texture texture);
 
+enum fn_shader_type {
+    fn_shader_type_vertex,
+    fn_shader_type_pixel,
+    fn_shader_type_compute
+};
+
+struct fn_shader_desc {
+    enum fn_shader_type type;
+    uint32_t            byte_code_size;
+    const uint8_t*      byte_code;
+};
+
+//
+//
+//
+struct fn_shader fn_create_shader(const struct fn_shader_desc* shader);
+
 //
 // Creates a new command list.
 //

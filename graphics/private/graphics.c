@@ -148,6 +148,22 @@ void fn_destroy_texture(struct fn_texture texture) {
 
 }
 
+struct fn_shader fn_create_shader(const struct fn_shader_desc* desc) {
+    uint32_t handle, index;
+    if(!fn_alloc_handle(
+        &fn__g_graphics_context.command_list_pool,
+        &handle,
+        &index
+        ))
+        return (struct fn_shader) { 0 };
+
+    fn__shader_t* ptr = &fn__g_graphics_context.shaders[index];
+    if(!fn__create_imp_shader(ptr, desc))
+        return (struct fn_shader) { 0 };
+
+    return (struct fn_shader) { handle };
+}
+
 struct fn_command_list fn_create_command_list() {
     uint32_t handle, index;
     if(!fn_alloc_handle(

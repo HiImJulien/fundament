@@ -454,6 +454,24 @@ bool fn__create_vulkan_texture(
     return false;
 }
 
+bool fn__create_vulkan_shader(
+    fn__shader_t* shader,
+    const struct fn_shader_desc* desc
+) {
+    VkResult res = vkCreateShaderModule(
+        fn__g_graphics_context.device,
+        &(VkShaderModuleCreateInfo) {
+            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+            .codeSize = desc->byte_code_size,
+            .pCode = (const uint32_t*) desc->byte_code
+        },
+        NULL,
+        &shader->module
+    );
+
+    return res == VK_SUCCESS;
+}
+
 bool fn__create_vulkan_command_list(struct fn__vulkan_command_list* cmd) {
     VkCommandPoolCreateInfo pool_desc = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
