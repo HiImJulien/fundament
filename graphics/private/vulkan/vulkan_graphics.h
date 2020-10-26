@@ -10,6 +10,8 @@ struct fn_texture_desc;
 struct fn_swap_chain_desc;
 struct fn_render_pass;
 
+extern struct fn__graphics_backend fn__g_vulkan_backend;
+
 //------------------------------------------------------------------------------
 //                            INTERNAL STRUCTURES
 //------------------------------------------------------------------------------
@@ -41,7 +43,6 @@ struct fn__vulkan_command_list {
 
 bool fn__init_vulkan_graphics();
 void fn__deinit_vulkan_graphics();
-
 
 bool fn__create_vulkan_swap_chain(
     struct fn__vulkan_swap_chain* swap_chain,

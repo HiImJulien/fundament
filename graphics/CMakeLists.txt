@@ -11,6 +11,7 @@ target_sources(
         ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/graphics.h
         ${CMAKE_CURRENT_SOURCE_DIR}/private/graphics_common.c
         ${CMAKE_CURRENT_SOURCE_DIR}/private/graphics_common.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/private/graphics_backend.h
 )
 
 target_include_directories(

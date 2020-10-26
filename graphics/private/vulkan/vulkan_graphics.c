@@ -3,6 +3,8 @@
 #include <fundament/types.h>
 #include <fundament/graphics.h>
 
+#include "../graphics_backend.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -562,3 +564,10 @@ void fn__begin_vulkan_render_pass(
         );
     }
 }
+
+struct fn__graphics_backend fn__g_vulkan_backend = {
+    fn_graphics_backend_type_vulkan,
+    &fn__init_vulkan_graphics,
+    &fn__deinit_vulkan_graphics,
+
+};

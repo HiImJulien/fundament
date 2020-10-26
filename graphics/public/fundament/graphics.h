@@ -14,6 +14,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+enum fn_graphics_backend_type {
+    fn_graphics_backend_type_none,
+    fn_graphics_backend_type_vulkan,
+    fn_graphics_backend_type_metal,
+    fn_graphics_backend_type_d3d12
+};
+
 struct fn_swap_chain{ uint32_t id; };
 struct fn_texture{ uint32_t id; };
 struct fn_command_list{ uint32_t id; };
