@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+
 bool fn_initialize_handle_pool(
     struct fn_handle_pool*  pool,
     size_t                  capacity
@@ -24,7 +26,7 @@ bool fn_initialize_handle_pool(
     for(uint32_t it = 0; it < capacity; ++it)
         pool->unoccupied_ids[it] = (uint32_t) tmp--;
         
-    for(uint8_t it = 0; it < capacity; ++it)
+    for(uint32_t it = 0; it < capacity; ++it)
         pool->generations[it] = 0;
 
     return true;

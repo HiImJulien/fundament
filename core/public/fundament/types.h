@@ -45,6 +45,8 @@
 
 #define FN_WINDOW_CAPACITY              64
 #define FN_INITIAL_EVENT_CAPACITY       256
+#define FN_TEXTURE_CAPACITY             16384
+#define FN_COMMAND_LIST_CAPACITY        2048
 
 #endif  // FUNDAMENT_TYPES_H
 
