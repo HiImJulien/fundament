@@ -43,12 +43,12 @@
     #define FN_THREAD_LOCAL
 #endif
 
-#define FN_WINDOW_CAPACITY              64
-#define FN_INITIAL_EVENT_CAPACITY       256
-#define FN_TEXTURE_CAPACITY             16384
-#define FN_COMMAND_LIST_CAPACITY        2048
+#define FN_WINDOW_CAPACITY                  64
+#define FN_INITIAL_EVENT_CAPACITY           256
+#define FN_TEXTURE_CAPACITY                 16384
+#define FN_COMMAND_LIST_CAPACITY            2048
 
-#define FN_MAX_ACTIVE_COLOR_ATTACHEMENTS    8
+#define FN_MAX_ACTIVE_COLOR_ATTACHMENTS     8
 
 #endif  // FUNDAMENT_TYPES_H
 

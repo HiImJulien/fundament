@@ -10,6 +10,7 @@
 //==============================================================================
 
 #include <fundament/types.h>
+#include <fundament/color.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -24,13 +25,7 @@ enum fn_graphics_backend_type {
 struct fn_swap_chain{ uint32_t id; };
 struct fn_texture{ uint32_t id; };
 struct fn_command_list{ uint32_t id; };
-
-union fn_color {
-    float rgba[4];
-    struct {
-        float r, g, b, a;
-    };
-};
+struct fn_shader{ uint32_t id; };
 
 //
 // Initializes the graphics module,
@@ -43,7 +38,6 @@ bool fn_init_graphics();
 // releasing resources allocated through fn_init_graphics.
 //
 void fn_deinit_graphics();
-
 
 struct fn_swap_chain_desc {
     fn_native_window_handle_t   window;
@@ -117,7 +111,7 @@ struct fn_color_attachment {
 };
 
 struct fn_render_pass{
-    struct fn_color_attachment     color_attachments[FN_MAX_ACTIVE_COLOR_ATTACHEMENTS];
+    struct fn_color_attachment     color_attachments[FN_MAX_ACTIVE_COLOR_ATTACHMENTS];
 };
 
 void fn_begin_render_pass(

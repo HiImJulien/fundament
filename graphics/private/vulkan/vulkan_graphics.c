@@ -534,7 +534,7 @@ void fn__begin_vulkan_render_pass(
         }
     );
 
-    for(uint8_t it = 0; it < FN_MAX_ACTIVE_COLOR_ATTACHEMENTS; ++it) {
+    for(uint8_t it = 0; it < FN_MAX_ACTIVE_COLOR_ATTACHMENTS; ++it) {
         const struct fn_color_attachment* ca = &pass->color_attachments[it];
         if(textures[it] == NULL || !ca->clear)
             continue;

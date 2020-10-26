@@ -9,6 +9,7 @@ target_sources(
     PRIVATE   
         ${CMAKE_CURRENT_SOURCE_DIR}/private/handle_pool.c
         ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/handle_pool.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/public/fundament/color.h
 )
 
 target_include_directories(

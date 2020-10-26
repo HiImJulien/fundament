@@ -195,10 +195,10 @@ void fn_begin_render_pass(
     const struct fn_render_pass* pass
 ) {
     fn__command_list_t* cmd = fn__get_command_list(cmd_list);
-    fn__texture_t* textures[FN_MAX_ACTIVE_COLOR_ATTACHEMENTS];
+    fn__texture_t* textures[FN_MAX_ACTIVE_COLOR_ATTACHMENTS];
 
 
-    for(uint8_t it = 0; it < FN_MAX_ACTIVE_COLOR_ATTACHEMENTS; ++it) {
+    for(uint8_t it = 0; it < FN_MAX_ACTIVE_COLOR_ATTACHMENTS; ++it) {
         textures[it] = NULL;
         if(pass->color_attachments[it].texture.id != 0)
             textures[it] = fn__get_texture(pass->color_attachments[it].texture);
