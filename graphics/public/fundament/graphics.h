@@ -17,7 +17,13 @@
 struct fn_swap_chain{ uint32_t id; };
 struct fn_texture{ uint32_t id; };
 struct fn_command_list{ uint32_t id; };
-struct fn_framebuffer{ uint32_t id; };
+
+union fn_color {
+    float rgba[4];
+    struct {
+        float r, g, b, a;
+    };
+};
 
 //
 // Initializes the graphics module,
@@ -58,14 +64,6 @@ struct fn_texture fn_swap_chain_current_texture(struct fn_swap_chain swap_chain)
 
 void fn_swap_chain_present(struct fn_swap_chain swap_chain);
 
-struct fn_framebuffer_desc {
-    void*   vk_framebuffer;
-};
-
-struct fn_framebuffer fn_create_framebuffer(
-    const struct fn_framebuffer_desc* desc
-);
-
 struct fn_texture_desc {
 
     // Vulkan specific
@@ -95,36 +93,24 @@ struct fn_command_list fn_create_command_list();
 //
 void fn_destroy_command_list(struct fn_command_list cmd_list);
 
+//
+// Encodes the contents of the command list for usage later.
+//
 void fn_encode_command_list(struct fn_command_list cmd_list);
 
+//
+// Commits the command list to be processed by the GPU.
+//
 void fn_commit_command_list(struct fn_command_list cmd_list);
 
-
-struct fn_color {
-    union {
-        float rgba[4];
-        struct {
-            float r;
-            float g;
-            float b;
-            float a;
-        };
-    };
-};
-
-enum fn_render_pass_action {
-    fn_render_pass_action_none,
-    fn_render_pass_action_clear,
-    fn_render_pass_action_store
+struct fn_color_attachment {
+    struct  fn_texture              texture;
+    bool                            clear;
+    union   fn_color                clear_color;
 };
 
 struct fn_render_pass{
-    struct {
-        struct fn_texture           texture;
-        enum fn_render_pass_action  load_action;
-        enum fn_render_pass_action  store_action;
-        struct fn_color             clear_color;
-    } color_attachments[8];
+    struct fn_color_attachment     color_attachments[FN_MAX_ACTIVE_COLOR_ATTACHEMENTS];
 };
 
 void fn_begin_render_pass(
@@ -132,7 +118,6 @@ void fn_begin_render_pass(
     const struct fn_render_pass* pass
 );
 
-void fn_end_render_pass(struct fn_command_list cmd_list);
 
 #endif  // FUNDAMENT_GRAPHICS_H
 

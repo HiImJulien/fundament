@@ -26,8 +26,6 @@ struct fn__graphics_context {
 
     struct fn_handle_pool   swap_chain_pool;
     fn__swap_chain_t        swap_chains[FN_WINDOW_CAPACITY];
-    struct fn_handle_pool   framebuffer_pool;
-    fn__framebuffer_t       framebuffers[FN_TEXTURE_CAPACITY];
     struct fn_handle_pool   texture_pool;
     fn__texture_t           textures[FN_TEXTURE_CAPACITY];
     struct fn_handle_pool   command_list_pool;

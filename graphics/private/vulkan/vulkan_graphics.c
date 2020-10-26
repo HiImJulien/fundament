@@ -355,23 +355,8 @@ bool fn__create_vulkan_swap_chain(
         }
     };
 
-    VkFramebufferCreateInfo framebuffer_desc = {
-        .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-        .renderPass = VK_NULL_HANDLE, // WTF WTF WTF????
-        .attachmentCount = 1,
-        .width = desc->width,
-        .height = desc->height,
-        .layers = 1
-    };
-
-    VkFramebuffer framebuffers[swap_chain->texture_count];
-
     swap_chain->textures = malloc(
         sizeof(struct fn_texture) * swap_chain->texture_count
-    );
-
-    swap_chain->framebuffers = malloc(
-        sizeof(struct fn_framebuffer) * swap_chain->texture_count
     );
 
     for(uint32_t it = 0; it < swap_chain->texture_count; ++it) {
@@ -392,22 +377,6 @@ bool fn__create_vulkan_swap_chain(
                 }
             }
         );
-
-        /*
-        framebuffer_desc.pAttachments = &views[it];
-        vkCreateFramebuffer(
-            fn__g_graphics_context.device,
-            &framebuffer_desc,
-            NULL,
-            &framebuffers[it]
-        );
-
-        swap_chain->framebuffers[it] = fn_create_framebuffer(
-            &(struct fn_framebuffer_desc) {
-                .vk_framebuffer = framebuffers[it]
-            }
-        );
-         */
     }
 
     swap_chain->current_image = 0;
@@ -470,18 +439,6 @@ struct fn_texture fn__vulkan_swap_chain_current_texture(
         : (struct fn_texture) { 0 };
 }
 
-bool fn__create_vulkan_framebuffer(
-    struct fn__vulkan_framebuffer* framebuffer,
-    const struct fn_framebuffer_desc* desc
-) {
-    if(desc->vk_framebuffer) {
-        framebuffer->framebuffer = desc->vk_framebuffer;
-        return true;
-    }
-
-    return false;
-}
-
 bool fn__create_vulkan_texture(
     struct fn__vulkan_texture* texture,
     const struct fn_texture_desc* desc
@@ -542,5 +499,66 @@ void fn__destroy_vulkan_command_list(struct fn__vulkan_command_list* cmd) {
 
         cmd->command_pool = VK_NULL_HANDLE;
         cmd->command_buffer = VK_NULL_HANDLE;
+    }
+}
+
+void fn__encode_vulkan_command_list(struct fn__vulkan_command_list* cmd) {
+    vkEndCommandBuffer(cmd->command_buffer);
+}
+
+void fn__commit_vulkan_command_list(struct fn__vulkan_command_list* cmd) {
+    vkQueueSubmit(
+        fn__g_graphics_context.graphics_queue,
+        1,
+        &(VkSubmitInfo) {
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+            .commandBufferCount = 1,
+            .pCommandBuffers = &cmd->command_buffer
+        },
+        NULL
+    );
+}
+
+void fn__begin_vulkan_render_pass(
+    struct fn__vulkan_command_list* cmd,
+    const struct fn_render_pass* pass,
+    fn__texture_t* textures[8]
+) {
+    vkBeginCommandBuffer(
+        cmd->command_buffer,
+        &(VkCommandBufferBeginInfo) {
+            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+            .flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
+        }
+    );
+
+    for(uint8_t it = 0; it < FN_MAX_ACTIVE_COLOR_ATTACHEMENTS; ++it) {
+        const struct fn_color_attachment* ca = &pass->color_attachments[it];
+        if(textures[it] == NULL || !ca->clear)
+            continue;
+
+        VkImageSubresourceRange range = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .levelCount = 1,
+            .layerCount = 1
+        };
+
+        VkClearColorValue clear_color = {
+            .float32 = {
+                ca->clear_color.r,
+                ca->clear_color.g,
+                ca->clear_color.b,
+                ca->clear_color.a,
+            }
+        };
+
+        vkCmdClearColorImage(
+            cmd->command_buffer,
+            textures[it]->image,
+            VK_IMAGE_LAYOUT_GENERAL,
+            &clear_color,
+            1,
+            &range
+        );
     }
 }

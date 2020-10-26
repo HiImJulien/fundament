@@ -48,6 +48,7 @@ int main(int argc, char** argv) {
         fn_begin_render_pass(cmd, &(struct fn_render_pass) {
             .color_attachments[0] = {
                 .texture = current_drawable,
+                .clear = true,
                 .clear_color = {0.4f, 0.6f, 0.9f, 0.0f}
             }
         });
