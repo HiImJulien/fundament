@@ -31,15 +31,18 @@ struct fn__vulkan_swap_chain {
 
 typedef struct fn__vulkan_texture fn__texture_t;
 struct fn__vulkan_texture {
-    bool            owned_by_swapchain;
     VkImage         image;
     VkImageView     view;
+    uint32_t        width;
+    uint32_t        height;
 };
 
 typedef struct fn__vulkan_command_list fn__command_list_t;
 struct fn__vulkan_command_list {
     VkCommandPool   command_pool;
     VkCommandBuffer command_buffer;
+    VkFramebuffer   framebuffer;
+    VkRenderPass    pass;
 };
 
 typedef struct fn__vulkan_shader fn__shader_t;

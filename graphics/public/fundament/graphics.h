@@ -66,6 +66,8 @@ struct fn_texture fn_swap_chain_current_texture(struct fn_swap_chain swap_chain)
 void fn_swap_chain_present(struct fn_swap_chain swap_chain);
 
 struct fn_texture_desc {
+    uint32_t    width;
+    uint32_t    height;
 
     // Vulkan specific
     struct {
@@ -121,10 +123,19 @@ void fn_encode_command_list(struct fn_command_list cmd_list);
 //
 void fn_commit_command_list(struct fn_command_list cmd_list);
 
+enum fn_attachment_operation {
+    fn_attachment_operation_dont_core,
+    fn_attachment_operation_store,
+    fn_attachment_operation_load,
+    fn_attachment_operation_clear
+};
+
 struct fn_color_attachment {
     struct  fn_texture              texture;
     bool                            clear;
     union   fn_color                clear_color;
+    enum fn_attachment_operation    load_op;
+    enum fn_attachment_operation    store_op;
 };
 
 struct fn_render_pass{
