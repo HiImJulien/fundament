@@ -26,6 +26,7 @@ struct fn_swap_chain{ uint32_t id; };
 struct fn_texture{ uint32_t id; };
 struct fn_command_list{ uint32_t id; };
 struct fn_shader{ uint32_t id; };
+struct fn_pipeline{ uint32_t id; };
 
 //
 // Initializes the graphics module,
@@ -104,6 +105,18 @@ struct fn_shader_desc {
 struct fn_shader fn_create_shader(const struct fn_shader_desc* shader);
 
 //
+//
+//
+void fn_destroy_shader(struct fn_shader shader);
+
+struct fn_pipeline_desc {
+    struct fn_shader vertex_shader;
+    const char* vs_entry_point_name;
+    struct fn_shader pixel_shader;
+    const char* ps_entry_point_name;
+};
+
+//
 // Creates a new command list.
 //
 struct fn_command_list fn_create_command_list();
@@ -146,6 +159,8 @@ void fn_begin_render_pass(
     struct fn_command_list cmd_list,
     const struct fn_render_pass* pass
 );
+
+void fn_end_render_pass(struct fn_command_list cmd_list);
 
 
 #endif  // FUNDAMENT_GRAPHICS_H

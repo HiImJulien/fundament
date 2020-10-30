@@ -476,6 +476,44 @@ bool fn__create_vulkan_shader(
     return res == VK_SUCCESS;
 }
 
+void fn__destroy_vulkan_shader(fn__shader_t* shader) {
+    vkDestroyShaderModule(
+        fn__g_graphics_context.device,
+        shader->module,
+        NULL
+    );
+
+    shader->module = VK_NULL_HANDLE;
+}
+
+bool fn__create_vulkan_pipeline(fn__pipeline_t* pipeline, const struct fn_pipeline_desc* desc) {
+    VkPipelineShaderStageCreateInfo shaders[2];
+
+    shaders[0] = (VkPipelineShaderStageCreateInfo) {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = VK_SHADER_STAGE_VERTEX_BIT,
+        .module = VK_NULL_HANDLE, // TODO: Retrieve module!
+        .pName = desc->vs_entry_point_name
+    };
+
+    shaders[1] = (VkPipelineShaderStageCreateInfo) {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+        .stage = VK_SHADER_STAGE_VERTEX_BIT,
+        .module = VK_NULL_HANDLE, // TODO: Retrieve module!
+        .pName = desc->ps_entry_point_name
+    };
+
+    VkPipelineVertexInputStateCreateInfo input_layout = {
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+        .vertexBindingDescriptionCount = 0,
+        .pVertexBindingDescriptions = NULL,
+        .vertexAttributeDescriptionCount = 0,
+        .pVertexAttributeDescriptions = NULL
+    };
+
+    return false;
+}
+
 bool fn__create_vulkan_command_list(struct fn__vulkan_command_list* cmd) {
     VkCommandPoolCreateInfo pool_desc = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
@@ -611,41 +649,55 @@ void fn__begin_vulkan_render_pass(
     uint32_t width;
     uint32_t height;
 
-    uint32_t pack_index = 0;
-    VkImageView packed_views[8];
-    for(size_t it = 0; it < 8; ++it) {
+    uint32_t                    pack_index = 0;
+    VkImageView                 views[8];
+    VkAttachmentDescription     attachments[8];
+    VkAttachmentReference       references[8];
+    VkClearValue                clear_values[8];
 
+    for(size_t it = 0; it < 8; ++it) {
         if(textures[it] != NULL) {
-            packed_views[pack_index++] = textures[it]->view;
+            const uint32_t index = pack_index++;
+
+            views[index] = textures[it]->view;
             width = textures[it]->width;
             height = textures[it]->height;
+
+            attachments[index] = (VkAttachmentDescription) {
+                .format = VK_FORMAT_R8G8B8A8_SRGB,
+                .samples = VK_SAMPLE_COUNT_1_BIT,
+                .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+                .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+                .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+                .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+            };
+
+            references[index] = (VkAttachmentReference) {
+                .attachment = index,
+                .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+            };
+
+            clear_values[index] = (VkClearValue) {
+                pass->color_attachments[it].clear_color.r,
+                pass->color_attachments[it].clear_color.g,
+                pass->color_attachments[it].clear_color.b,
+                pass->color_attachments[it].clear_color.a,
+            };
         }
     }
 
-    VkAttachmentDescription color_attachment = {
-        .format = VK_FORMAT_R8G8B8A8_SRGB,
-        .samples = VK_SAMPLE_COUNT_1_BIT,
-        .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-    };
-
-    VkAttachmentReference color_attachment_ref = {
-        .attachment = 0,
-        .layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-    };
+    const uint32_t attachment_count = pack_index;
 
     VkSubpassDescription subpass = {
         .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
-        .colorAttachmentCount = 1,
-        .pColorAttachments = &color_attachment_ref
+        .colorAttachmentCount = attachment_count,
+        .pColorAttachments = references
     };
 
     VkRenderPassCreateInfo rp_desc = {
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-        .attachmentCount = 1,
-        .pAttachments = &color_attachment,
+        .attachmentCount = attachment_count,
+        .pAttachments = attachments,
         .subpassCount = 1,
         .pSubpasses = &subpass
     };
@@ -658,13 +710,13 @@ void fn__begin_vulkan_render_pass(
     );
 
     if(res != VK_SUCCESS)
-        printf("Failed to create pass.\n");
+        return;
 
     VkFramebufferCreateInfo fb_desc = {
         .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
         .renderPass = cmd->pass,
-        .attachmentCount = pack_index + 1,
-        .pAttachments = packed_views,
+        .attachmentCount = attachment_count,
+        .pAttachments = views,
         .width = width,
         .height = height,
         .layers = 1
@@ -677,8 +729,10 @@ void fn__begin_vulkan_render_pass(
         &cmd->framebuffer
     );
 
-    if(res != VK_SUCCESS)
-        printf("Failed to create frame buffer!\n");
+    if(res != VK_SUCCESS) {
+        // TODO: Destroy render pass!
+        return;
+    }
 
     vkBeginCommandBuffer(
         cmd->command_buffer,
@@ -688,21 +742,14 @@ void fn__begin_vulkan_render_pass(
         }
     );
 
-    VkClearValue clear_color = {
-        pass->color_attachments[0].clear_color.r,
-        pass->color_attachments[0].clear_color.g,
-        pass->color_attachments[0].clear_color.b,
-        pass->color_attachments[0].clear_color.a,
-    };
-
     VkRenderPassBeginInfo rp_info = {
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
         .renderPass = cmd->pass,
         .framebuffer = cmd->framebuffer,
         .renderArea.offset = {0, 0},
         .renderArea.extent = {width, height},
-        .clearValueCount = 1,
-        .pClearValues = &clear_color
+        .clearValueCount = attachment_count,
+        .pClearValues = clear_values
     };
 
     vkCmdBeginRenderPass(
@@ -710,6 +757,12 @@ void fn__begin_vulkan_render_pass(
         &rp_info,
         VK_SUBPASS_CONTENTS_INLINE
     );
+}
+
+void fn__end_vulkan_render_pass(
+    struct fn__vulkan_command_list* cmd
+) {
+    vkCmdEndRenderPass(cmd->command_buffer);
 }
 
 struct fn__graphics_backend fn__g_vulkan_backend = {

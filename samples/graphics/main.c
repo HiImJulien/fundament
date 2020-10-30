@@ -53,6 +53,8 @@ int main(int argc, char** argv) {
             }
         });
 
+        fn_end_render_pass(cmd);
+
         fn_encode_command_list(cmd);
         fn_commit_command_list(cmd);
         fn_swap_chain_present(sc);

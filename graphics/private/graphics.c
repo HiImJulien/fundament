@@ -164,6 +164,19 @@ struct fn_shader fn_create_shader(const struct fn_shader_desc* desc) {
     return (struct fn_shader) { handle };
 }
 
+void fn_destroy_shader(struct fn_shader shader) {
+    uint32_t index;
+    if(!fn_check_handle(
+        &fn__g_graphics_context.shader_pool,
+        shader.id,
+        &index
+        ))
+        return;
+
+    fn__shader_t* ptr = &fn__g_graphics_context.shaders[index];
+    fn__destroy_imp_shader(ptr);
+}
+
 struct fn_command_list fn_create_command_list() {
     uint32_t handle, index;
     if(!fn_alloc_handle(
@@ -213,6 +226,8 @@ void fn_begin_render_pass(
     fn__command_list_t* cmd = fn__get_command_list(cmd_list);
     fn__texture_t* textures[FN_MAX_ACTIVE_COLOR_ATTACHMENTS];
 
+    if(!cmd)
+        return;
 
     for(uint8_t it = 0; it < FN_MAX_ACTIVE_COLOR_ATTACHMENTS; ++it) {
         textures[it] = NULL;
@@ -221,4 +236,13 @@ void fn_begin_render_pass(
     }
 
     fn__begin_imp_render_pass(cmd, pass, textures);
+}
+
+void fn_end_render_pass(struct fn_command_list cmd_list) {
+    fn__command_list_t* cmd = fn__get_command_list(cmd_list);
+
+    if(!cmd)
+        return;
+
+    fn__end_imp_render_pass(cmd);
 }
