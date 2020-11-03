@@ -7,11 +7,18 @@ project(fundament
 
 option(BUILD_SAMPLES "Whether to build samples or not.")
 
-set(FN_TARGET_IS_MACOS $<STREQUAL:${CMAKE_SYSTEM_NAME},"Darwin">)
-set(FN_TARGET_IS_WIN32 $<STREQUAL:${CMAKE_SYSTEM_NAME},"Windows">)
-set(FN_TARGET_IS_LINUX $<STREQUAL:${CMAKE_SYSTEM_NAME},"Linux">)
+if(UNIX AND APPLE)
+    set(FN_TARGET_IS_MACOS YES)
+elseif(WIN32)
+    set(FN_TARGET_IS_WIN32 YES)
+elseif(UNIX)
+    set(FN_TARGET_IS_LINUX YES)
+else()
+    message(FATAL_ERROR Unknown target platform!)
+endif()
 
 find_package(Vulkan)
+find_package(PkgConfig)
 
 add_subdirectory(core)
 add_subdirectory(window)

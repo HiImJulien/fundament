@@ -33,22 +33,7 @@ add_library(
     fundament_window
 )
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-    target_sources(
-        fundament_window
-        PRIVATE
-            ${CMAKE_CURRENT_SOURCE_DIR}/private/win32/win32_window.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/private/win32/win32_window.h
-    )
-
-    target_link_libraries(
-        fundament_window
-        PUBLIC
-            user32
-    )
-endif()
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+if(FN_TARGET_IS_MACOS)
     target_sources(
         fundament_window
         PRIVATE
@@ -69,6 +54,39 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         PRIVATE
             c_std_11
     )
-    
+endif()
+
+if(${FN_TARGET_IS_WIN32})
+    target_sources(
+        fundament_window
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/win32/win32_window.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/win32/win32_window.h
+    )
+
+    target_link_libraries(
+        fundament_window
+        PUBLIC
+            user32
+    )
+endif()
+
+if(${FN_TARGET_IS_LINUX})
+    target_sources(
+        fundament_window
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/xcb/xcb_window.h
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/xcb/xcb_window.c 
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/xcb/xcb_window_map.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/private/xcb/xcb_window_map.h
+    )
+
+    pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
+
+    target_link_libraries(
+        fundament_window
+        PRIVATE
+            PkgConfig::xcb
+    )
 endif()
 

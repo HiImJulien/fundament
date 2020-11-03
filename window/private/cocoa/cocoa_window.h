@@ -45,5 +45,6 @@ void fn__cocoa_pump_events();
 #define fn__imp_window_set_title    fn__cocoa_window_set_title
 #define fn__imp_window_set_visible  fn__cocoa_window_set_visible
 #define fn__imp_pump_events         fn__cocoa_pump_events
+#define FN_NULL_WINDOW              NULL
 
 #endif  // FUNDAMENT_COCOA_WINDOW_H

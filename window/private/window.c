@@ -11,10 +11,12 @@
 //                                INTERNAL API
 //==============================================================================
 
-#if defined(_WIN32)
-    #include "win32/win32_window.h"
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
     #include "cocoa/cocoa_window.h"
+#elif defined(_WIN32)
+    #include "win32/win32_window.h"
+#elif defined(__linux__)
+    #include "xcb/xcb_window.h"
 #endif
 
 //
@@ -125,7 +127,7 @@ bool fn_window_focused(struct fn_window window) {
 
 fn_native_window_handle_t fn_window_handle(struct fn_window window) {
     struct fn__window* ptr = fn__get_window(window);
-    return ptr ? ptr->native : NULL;
+    return ptr ? ptr->native : FN_NULL_WINDOW;
 }
 
 void fn_window_set_width(

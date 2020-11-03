@@ -45,6 +45,7 @@ void fn__win32_pump_events();
 #define fn__imp_window_set_title    fn__win32_window_set_title
 #define fn__imp_window_set_visible  fn__win32_window_set_visible
 #define fn__imp_pump_events         fn__win32_pump_events
+#define FN_NULL_WINDOW              NULL
 
 #endif  // FUNDAMENT_WIN32_WINDOW_H
 
