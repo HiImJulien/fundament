@@ -41,29 +41,31 @@ static void fn__g_draw_rectangle(
             image_data[(y + iy) * window->width + x + ix] = color;
 }
 
-static uint32_t fn__g_rgba_to_rgb(uint32_t rgb, unsigned char a) {
-    uint8_t* _rgb = (uint8_t*) &rgb; 
-    float b = _rgb[0] / 255.f;
-    float g = _rgb[1] / 255.f;
-    float r = _rgb[2] / 255.f;
+static uint32_t fn__g_blend(uint32_t bg, uint32_t fg, uint8_t a) {
+    if(a == 0)
+        return bg;
+    else
+        return fg;
 
-    float _a = a / 255.f; 
-    // float _a1 = 1.f - a;
-    float _a1 = a;
+    float _a = a / 255.f;
 
-    b = _a1 * b + _a * b;
-    g = _a1 * g + _a * g;
-    r = _a1 * r + _a * r;
-    
-    _rgb[0] = roundf(b * 255.f);
-    _rgb[1] = roundf(g * 255.f);
-    _rgb[2] = roundf(r * 255.f);
+    uint8_t* _bg = &bg;
+    float br = (_bg[2] / 255.f) * (_a);
+    float fbg = (_bg[1] / 255.f) * (_a);
+    float bb = (_bg[0] / 255.f) * (_a);
 
-    rgb = 0;
-    _rgb[0] = a;
-    _rgb[3] = 0;
+    uint8_t* _fg = &fg;
+    float fr = (_fg[2] / 255.f) * (1.f - _a);
+    float ffg = (_fg[1] / 255.f) * (1.f - _a);
+    float fb = (_fg[0] / 255.f) * (1.f - _a);
 
-    return rgb;
+    uint32_t ret = 0;
+    uint8_t* _ret = &ret;
+    _ret[2] = fr + br;
+    _ret[1] = ffg + fbg;
+    _ret[0] = fb + bb;
+
+    return ret;
 }
 
 static void fn__g_draw_text(
@@ -162,18 +164,15 @@ static void fn__g_draw_text(
     // Time to blit that shit.
     for(int yt = 0; yt < text_height; ++yt) {
         for(int xt = 0; xt < text_width; ++xt) {
-            printf("X: %i Y: %i\n", xt, yt);
             unsigned char pixel = bitmap[yt * text_width + xt];
 
-            if(pixel != 0)
-                printf("%i\n", (int) pixel);
+            if(pixel == 0)
+                continue;
 
             uint32_t* out_pixel = &image_data[(y + yt) * window->width + x + xt];
-            *out_pixel = fn__g_rgba_to_rgb(fn__g_fg_color, pixel);
+            *out_pixel = fn__g_blend(fn__g_bg_color, fn__g_fg_color, pixel);
         }
     }
-
-    printf("W: %i H: %i\n", text_width, text_height);
 
     free(bitmap);
 }
