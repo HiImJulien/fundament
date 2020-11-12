@@ -37,14 +37,17 @@ void fn__xcb_window_set_visible(
 
 void fn__xcb_pump_events();
 
-#define fn__init_imp_window         fn__init_xcb_window
-#define fn__deinit_imp_window       fn__deinit_xcb_window
-#define fn__create_imp_window       fn__create_xcb_window
-#define fn__destroy_imp_window      fn__destroy_xcb_window
-#define fn__imp_window_set_size     fn__xcb_window_set_size
-#define fn__imp_window_set_title    fn__xcb_window_set_title
-#define fn__imp_window_set_visible  fn__xcb_window_set_visible
-#define fn__imp_pump_events         fn__xcb_pump_events
-#define FN_NULL_WINDOW              0
+#if !defined(FN_HAS_WAYLAND)
+    #define fn__init_imp_window         fn__init_xcb_window
+    #define fn__deinit_imp_window       fn__deinit_xcb_window
+    #define fn__create_imp_window       fn__create_xcb_window
+    #define fn__destroy_imp_window      fn__destroy_xcb_window
+    #define fn__imp_window_set_size     fn__xcb_window_set_size
+    #define fn__imp_window_set_title    fn__xcb_window_set_title
+    #define fn__imp_window_set_visible  fn__xcb_window_set_visible
+    #define fn__imp_pump_events         fn__xcb_pump_events
+#endif // FN_HAS_WAYLAND
+
+#define FN_NULL_WINDOW              (fn_native_window_handle_t)(uint32_t)0
 
 #endif //FUNDAMENT_XCB_WINDOW_H

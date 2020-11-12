@@ -34,6 +34,11 @@ struct fn__window {
     uint32_t                    height;
     bool                        focused;
     const char*                 title;
+
+    #if defined(FN_HAS_WAYLAND)
+    struct xdg_surface*         xdg_surface;
+    struct xdg_toplevel*        xdg_toplevel;
+    #endif // FN_HAS_WAYLAND
 };
 
 #define FN_WINDOW_CAPACITY              64

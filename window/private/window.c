@@ -17,6 +17,10 @@
     #include "win32/win32_window.h"
 #elif defined(__linux__)
     #include "xcb/xcb_window.h"
+
+    #if defined(FN_HAS_WAYLAND)
+        #include "backend/window_backend.h"
+    #endif
 #endif
 
 //

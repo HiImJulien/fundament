@@ -14,7 +14,7 @@ typedef struct fn__xcb_window_map {
 static fn__xcb_window_map fn__g_map = { NULL, };
 
 void fn__xcb_window_map_insert(struct fn__window* window) {
-    uint32_t hash = window->native % FN_WINDOW_CAPACITY;
+    uint32_t hash = window->native.xcb % FN_WINDOW_CAPACITY;
     for(size_t it = 0; it < FN_WINDOW_CAPACITY; ++it) {
         hash = (hash + it) % FN_WINDOW_CAPACITY;
 
@@ -27,7 +27,7 @@ void fn__xcb_window_map_insert(struct fn__window* window) {
 }
 
 void fn__xcb_window_map_remove(struct fn__window* window) {
-    uint32_t hash = window->native % FN_WINDOW_CAPACITY;
+    uint32_t hash = window->native.xcb % FN_WINDOW_CAPACITY;
     for(size_t it = 0; it < FN_WINDOW_CAPACITY; ++it) {
         hash = (hash + it) % FN_WINDOW_CAPACITY;
 
@@ -45,7 +45,7 @@ struct fn__window* fn__xcb_window_map_get(uint32_t id) {
     for(size_t it = 0; it < FN_WINDOW_CAPACITY; ++it) {
         hash = (hash + it) % FN_WINDOW_CAPACITY;
 
-        if(fn__g_map.window_pointers[hash]->native != id)
+        if(fn__g_map.window_pointers[hash]->native.xcb != id)
             continue;
 
         return fn__g_map.window_pointers[hash];

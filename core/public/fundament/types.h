@@ -18,7 +18,10 @@
 #elif defined(_WIN32)
     typedef struct HWND__* fn_native_window_handle_t;
 #elif defined(__linux__)
-    typedef uint32_t fn_native_window_handle_t;
+    typedef union fn_native_window_handle_t {
+        struct wl_surface* wl;
+        uint32_t           xcb;
+    } fn_native_window_handle_t;
 #else
     #error "Unknown target!"
 #endif

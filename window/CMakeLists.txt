@@ -82,11 +82,41 @@ if(${FN_TARGET_IS_LINUX})
     )
 
     pkg_check_modules(xcb REQUIRED IMPORTED_TARGET xcb)
+    pkg_check_modules(wayland-client IMPORTED_TARGET wayland-client)
 
     target_link_libraries(
         fundament_window
         PRIVATE
             PkgConfig::xcb
     )
+
+    if(TARGET PkgConfig::wayland-client)
+        target_sources(
+            fundament_window
+            PRIVATE
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_window.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_window.c
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_decorations.h 
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_decorations.c 
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg-shell.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg-shell.c
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/backend/window_backend.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/backend/window_backend.c
+        )
+    
+        target_link_libraries(
+            fundament_window
+            PRIVATE
+                PkgConfig::wayland-client
+                rt
+                m
+        )
+
+        target_compile_definitions(
+            fundament_window
+            PRIVATE
+                FN_HAS_WAYLAND
+        )
+    endif() 
 endif()
 

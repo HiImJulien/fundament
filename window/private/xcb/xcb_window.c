@@ -109,7 +109,7 @@ void fn__deinit_xcb_window() {
 }
 
 bool fn__create_xcb_window(struct fn__window* window) {
-    window->native = xcb_generate_id(fn__g_connection);
+    window->native.xcb = xcb_generate_id(fn__g_connection);
 
     const uint32_t mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
     uint32_t mask_values[] = {
@@ -122,7 +122,7 @@ bool fn__create_xcb_window(struct fn__window* window) {
     xcb_create_window(
         fn__g_connection,
         XCB_COPY_FROM_PARENT,
-        window->native,
+        window->native.xcb,
         fn__g_screen->root,
         0,
         0,
@@ -135,13 +135,13 @@ bool fn__create_xcb_window(struct fn__window* window) {
         mask_values
     );
 
-    xcb_map_window(fn__g_connection, window->native);
+    xcb_map_window(fn__g_connection, window->native.xcb);
     xcb_flush(fn__g_connection);
 
     xcb_change_property(
         fn__g_connection,
         XCB_PROP_MODE_REPLACE,
-        window->native,
+        window->native.xcb,
         fn__g_atom_protocols,
         4,
         32,
@@ -158,7 +158,7 @@ bool fn__create_xcb_window(struct fn__window* window) {
 void fn__destroy_xcb_window(struct fn__window* window) {
     xcb_destroy_window(
         fn__g_connection,
-        window->native
+        window->native.xcb
     );
 
     xcb_flush(fn__g_connection); 
@@ -174,7 +174,7 @@ void fn__xcb_window_set_size(
 
     xcb_configure_window(
         fn__g_connection,
-        window->native,
+        window->native.xcb,
         XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
         values
     );
@@ -189,7 +189,7 @@ void fn__xcb_window_set_title(
     xcb_change_property(
         fn__g_connection,
         XCB_PROP_MODE_REPLACE,
-        window->native,
+        window->native.xcb,
         XCB_ATOM_WM_NAME,
         XCB_ATOM_STRING,
         8,
@@ -200,7 +200,7 @@ void fn__xcb_window_set_title(
     xcb_change_property(
         fn__g_connection,
         XCB_PROP_MODE_REPLACE,
-        window->native,
+        window->native.xcb,
         XCB_ATOM_WM_ICON_NAME,
         XCB_ATOM_STRING,
         8,
@@ -213,8 +213,8 @@ void fn__xcb_window_set_visible(
     struct fn__window* window,
     bool visible
 ) {
-    if(visible) xcb_map_window(fn__g_connection, window->native);
-    else xcb_unmap_window(fn__g_connection, window->native);
+    if(visible) xcb_map_window(fn__g_connection, window->native.xcb);
+    else xcb_unmap_window(fn__g_connection, window->native.xcb);
 
     xcb_flush(fn__g_connection);
 }
