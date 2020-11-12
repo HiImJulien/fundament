@@ -27,6 +27,21 @@ typedef struct fn__pixel {
     uint8_t x;
 } fn__pixel;
 
+static void fn__g_draw_rectangle(
+    fn__window* window,
+    uint32_t*   image_data,
+    uint32_t    x,
+    uint32_t    y,
+    uint32_t    width,
+    uint32_t    height,
+    uint32_t    color
+) {
+    for(uint32_t iy = 0; iy < height; ++iy)
+        for(uint32_t ix = 0; ix < width; ++ix)
+            image_data[(y + iy) * window->width + x + ix] = color;
+        
+}
+
 void fn__init_wayland_decorations() {
     if(!fn__g_initialized_font_info) {
         FILE* font_file = fopen(font_path, "rb"); 
@@ -56,5 +71,34 @@ void fn__decorate_wayland_window(fn__window* window, uint32_t* image_data) {
     const size_t size = window->width * window->height * 4;
     memset(image_data, fn__g_bg_color, size);
 
+    fn__g_draw_rectangle(
+        window, 
+        image_data, 
+        window->width - 25 - 10, 
+        10, 
+        25, 
+        25, 
+        fn__g_fg_color
+    );
+
+    fn__g_draw_rectangle(
+        window, 
+        image_data, 
+        window->width - 50 - 20, 
+        10, 
+        25, 
+        25, 
+        fn__g_fg_color
+    );
+
+    fn__g_draw_rectangle(
+        window, 
+        image_data, 
+        window->width - 75 - 30, 
+        10, 
+        25, 
+        25, 
+        fn__g_fg_color
+    );
 }
 

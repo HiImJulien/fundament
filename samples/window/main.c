@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
         printf("Failed to create window.\n");
 
     fn_window_set_size(window, 800, 600);
-    fn_window_set_title(window, "Fu");
+    fn_window_set_title(window, "Fundament: Window Sample");
     fn_window_set_visible(window, true);
     printf("Created window.\n");
 

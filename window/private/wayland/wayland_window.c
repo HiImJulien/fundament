@@ -24,7 +24,13 @@ static struct wl_display*       fn__g_display       = NULL;
 static struct wl_registry*      fn__g_registry      = NULL;
 static struct wl_compositor*    fn__g_compositor    = NULL;
 static struct wl_shm*           fn__g_shm           = NULL;
+static struct wl_seat*          fn__g_seat          = NULL;
+static struct wl_keyboard*      fn__g_keyboard      = NULL;
+static struct wl_pointer*       fn__g_pointer       = NULL;
 static struct xdg_wm_base*      fn__g_xdg_base      = NULL;
+
+// Stores the window, in which the mouse currently is inside.
+static struct fn__window*       fn__g_mouse_window  = NULL;
 
 static const uint32_t           fn__g_border_color  = 0x2d3436;
 
@@ -48,6 +54,13 @@ static void fn__g_registry_handler(
             id,
             &wl_shm_interface,
             1
+        );
+    else if(strcmp(interface, wl_seat_interface.name) == 0)
+        fn__g_seat = wl_registry_bind(
+            registry,
+            id,
+            &wl_seat_interface,
+            5
         );
     else if(strcmp(interface, xdg_wm_base_interface.name) == 0)
         fn__g_xdg_base = wl_registry_bind(
@@ -99,6 +112,28 @@ static void fn__g_xdg_configure(
 
 static const struct xdg_surface_listener fn__g_xdg_surface_listener = {
     .configure = fn__g_xdg_configure
+};
+
+static void fn__g_xdg_toplevel_configure(
+    void* data,
+    struct xdg_toplevel* toplevel,
+    int32_t width,
+    int32_t height,
+    struct wl_array* states
+) {
+}
+
+static void fn__g_xdg_toplevel_close(
+    void* data,
+    struct xdg_toplevel* toplevel
+) {
+    fn__window* ptr = (fn__window*) data;
+    fn__notify_window_closed(ptr);
+}
+
+static const struct xdg_toplevel_listener fn__g_xdg_toplevel_listener = {
+    .configure  = fn__g_xdg_toplevel_configure,
+    .close      = fn__g_xdg_toplevel_close 
 };
 
 static void fn__g_buffer_release(void* data, struct wl_buffer* buffer) {
@@ -195,6 +230,124 @@ static struct wl_buffer* fn__g_draw_decorations(fn__window* window) {
     return buffer;
 }
 
+static void fn__g_pointer_enter(
+    void* data,
+    struct wl_pointer* wl_pointer,
+    uint32_t serial,
+    struct wl_surface* surface,
+    wl_fixed_t surface_x,
+    wl_fixed_t surface_y
+) {
+    fn__window* ptr = wl_surface_get_user_data(surface);
+    fn__g_mouse_window = ptr; 
+}
+
+static void fn__g_pointer_leave(
+    void* data,
+    struct wl_pointer* wl_pointer,
+    uint32_t serial,
+    struct wl_surface* surface
+) {
+    fn__g_mouse_window = NULL;
+}
+
+static void fn__g_pointer_move(
+    void* data,
+    struct wl_pointer* wl_pointer,
+    uint32_t time,
+    wl_fixed_t surface_x,
+    wl_fixed_t surface_y
+) {
+}
+
+static void fn__g_pointer_button(
+    void* data,
+    struct wl_pointer* wl_pointer,
+    uint32_t serial,
+    uint32_t time,
+    uint32_t button,
+    uint32_t state
+) {
+    if(fn__g_mouse_window) {
+        xdg_toplevel_move(fn__g_mouse_window->xdg_toplevel, fn__g_seat, serial);
+    }
+}
+
+static void fn__g_pointer_axis(
+    void* data,
+    struct wl_pointer* wl_pointer,
+    uint32_t time,
+    uint32_t axis,
+    wl_fixed_t value
+) {
+}
+
+static void fn__g_pointer_axis_source(
+    void* data,
+    struct wl_pointer* wl_pointer,
+    uint32_t axis_source
+) {
+}
+
+static void fn__g_pointer_axis_stop(
+    void* data,
+    struct wl_pointer* wl_pointer,
+    uint32_t time,
+    uint32_t axis
+) {
+}
+
+static void fn__g_pointer_axis_discrete(
+    void* data,
+    struct wl_pointer* wl_pointer,
+    uint32_t axis,
+    int32_t discrete
+) {
+}
+
+static void fn__g_pointer_frame(
+    void* data,
+    struct wl_pointer* wl_pointer
+) {
+    
+}
+
+static const struct wl_pointer_listener fn__g_pointer_listener = {
+    .enter = fn__g_pointer_enter,
+    .leave = fn__g_pointer_leave,
+    .motion = fn__g_pointer_move,
+    .button = fn__g_pointer_button,
+    .axis = fn__g_pointer_axis,
+    .frame = fn__g_pointer_frame,
+    .axis_source = fn__g_pointer_axis_source,
+    .axis_stop = fn__g_pointer_axis_stop,
+    .axis_discrete = fn__g_pointer_axis_discrete
+};
+
+static void fn__g_seat_capabilities(
+    void* data, 
+    struct wl_seat* seat, 
+    uint32_t caps
+) {
+    if(caps & WL_SEAT_CAPABILITY_POINTER) {
+        fn__g_pointer = wl_seat_get_pointer(fn__g_seat);
+        wl_pointer_add_listener(fn__g_pointer, &fn__g_pointer_listener, NULL);
+    } 
+}
+
+static void fn__g_seat_name(
+    void* data,
+    struct wl_seat* seat,
+    const char* name
+) {
+    printf("Seat name: %s\n", name);
+}
+
+static struct wl_seat_listener seat_listener = {
+    .capabilities = fn__g_seat_capabilities,
+    .name = fn__g_seat_name
+};
+
 //==============================================================================
 //             PUBLIC FUNCTIONS DECLARED IN "./wayland_window.h"
 //==============================================================================
@@ -207,6 +360,8 @@ bool fn__init_wayland_window() {
     fn__g_registry = wl_display_get_registry(fn__g_display);
     wl_registry_add_listener(fn__g_registry, &fn__g_registry_listener, NULL);
     wl_display_roundtrip(fn__g_display);
+
+    wl_seat_add_listener(fn__g_seat, &seat_listener, NULL);
 
     xdg_wm_base_add_listener(
         fn__g_xdg_base,
@@ -233,6 +388,8 @@ bool fn__create_wayland_window(fn__window* window) {
         fn__g_compositor
     );
 
+    wl_surface_set_user_data(window->native.wl, window);
+
     window->xdg_surface = xdg_wm_base_get_xdg_surface(
         fn__g_xdg_base,
         window->native.wl
@@ -245,6 +402,13 @@ bool fn__create_wayland_window(fn__window* window) {
     );
 
     window->xdg_toplevel = xdg_surface_get_toplevel(window->xdg_surface);
+
+    xdg_toplevel_add_listener(
+        window->xdg_toplevel,
+        &fn__g_xdg_toplevel_listener,
+        window
+    );
+
     wl_surface_commit(window->native.wl);
         
     return true;
