@@ -36,6 +36,10 @@ struct fn__window {
     const char*                 title;
 
     #if defined(FN_HAS_WAYLAND)
+    // If the display server does not support server side decorations,
+    // fundament will draw its own and hand the client a subsurface, while the
+    // parent surface is being stored here.
+    struct wl_surface*          surface;
     struct xdg_surface*         xdg_surface;
     struct xdg_toplevel*        xdg_toplevel;
     #endif // FN_HAS_WAYLAND

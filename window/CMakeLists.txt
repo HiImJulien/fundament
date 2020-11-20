@@ -96,10 +96,8 @@ if(${FN_TARGET_IS_LINUX})
             PRIVATE
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_window.h
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_window.c
-                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_decorations.h 
-                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_decorations.c 
-                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg-shell.h
-                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg-shell.c
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg_shell.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg_shell.c
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/backend/window_backend.h
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/backend/window_backend.c
         )
@@ -109,7 +107,6 @@ if(${FN_TARGET_IS_LINUX})
             PRIVATE
                 PkgConfig::wayland-client
                 rt
-                m
         )
 
         target_compile_definitions(
