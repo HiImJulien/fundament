@@ -15,6 +15,7 @@
 static struct wl_display*       fn__g_display       = NULL;
 static struct wl_compositor*    fn__g_compositor    = NULL;
 static struct wl_shm*           fn__g_shm           = NULL;
+static struct wl_seat*          fn__g_seat          = NULL;
 static struct xdg_wm_base*      fn__g_xdg_base      = NULL;
 
 static void fn__g_registry_handle(
@@ -36,6 +37,13 @@ static void fn__g_registry_handle(
             reg,
             id,
             &wl_shm_interface,
+            1
+        );
+    } else if(strcmp(interface, wl_seat_interface.name) == 0) { 
+        fn__g_seat = wl_registry_bind(
+            reg,
+            id,
+            &wl_seat_interface,
             1
         );
     } else if(strcmp(interface, xdg_wm_base_interface.name) == 0) {
@@ -274,6 +282,161 @@ static const struct xdg_toplevel_listener fn__g_xdg_csd_top_listener = {
     .close = fn__g_xdg_csd_top_close
 };
 
+static fn__window* fn__g_mouse_focus = NULL;
+static int32_t fn__g_mouse_x = 0;
+static int32_t fn__g_mouse_y = 0;
+
+static void fn__g_csd_pointer_enter(
+    void* data,
+    struct wl_pointer* pointer,
+    uint32_t serial,
+    struct wl_surface* surface,
+    wl_fixed_t surface_x,
+    wl_fixed_t surface_y
+) {
+    fn__window* ptr = wl_surface_get_user_data(surface);
+    fn__g_mouse_focus = ptr;
+}
+
+static void fn__g_csd_pointer_leave(
+    void* data,
+    struct wl_pointer* pointer,
+    uint32_t serial,
+    struct wl_surface* surface
+) {
+    fn__g_mouse_focus = NULL;
+}
+
+static void fn__g_csd_pointer_move(
+    void* data,
+    struct wl_pointer* pointer,
+    uint32_t time,
+    wl_fixed_t surface_x,
+    wl_fixed_t surface_y
+) {
+    fn__g_mouse_x = surface_x / 256;
+    fn__g_mouse_y = surface_y / 256;
+}
+
+static void fn__g_csd_pointer_button(
+    void* data,
+    struct wl_pointer* pointer,
+    uint32_t serial,
+    uint32_t time,
+    uint32_t button,
+    uint32_t state   
+) {
+    if(!fn__g_mouse_focus)
+        return;
+
+    // Check if the mouse is within the right region
+    if(fn__g_mouse_y < 20) {
+        const uint32_t margin_right = 10;
+        const uint32_t cb_size = 20;
+
+        uint32_t position_right = fn__g_mouse_focus->width - cb_size - margin_right;
+        uint32_t hotspot = fn__g_mouse_x - position_right;
+        if(hotspot >= 0 && hotspot <= cb_size) {
+            fn__notify_window_closed(fn__g_mouse_focus);
+            return;
+        }
+
+        position_right -= (cb_size + margin_right);
+        hotspot = fn__g_mouse_x - position_right;
+        if(hotspot >= 0 && hotspot <= cb_size) {
+            xdg_toplevel_set_maximized(fn__g_mouse_focus->xdg_toplevel);
+            return;
+        }
+        
+        position_right -= (cb_size + margin_right);
+        hotspot = fn__g_mouse_x - position_right;
+        if(hotspot >= 0 && hotspot <= cb_size) {
+            xdg_toplevel_set_minimized(fn__g_mouse_focus->xdg_toplevel);
+            return;
+        }
+
+        xdg_toplevel_move(fn__g_mouse_focus->xdg_toplevel, fn__g_seat, serial);
+    }
+}
+
+static void fn__g_csd_pointer_axis(
+    void* data,
+    struct wl_pointer* pointer,
+    uint32_t time,
+    uint32_t axis,
+    wl_fixed_t value
+) {
+}
+
+static void fn__g_csd_pointer_frame(
+    void* data,
+    struct wl_pointer* pointer
+) {
+    printf("Frame.\n");
+}
+
+static void fn__g_csd_pointer_axis_source(
+    void* data,
+    struct wl_pointer* pointer,
+    uint32_t axis_source
+) {
+}
+
+static void fn__g_csd_pointer_axis_stop(
+    void* data,
+    struct wl_pointer* pointer,
+    uint32_t time,
+    uint32_t axis
+) {
+}
+
+static void fn__g_csd_pointer_axis_discrete(
+    void* data,
+    struct wl_pointer* pointer,
+    uint32_t axis,
+    int32_t discrete
+) {
+}
+
+static const struct wl_pointer_listener fn__g_csd_pointer_listener = {
+    .enter = fn__g_csd_pointer_enter,
+    .leave = fn__g_csd_pointer_leave,
+    .motion = fn__g_csd_pointer_move,
+    .button = fn__g_csd_pointer_button,
+    .axis = fn__g_csd_pointer_axis,
+    .frame = fn__g_csd_pointer_frame,
+    .axis_source = fn__g_csd_pointer_axis_source,
+    .axis_stop = fn__g_csd_pointer_axis_stop,
+    .axis_discrete = fn__g_csd_pointer_axis_discrete
+};
+
+static void fn__g_seat_capabilities(
+    void* data,
+    struct wl_seat* seat,
+    uint32_t capabilities
+) {
+    if(capabilities & WL_SEAT_CAPABILITY_POINTER) {
+        struct wl_pointer* pointer = wl_seat_get_pointer(seat);
+        wl_pointer_add_listener(
+            pointer,
+            &fn__g_csd_pointer_listener,
+            NULL
+        );
+    }
+}
+
+static void fn__g_seat_name(
+    void* data, 
+    struct wl_seat* seat, 
+    const char* name
+) {
+}
+
+static const struct wl_seat_listener fn__g_csd_seat_listener = {
+    .capabilities = fn__g_seat_capabilities,
+    .name = fn__g_seat_name
+}; 
+
 //==============================================================================
 //             PUBLIC FUNCTIONS DECLARED IN "./wayland_window.h"
 //==============================================================================
@@ -287,10 +450,14 @@ bool fn__init_wayland_window() {
     wl_registry_add_listener(reg, &fn__g_registry_listener, NULL);
     wl_display_roundtrip(fn__g_display);
 
-    if(fn__g_compositor == NULL || fn__g_xdg_base == NULL) {
+    if(fn__g_compositor == NULL 
+        || fn__g_xdg_base == NULL 
+        || fn__g_seat == NULL) {
         fn__deinit_wayland_window();
         return false;
     }
+
+    wl_seat_add_listener(fn__g_seat, &fn__g_csd_seat_listener, NULL);
 
     xdg_wm_base_add_listener(
         fn__g_xdg_base,
