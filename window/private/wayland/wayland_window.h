@@ -13,6 +13,16 @@
 #include <stdint.h>
 
 typedef struct fn__window fn__window;
+typedef struct fn__wayland {
+    struct wl_display*                  display;
+    struct wl_compositor*               compositor;
+    struct wl_subcompositor*            subcompositor;
+    struct wl_shm*                      shm;
+    struct wl_seat*                     seat;
+    struct xdg_wm_base*                 xdg;
+    struct zxdg_decoration_manager_v1*  zxdg;
+    fn__window*                         hover_window;
+} fn__wayland;
 
 bool fn__init_wayland_window();
 void fn__deinit_wayland_window();

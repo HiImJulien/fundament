@@ -98,6 +98,8 @@ if(${FN_TARGET_IS_LINUX})
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/wayland_window.c
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg_shell.h
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg_shell.c
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg_decorations_v1.h
+                ${CMAKE_CURRENT_SOURCE_DIR}/private/wayland/xdg_decorations_v1.c
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/backend/window_backend.h
                 ${CMAKE_CURRENT_SOURCE_DIR}/private/backend/window_backend.c
         )

@@ -15,6 +15,10 @@
 
 #include <stdint.h>
 
+#if defined(FN_HAS_WAYLAND)
+    #include "wayland/wayland_window.h"
+#endif
+
 enum fn__window_state {
     fn__window_state_closed,
     fn__window_state_hidden,
@@ -26,7 +30,7 @@ enum fn__window_state {
 //
 // The internal representation of a window.
 //
-struct fn__window {
+typedef struct fn__window {
     enum fn__window_state       state;
     uint32_t                    handle;
     fn_native_window_handle_t   native;
@@ -34,16 +38,7 @@ struct fn__window {
     uint32_t                    height;
     bool                        focused;
     const char*                 title;
-
-    #if defined(FN_HAS_WAYLAND)
-    // If the display server does not support server side decorations,
-    // fundament will draw its own and hand the client a subsurface, while the
-    // parent surface is being stored here.
-    struct wl_surface*          surface;
-    struct xdg_surface*         xdg_surface;
-    struct xdg_toplevel*        xdg_toplevel;
-    #endif // FN_HAS_WAYLAND
-};
+} fn__window;
 
 #define FN_WINDOW_CAPACITY              64
 #define FN_INITIAL_EVENT_CAPACITY       256
@@ -65,6 +60,10 @@ struct fn__window_context {
     size_t                  events_tail;
 
     bool                    pressed_keys[fn_key_count];
+
+    #if defined(FN_HAS_WAYLAND)
+    fn__wayland             wl;
+    #endif // FN_HAS_WAYLAND
 };
 
 extern struct fn__window_context fn__g_window_context;

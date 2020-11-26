@@ -6,6 +6,7 @@
 //
 // This header declares types or type aliases for types, that used by multiple
 // modules.
+//
 //==============================================================================
 
 #include <stdint.h>
@@ -18,9 +19,17 @@
 #elif defined(_WIN32)
     typedef struct HWND__* fn_native_window_handle_t;
 #elif defined(__linux__)
+    typedef struct fn_wayland_window_handle {
+        struct wl_surface*      surface;
+        struct wl_surface*      meta; 
+        struct wl_subsurface*   subsurface;
+        struct xdg_surface*     xdg_surface;
+        struct xdg_toplevel*    xdg_toplevel;
+    } fn_wayland_window_handle;
+
     typedef union fn_native_window_handle_t {
-        struct wl_surface* wl;
-        uint32_t           xcb;
+        fn_wayland_window_handle    wl;
+        uint32_t                    xcb;
     } fn_native_window_handle_t;
 #else
     #error "Unknown target!"
