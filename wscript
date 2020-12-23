@@ -62,8 +62,6 @@ def options(ctx: OptionsContext):
     contexts.remove(UninstallContext)
 
     ctx.load("compiler_c")
-    ctx.add_option("--exclude-ogl", dest="exclude_ogl", default=False, action="store_true", help="Whether to exclude OpenGL context abstraction. (default: False)")
-    ctx.add_option("--exclude-math", dest="exclude_math", default=False, action="store_true", help="Whether to exclude math. (default: False)")
 
     ctx.add_option("--exclude-ogl", dest="exclude_ogl", default=False, action="store_true", 
         help="Whether to exclude OpenGL context abstraction. (default: False)")
@@ -119,13 +117,18 @@ def configure(ctx: ConfigurationContext):
     ctx.setenv("release", env=rel)
     ctx.setenv("debug", env=dbg)
 
+    ctx.setenv("debug")
+
 def build(ctx: BuildContext):    
     sources = [
         "platform/c/private/input.c",
         "platform/c/private/input_common.c",
         "platform/c/private/log.c",
         "platform/c/private/window.c",
-        "platform/c/private/window_common.c"
+        "platform/c/private/window_common.c",
+        "platform/c/private/handle_container.c",
+        "assets/c/private/mesh.c",
+		"assets/c/private/image.c"
     ]
 
     linux_sources = [
@@ -143,7 +146,7 @@ def build(ctx: BuildContext):
         "platform/c/private/win32/window_win32.c"
     ]
 
-    includes = ["platform/c/public", "math/c/public/fundament"]
+    includes = ["platform/c/public", "assets/c/public"]
 
     if "ogl" not in ctx.env.EXCLUDED_FEATURES and not ctx.target_is_macOS():
         includes.append("opengl/c/public")
@@ -184,3 +187,4 @@ def build(ctx: BuildContext):
     )
     
     ctx.recurse("playground")
+    

@@ -51,17 +51,8 @@ static fn_log_callback_t fn__g_log_callbacks[fn__max_callbacks] = {
 	NULL,
 };
 
-#if !defined(_WIN32)
-
-	//
-	// Default implementation; assume the colors are supported.
-	// 
-	void fn__printf(const char* msg) {
-		printf(msg);
-	}
-
-#else
-
+#if defined(_WIN32)
+	
 	#include <Windows.h>
 
 	struct fn_vt_sequence_mapping {
@@ -122,6 +113,23 @@ static fn_log_callback_t fn__g_log_callbacks[fn__max_callbacks] = {
 		}
 
 		SetConsoleTextAttribute(std_out, settings_stash.wAttributes);
+	}
+
+#elif defined(__linux__) || (__APPLE__)
+
+	#include <unistd.h>
+
+	void fn__printf(const char* msg) {
+		write(STDOUT_FILENO, msg, strlen(msg));	
+	} 
+
+#else
+
+	//
+	// Default implementation; assume the colors are supported.
+	// 
+	void fn__printf(const char* msg) {
+		printf(msg);
 	}
 
 #endif 
